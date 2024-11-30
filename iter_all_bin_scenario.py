@@ -4,13 +4,20 @@ import matplotlib.pyplot as plt
 from numpy.typing import NDArray
 
 from hisp.plamsa_data_handling import PlasmaDataHandling
-from hisp.festim_models import make_W_mb_model, make_B_mb_model, make_DFW_mb_model
+from hisp.festim_models import (
+    make_W_mb_model,
+    make_B_mb_model,
+    make_DFW_mb_model,
+    make_temperature_function,
+    make_particle_flux_function,
+)
 from make_iter_bins import FW_bins, Div_bins, total_fw_bins, total_nb_bins
-from ITER_scenario import my_scenario
 
-from ITER_scenario import my_scenario
 from hisp.helpers import periodic_step_function
 from hisp.scenario import Scenario, Pulse
+from hisp.bin import SubBin, DivBin
+
+from ITER_scenario import my_scenario
 
 # import dolfinx
 
