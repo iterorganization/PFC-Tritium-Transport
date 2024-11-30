@@ -24,18 +24,19 @@ from ITER_scenario import my_scenario
 NB_FP_PULSES_PER_DAY = 13
 COOLANT_TEMP = 343  # 70 degree C cooling water
 
+data_folder = "data"
+plasma_data_handling = PlasmaDataHandling(
+    pulse_type_to_data={
+        "FP": np.loadtxt(data_folder + "/Binned_Flux_Data.dat", skiprows=1),
+        "ICWC": np.loadtxt(data_folder + "/ICWC_data.dat", skiprows=1),
+        "GDC": np.loadtxt(data_folder + "/GDC_data.dat", skiprows=1),
+    },
+    path_to_ROSP_data=data_folder + "/ROSP_data",
+    path_to_RISP_data=data_folder + "/RISP_data",
+    path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
+)
+
 if __name__ == "__main__":
-    data_folder = "data"
-    plasma_data_handling = PlasmaDataHandling(
-        pulse_type_to_data={
-            "FP": np.loadtxt(data_folder + "/Binned_Flux_Data.dat", skiprows=1),
-            "ICWC": np.loadtxt(data_folder + "/ICWC_data.dat", skiprows=1),
-            "GDC": np.loadtxt(data_folder + "/GDC_data.dat", skiprows=1),
-        },
-        path_to_ROSP_data=data_folder + "/ROSP_data",
-        path_to_RISP_data=data_folder + "/RISP_data",
-        path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
-    )
 
     ############# CREATE EMPTY NP ARRAYS TO STORE ALL DATA #############
     global_data = {}
