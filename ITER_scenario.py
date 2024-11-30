@@ -2,13 +2,13 @@ from hisp.scenario import Scenario, Pulse
 
 # benchmark scenario
 fp = Pulse(
-        pulse_type="FP",
-        nb_pulses=10,
-        ramp_up=429,
-        steady_state=650,
-        ramp_down=455,
-        waiting=84866,
-        tritium_fraction=0.5,
+    pulse_type="FP",
+    nb_pulses=10,
+    ramp_up=429,
+    steady_state=650,
+    ramp_down=455,
+    waiting=84866,
+    tritium_fraction=0.5,
 )
 icwc = Pulse(
     pulse_type="ICWC",
