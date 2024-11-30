@@ -6,6 +6,7 @@ from numpy.typing import NDArray
 from hisp.plamsa_data_handling import PlasmaDataHandling
 from hisp.festim_models import make_W_mb_model, make_B_mb_model, make_DFW_mb_model
 from make_iter_bins import FW_bins, Div_bins, total_fw_bins, total_nb_bins
+from ITER_scenario import my_scenario
 
 from ITER_scenario import my_scenario
 from hisp.helpers import periodic_step_function
@@ -13,33 +14,10 @@ from hisp.scenario import Scenario, Pulse
 
 # import dolfinx
 
-# dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)
-
 NB_FP_PULSES_PER_DAY = 13
 COOLANT_TEMP = 343  # 70 degree C cooling water
 
-# tritium fraction = T/D
-PULSE_TYPE_TO_TRITIUM_FRACTION = {
-    "FP": 0.5,
-    "ICWC": 0,
-    "RISP": 0,
-    "GDC": 0,
-    "BAKE": 0,
-}
-
 if __name__ == "__main__":
-
-    # fp = Pulse(
-    #     pulse_type="FP",
-    #     nb_pulses=1,
-    #     ramp_up=10,
-    #     steady_state=10,
-    #     ramp_down=10,
-    #     waiting=100,
-    # )
-
-    # my_scenario = Scenario(pulses=[fp])
-
     data_folder = "data"
     plasma_data_handling = PlasmaDataHandling(
         pulse_type_to_data={
@@ -55,177 +33,6 @@ if __name__ == "__main__":
     ############# CREATE EMPTY NP ARRAYS TO STORE ALL DATA #############
     global_data = {}
 
-    def T_function_W(x: NDArray, t: float) -> float:
-        """W Monoblock temperature function.
-
-        Args:
-            x: position along monoblock
-            t: time in seconds
-
-        Returns:
-            pulsed W monoblock temperature in K
-        """
-        assert isinstance(t, float), f"t should be a float, not {type(t)}"
-        pulse = my_scenario.get_pulse(t)
-        t_rel = t - my_scenario.get_time_start_current_pulse(t)
-
-        if pulse.pulse_type == "BAKE":
-            T_bake = 483.15  # K
-            flat_top_value = np.full_like(x[0], T_bake)
-        else:
-            heat_flux = plasma_data_handling.get_heat(pulse.pulse_type, sub_bin, t_rel)
-            T_surface = 1.1e-4 * heat_flux + COOLANT_TEMP
-            T_rear = 2.2e-5 * heat_flux + COOLANT_TEMP
-            a = (T_rear - T_surface) / sub_bin.thickness
-            b = T_surface
-            flat_top_value = a * x[0] + b
-
-        total_time_on = pulse.duration_no_waiting
-        total_time_pulse = pulse.total_duration
-        return periodic_step_function(
-            t_rel,
-            period_on=total_time_on,
-            period_total=total_time_pulse,
-            value=flat_top_value,
-            value_off=np.full_like(x[0], COOLANT_TEMP),
-        )
-
-    def T_function_B(x: NDArray, t: float) -> float:
-        """W Monoblock temperature function.
-
-        Args:
-            x: position along monoblock
-            t: time in seconds
-
-        Returns:
-            pulsed W monoblock temperature in K
-        """
-        assert isinstance(t, float), f"t should be a float, not {type(t)}"
-        pulse = my_scenario.get_pulse(t)
-        t_rel = t - my_scenario.get_time_start_current_pulse(t)
-
-        if pulse.pulse_type == "BAKE":
-            T_bake = 483.15  # K
-            flat_top_value = np.full_like(x[0], T_bake)
-        else:
-            heat_flux = plasma_data_handling.get_heat(pulse.pulse_type, sub_bin, t_rel)
-            T_surface = (
-                5e-4 * heat_flux + COOLANT_TEMP
-            )  # T_surf and T_rear are the same b/c B layers are so thin
-            T_rear = 5e-4 * heat_flux + COOLANT_TEMP
-            a = (T_rear - T_surface) / sub_bin.thickness
-            b = T_surface
-            flat_top_value = a * x[0] + b
-
-        total_time_on = pulse.duration_no_waiting
-        total_time_pulse = pulse.total_duration
-        return periodic_step_function(
-            t_rel,
-            period_on=total_time_on,
-            period_total=total_time_pulse,
-            value=flat_top_value,
-            value_off=np.full_like(x[0], COOLANT_TEMP),
-        )
-
-    def deuterium_ion_flux(t: float) -> float:
-        assert isinstance(t, float), f"t should be a float, not {type(t)}"
-        pulse = my_scenario.get_pulse(t)
-        pulse_type = pulse.pulse_type
-
-        total_time_on = pulse.duration_no_waiting
-        total_time_pulse = pulse.total_duration
-        time_start_current_pulse = my_scenario.get_time_start_current_pulse(t)
-        relative_time = t - time_start_current_pulse
-
-        ion_flux = plasma_data_handling.get_particle_flux(
-            pulse_type=pulse_type, nb_bin=sub_bin, t_rel=relative_time, ion=True
-        )
-        tritium_fraction = PULSE_TYPE_TO_TRITIUM_FRACTION[pulse_type]
-        flat_top_value = ion_flux * (1 - tritium_fraction)
-        resting_value = 0
-        return periodic_step_function(
-            relative_time,
-            period_on=total_time_on,
-            period_total=total_time_pulse,
-            value=flat_top_value,
-            value_off=resting_value,
-        )
-
-    def tritium_ion_flux(t: float) -> float:
-        assert isinstance(t, float), f"t should be a float, not {type(t)}"
-        pulse = my_scenario.get_pulse(t)
-        pulse_type = pulse.pulse_type
-
-        total_time_on = pulse.duration_no_waiting
-        total_time_pulse = pulse.total_duration
-        time_start_current_pulse = my_scenario.get_time_start_current_pulse(t)
-        relative_time = t - time_start_current_pulse
-
-        ion_flux = plasma_data_handling.get_particle_flux(
-            pulse_type=pulse_type, nb_bin=sub_bin, t_rel=relative_time, ion=True
-        )
-
-        tritium_fraction = PULSE_TYPE_TO_TRITIUM_FRACTION[pulse_type]
-        flat_top_value = ion_flux * tritium_fraction
-        resting_value = 0.0
-
-        return periodic_step_function(
-            relative_time,
-            period_on=total_time_on,
-            period_total=total_time_pulse,
-            value=flat_top_value,
-            value_off=resting_value,
-        )
-
-    def deuterium_atom_flux(t: float) -> float:
-        assert isinstance(t, float), f"t should be a float, not {type(t)}"
-        pulse = my_scenario.get_pulse(t)
-        pulse_type = pulse.pulse_type
-
-        total_time_on = pulse.duration_no_waiting
-        total_time_pulse = pulse.total_duration
-        time_start_current_pulse = my_scenario.get_time_start_current_pulse(t)
-        relative_time = t - time_start_current_pulse
-
-        atom_flux = plasma_data_handling.get_particle_flux(
-            pulse_type=pulse_type, nb_bin=sub_bin, t_rel=relative_time, ion=False
-        )
-
-        tritium_fraction = PULSE_TYPE_TO_TRITIUM_FRACTION[pulse_type]
-        flat_top_value = atom_flux * (1 - tritium_fraction)
-        resting_value = 0.0
-        return periodic_step_function(
-            relative_time,
-            period_on=total_time_on,
-            period_total=total_time_pulse,
-            value=flat_top_value,
-            value_off=resting_value,
-        )
-
-    def tritium_atom_flux(t: float) -> float:
-        assert isinstance(t, float), f"t should be a float, not {type(t)}"
-        pulse = my_scenario.get_pulse(t)
-        pulse_type = pulse.pulse_type
-
-        total_time_on = pulse.duration_no_waiting
-        total_time_pulse = pulse.total_duration
-        time_start_current_pulse = my_scenario.get_time_start_current_pulse(t)
-        relative_time = t - time_start_current_pulse
-
-        atom_flux = plasma_data_handling.get_particle_flux(
-            pulse_type=pulse_type, nb_bin=sub_bin, t_rel=relative_time, ion=False
-        )
-        tritium_fraction = PULSE_TYPE_TO_TRITIUM_FRACTION[pulse_type]
-        flat_top_value = atom_flux * tritium_fraction
-        resting_value = 0.0
-        return periodic_step_function(
-            relative_time,
-            period_on=total_time_on,
-            period_total=total_time_pulse,
-            value=flat_top_value,
-            value_off=resting_value,
-        )
-
     def max_stepsize(t: float) -> float:
         pulse = my_scenario.get_pulse(t)
         relative_time = t - my_scenario.get_time_start_current_pulse(t)
@@ -237,48 +44,85 @@ if __name__ == "__main__":
             value_off=None,
         )
 
+    def which_model(subbin: SubBin | DivBin):
+        """Returns the correct model for the subbin.
+
+        Args:
+            subbin: The bin/subbin to get the model for
+
+        Returns:
+            festim.HTransportModel, dict: The model and the quantities to plot
+        """
+        temperature_fuction = make_temperature_function(
+            scenario=my_scenario,
+            plasma_data_handling=plasma_data_handling,
+            bin=subbin,
+            coolant_temp=COOLANT_TEMP,
+        )
+        d_ion_incident_flux = make_particle_flux_function(
+            scenario=my_scenario,
+            plasma_data_handling=plasma_data_handling,
+            bin=subbin,
+            ion=True,
+            tritium=False,
+        )
+        tritium_ion_flux = make_particle_flux_function(
+            scenario=my_scenario,
+            plasma_data_handling=plasma_data_handling,
+            bin=subbin,
+            ion=True,
+            tritium=True,
+        )
+        deuterium_atom_flux = make_particle_flux_function(
+            scenario=my_scenario,
+            plasma_data_handling=plasma_data_handling,
+            bin=subbin,
+            ion=False,
+            tritium=False,
+        )
+        tritium_atom_flux = make_particle_flux_function(
+            scenario=my_scenario,
+            plasma_data_handling=plasma_data_handling,
+            bin=subbin,
+            ion=False,
+            tritium=True,
+        )
+        common_args = {
+            "deuterium_ion_flux": d_ion_incident_flux,
+            "tritium_ion_flux": tritium_ion_flux,
+            "deuterium_atom_flux": deuterium_atom_flux,
+            "tritium_atom_flux": tritium_atom_flux,
+            "final_time": my_scenario.get_maximum_time() - 1,
+            "temperature": temperature_fuction,
+            "L": subbin.thickness,
+        }
+
+        if isinstance(subbin, DivBin):
+            parent_bin_index = subbin.index
+        elif isinstance(subbin, SubBin):
+            parent_bin_index = subbin.parent_bin_index
+
+        if subbin.material == "W":
+            return make_W_mb_model(
+                **common_args,
+                folder=f"mb{parent_bin_index+1}_{sub_bin.mode}_results",
+            )
+        elif subbin.material == "B":
+            return make_B_mb_model(
+                **common_args,
+                folder=f"mb{parent_bin_index+1}_{sub_bin.mode}_results",
+            )
+        elif subbin.material == "SS":
+            return make_DFW_mb_model(
+                **common_args,
+                folder=f"mb{parent_bin_index+1}_dfw_results",
+            )
+
     ############# RUN FW BIN SIMUS #############
     # TODO: adjust to run monoblocks in parallel
-    for nb_bin in range(total_fw_bins):
-        fw_bin = FW_bins.get_bin(nb_bin)
+    for fw_bin in FW_bins.bins[:3]:  # only running 3 fw_bins to demonstrate capability
         for sub_bin in fw_bin.sub_bins:
-            if sub_bin.material == "W":
-                my_model, quantities = make_W_mb_model(
-                    temperature=T_function_W,
-                    deuterium_ion_flux=deuterium_ion_flux,
-                    tritium_ion_flux=tritium_ion_flux,
-                    deuterium_atom_flux=deuterium_atom_flux,
-                    tritium_atom_flux=tritium_atom_flux,
-                    # FIXME: -1s here to avoid last time step spike
-                    final_time=my_scenario.get_maximum_time() - 1,
-                    L=sub_bin.thickness,
-                    folder=f"mb{nb_bin+1}_{sub_bin.mode}_results",
-                )
-            elif sub_bin.material == "B":
-                my_model, quantities = make_B_mb_model(
-                    temperature=T_function_B,
-                    deuterium_ion_flux=deuterium_ion_flux,
-                    tritium_ion_flux=tritium_ion_flux,
-                    deuterium_atom_flux=deuterium_atom_flux,
-                    tritium_atom_flux=tritium_atom_flux,
-                    # FIXME: -1s here to avoid last time step spike
-                    final_time=my_scenario.get_maximum_time() - 1,
-                    L=sub_bin.thickness,
-                    folder=f"mb{nb_bin+1}_{sub_bin.mode}_results",
-                )
-
-            elif sub_bin.material == "SS":
-                my_model, quantities = make_DFW_mb_model(
-                    temperature=T_function_W,  # TODO: update for DFW function
-                    deuterium_ion_flux=deuterium_ion_flux,
-                    tritium_ion_flux=tritium_ion_flux,
-                    deuterium_atom_flux=deuterium_atom_flux,
-                    tritium_atom_flux=tritium_atom_flux,
-                    # FIXME: -1s here to avoid last time step spike
-                    final_time=my_scenario.get_maximum_time() - 1,
-                    L=sub_bin.thickness,
-                    folder=f"mb{nb_bin+1}_dfw_results",
-                )
+            my_model, quantities = which_model(sub_bin)
 
             # add milestones for stepsize and adaptivity
             milestones = [pulse.total_duration for pulse in my_scenario.pulses]
@@ -298,33 +142,11 @@ if __name__ == "__main__":
             global_data.update(quantities)
 
     ############# RUN DIV BIN SIMUS #############
-    for nb_bin in range(total_fw_bins, total_nb_bins + 1):
-        sub_bin = Div_bins.get_bin(nb_bin)
-
-        if sub_bin.material == "W":
-            my_model, quantities = make_W_mb_model(
-                temperature=T_function_W,
-                deuterium_ion_flux=deuterium_ion_flux,
-                tritium_ion_flux=tritium_ion_flux,
-                deuterium_atom_flux=deuterium_atom_flux,
-                tritium_atom_flux=tritium_atom_flux,
-                # FIXME: -1s here to avoid last time step spike
-                final_time=my_scenario.get_maximum_time() - 1,
-                L=sub_bin.thickness,
-                folder=f"mb{nb_bin+1}_results",
-            )
-        elif sub_bin.material == "B":
-            my_model, quantities = make_B_mb_model(
-                temperature=T_function_B,
-                deuterium_ion_flux=deuterium_ion_flux,
-                tritium_ion_flux=tritium_ion_flux,
-                deuterium_atom_flux=deuterium_atom_flux,
-                tritium_atom_flux=tritium_atom_flux,
-                # FIXME: -1s here to avoid last time step spike
-                final_time=my_scenario.get_maximum_time() - 1,
-                L=sub_bin.thickness,
-                folder=f"mb{nb_bin+1}_results",
-            )
+    # for div_bin in Div_bins.bins:
+    for div_bin in Div_bins.bins[
+        :4
+    ]:  # only running 4 div bins to demonstrate capability
+        my_model, quantities = which_model(div_bin)
 
         # add milestones for stepsize and adaptivity
         milestones = [pulse.total_duration for pulse in my_scenario.pulses]

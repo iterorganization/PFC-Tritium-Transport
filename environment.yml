@@ -1,0 +1,14 @@
+name: iter-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - fenics-dolfinx=0.9.0
+  - matplotlib
+  - scipy
+  - pandas
+  - pint # need to install pint with conda to avoid conflicts (HTM)
+  - pip
+  # - pip:
+  #   - git+https://github.com/festim-dev/FESTIM@effcbac86ba0620da1388dcee4e8424ce33939db
+  #   - git+https://github.com/kaelyndunnell/hisp@613c44dcb51d431bbdfae71b796e8d89e2bdb873
