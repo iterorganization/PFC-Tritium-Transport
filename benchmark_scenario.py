@@ -172,8 +172,17 @@ if __name__ == "__main__":
         my_model, quantities = which_model(div_bin)
 
         # add milestones for stepsize and adaptivity
-        milestones = [pulse.total_duration for pulse in benchmark_scenario.pulses]
-        milestones += [pulse.duration_no_waiting for pulse in benchmark_scenario.pulses]
+        # for each Pulse (and for each pulse in the pulse), add the total duration and the duration without waiting
+        milestones = [
+            pulse.total_duration * (i + 1)
+            for pulse in benchmark_scenario.pulses
+            for i in range(pulse.nb_pulses)
+        ]
+        milestones += [
+            pulse.duration_no_waiting * (i + 1)
+            for pulse in benchmark_scenario.pulses
+            for i in range(pulse.nb_pulses)
+        ]
         milestones.append(my_model.settings.final_time)
         milestones = sorted(np.unique(milestones))
         my_model.settings.stepsize.milestones = milestones
