@@ -204,7 +204,7 @@ if __name__ == "__main__":
         
     # write the processed data to JSON
 
-    with open("processed_data.json", "w+") as f:
+    with open("benchmark_results.json", "w+") as f:
         json.dump(processed_data, f, indent=4)
 
     # ############# Results Plotting #############
