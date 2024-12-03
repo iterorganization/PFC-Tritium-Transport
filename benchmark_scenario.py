@@ -37,6 +37,21 @@ plasma_data_handling = PlasmaDataHandling(
     path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
 )
 
+
+def plot_inventories(results_dict):
+    plt.figure(figsize=(10, 6))
+    for name, quantity in results_dict.items():
+        plt.plot(quantity.t, quantity.data, label=name, marker="o")
+
+    plt.xlabel("Time (s)", fontsize=14)
+    plt.ylabel("Total quantity (atoms/m2)", fontsize=14)
+    plt.legend()
+    plt.yscale("log")
+    # remove top and right spines
+    plt.gca().spines["top"].set_visible(False)
+    plt.gca().spines["right"].set_visible(False)
+
+
 if __name__ == "__main__":
 
     ############# CREATE EMPTY NP ARRAYS TO STORE ALL DATA #############
@@ -131,42 +146,49 @@ if __name__ == "__main__":
 
     ############# RUN FW BIN SIMUS #############
     # TODO: adjust to run monoblocks in parallel
-    # for fw_bin in FW_bins.bins:
+    for fw_bin in FW_bins.bins[5:6]:
+        print(fw_bin.index)
+        global_data[fw_bin] = {}
+        fw_bin_data = {"bin_index": fw_bin.index, "sub_bins": []}
 
-    #     global_data[fw_bin] = {}
-    #     fw_bin_data = {"bin_index": fw_bin.index, "sub_bins": []}
+        for sub_bin in fw_bin.sub_bins[2:3]:
+            print(sub_bin.mode)
+            my_model, quantities = which_model(sub_bin)
 
-    #     for sub_bin in fw_bin.sub_bins:
-    #         my_model, quantities = which_model(sub_bin)
+            # add milestones for stepsize and adaptivity
+            milestones = [
+                pulse.total_duration * (i + 1)
+                for pulse in benchmark_scenario.pulses
+                for i in range(pulse.nb_pulses)
+            ]
+            milestones += [
+                pulse.duration_no_waiting * (i + 1)
+                for pulse in benchmark_scenario.pulses
+                for i in range(pulse.nb_pulses)
+            ]
+            milestones.append(my_model.settings.final_time)
+            milestones = sorted(np.unique(milestones))
+            my_model.settings.stepsize.milestones = milestones
+            my_model.settings.stepsize.growth_factor = 1.2
+            my_model.settings.stepsize.cutback_factor = 0.9
+            my_model.settings.stepsize.target_nb_iterations = 4
 
-    #         # add milestones for stepsize and adaptivity
-    #         milestones = [pulse.total_duration for pulse in benchmark_scenario.pulses]
-    #         milestones += [
-    #             pulse.duration_no_waiting for pulse in benchmark_scenario.pulses
-    #         ]
-    #         milestones.append(my_model.settings.final_time)
-    #         milestones = sorted(np.unique(milestones))
-    #         my_model.settings.stepsize.milestones = milestones
-    #         my_model.settings.stepsize.growth_factor = 1.2
-    #         my_model.settings.stepsize.cutback_factor = 0.9
-    #         my_model.settings.stepsize.target_nb_iterations = 4
+            my_model.settings.stepsize.max_stepsize = max_stepsize
 
-    #         my_model.settings.stepsize.max_stepsize = max_stepsize
+            my_model.initialise()
+            my_model.run()
+            my_model.progress_bar.close()
 
-    #         my_model.initialise()
-    #         my_model.run()
-    #         my_model.progress_bar.close()
+            global_data[fw_bin][sub_bin] = quantities
+            subbin_data = {
+                "mode": sub_bin.mode,
+                "parent_bin_index": sub_bin.parent_bin_index,
+            }
+            for key, value in quantities.items():
+                subbin_data[key] = {"t": value.t, "data": value.data}
+            fw_bin_data["sub_bins"].append(subbin_data)
 
-    #         global_data[fw_bin][sub_bin] = quantities
-    #         subbin_data = {
-    #             "mode": sub_bin.mode,
-    #             "parent_bin_index": sub_bin.parent_bin_index,
-    #         }
-    #         for key, value in quantities.items():
-    #             subbin_data[key] = {"t": value.t, "data": value.data}
-    #         fw_bin_data["sub_bins"].append(subbin_data)
-
-    #     processed_data.append(fw_bin_data)
+        processed_data.append(fw_bin_data)
 
     ############# RUN DIV BIN SIMUS #############
     # for div_bin in Div_bins.bins:
@@ -214,23 +236,17 @@ if __name__ == "__main__":
     # ############# Results Plotting #############
     # # TODO: add a graph that computes grams
 
-    plt.figure(figsize=(10, 6))
-    for name, quantity in global_data[div_bin].items():
-        plt.plot(quantity.t, quantity.data, label=name, marker="o")
+    plot_inventories(global_data[fw_bin][sub_bin])
+    plt.show()
 
-    plt.xlabel("Time (s)", fontsize=14)
-    plt.ylabel("Total quantity (atoms/m2)", fontsize=14)
-    plt.legend()
-    plt.yscale("log")
-    # remove top and right spines
-    plt.gca().spines["top"].set_visible(False)
-    plt.gca().spines["right"].set_visible(False)
+    plot_inventories(global_data[div_bin])
     plt.show()
 
     fig, ax = plt.subplots()
 
+    t = list(global_data[div_bin].values())[0].t
     ax.stackplot(
-        quantity.t,
+        t,
         [quantity.data for quantity in global_data[div_bin].values()],
         labels=global_data[div_bin].keys(),
     )
