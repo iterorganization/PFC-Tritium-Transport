@@ -20,6 +20,8 @@ from hisp.bin import SubBin, DivBin
 
 from ITER_scenario import benchmark_scenario
 
+my_scenario = benchmark_scenario
+
 # import dolfinx
 
 COOLANT_TEMP = 343  # 70 degree C cooling water
@@ -58,8 +60,8 @@ if __name__ == "__main__":
     processed_data = []
 
     def max_stepsize(t: float) -> float:
-        pulse = benchmark_scenario.get_pulse(t)
-        relative_time = t - benchmark_scenario.get_time_start_current_pulse(t)
+        pulse = my_scenario.get_pulse(t)
+        relative_time = t - my_scenario.get_time_start_current_pulse(t)
         return periodic_step_function(
             relative_time,
             period_on=pulse.duration_no_waiting,
@@ -78,34 +80,34 @@ if __name__ == "__main__":
             festim.HTransportModel, dict: The model and the quantities to plot
         """
         temperature_fuction = make_temperature_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             coolant_temp=COOLANT_TEMP,
         )
         d_ion_incident_flux = make_particle_flux_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             ion=True,
             tritium=False,
         )
         tritium_ion_flux = make_particle_flux_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             ion=True,
             tritium=True,
         )
         deuterium_atom_flux = make_particle_flux_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             ion=False,
             tritium=False,
         )
         tritium_atom_flux = make_particle_flux_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             ion=False,
@@ -116,7 +118,7 @@ if __name__ == "__main__":
             "tritium_ion_flux": tritium_ion_flux,
             "deuterium_atom_flux": deuterium_atom_flux,
             "tritium_atom_flux": tritium_atom_flux,
-            "final_time": benchmark_scenario.get_maximum_time() - 1,
+            "final_time": my_scenario.get_maximum_time() - 1,
             "temperature": temperature_fuction,
             "L": subbin.thickness,
             "exports": True,
@@ -157,10 +159,8 @@ if __name__ == "__main__":
             # add milestones for stepsize and adaptivity
             milestones = []
             current_time = 0
-            for pulse in benchmark_scenario.pulses:
-                start_of_pulse = benchmark_scenario.get_time_start_current_pulse(
-                    current_time
-                )
+            for pulse in my_scenario.pulses:
+                start_of_pulse = my_scenario.get_time_start_current_pulse(current_time)
                 for i in range(pulse.nb_pulses):
                     milestones.append(start_of_pulse + pulse.total_duration * (i + 1))
                     milestones.append(
@@ -205,10 +205,8 @@ if __name__ == "__main__":
         # for each Pulse (and for each pulse in the pulse), add the total duration and the duration without waiting
         milestones = []
         current_time = 0
-        for pulse in benchmark_scenario.pulses:
-            start_of_pulse = benchmark_scenario.get_time_start_current_pulse(
-                current_time
-            )
+        for pulse in my_scenario.pulses:
+            start_of_pulse = my_scenario.get_time_start_current_pulse(current_time)
             for i in range(pulse.nb_pulses):
                 milestones.append(start_of_pulse + pulse.total_duration * (i + 1))
                 milestones.append(
@@ -238,7 +236,7 @@ if __name__ == "__main__":
 
     # write the processed data to JSON
 
-    with open("processed_data.json", "w+") as f:
+    with open("benchmark_results.json", "w+") as f:
         json.dump(processed_data, f, indent=4)
 
     # ############# Results Plotting #############
@@ -249,9 +247,9 @@ if __name__ == "__main__":
     plot_inventories(global_data[div_bin])
 
     # start_time = 0
-    # for pulse in benchmark_scenario.pulses:
+    # for pulse in my_scenario.pulses:
     #     print(pulse.pulse_type)
-    #     start_time = benchmark_scenario.get_time_start_current_pulse(start_time)
+    #     start_time = my_scenario.get_time_start_current_pulse(start_time)
     #     print(start_time)
     #     start_time += pulse.total_duration * pulse.nb_pulses
     #     plt.axvline(x=start_time, color="black", linestyle="--")
