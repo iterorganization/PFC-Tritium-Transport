@@ -19,6 +19,15 @@ icwc = Pulse(
     waiting=6000,
     tritium_fraction=0.0,
 )
+icwc_bis = Pulse(
+    pulse_type="ICWC",
+    nb_pulses=1,
+    ramp_up=50,
+    steady_state=1200,
+    ramp_down=50,
+    waiting=6000,
+    tritium_fraction=0.0,
+)
 risp5 = Pulse(
     pulse_type="RISP",
     nb_pulses=5,
@@ -37,6 +46,26 @@ risp1 = Pulse(
     waiting=69930,
     tritium_fraction=0.0,
 )
+# TODO remove this once https://github.com/kaelyndunnell/hisp/pull/60 is fixed
+risp5_bis = Pulse(
+    pulse_type="RISP",
+    nb_pulses=5,
+    ramp_up=10,
+    steady_state=250,
+    ramp_down=10,
+    waiting=1530,
+    tritium_fraction=0.0,
+)
+risp1_bis = Pulse(
+    pulse_type="RISP",
+    nb_pulses=1,
+    ramp_up=10,
+    steady_state=250,
+    ramp_down=10,
+    waiting=69930,
+    tritium_fraction=0.0,
+)
+
 gdc = Pulse(
     pulse_type="GDC",
     nb_pulses=1,
@@ -46,7 +75,11 @@ gdc = Pulse(
     waiting=64800,
     tritium_fraction=0.0,
 )
-benchmark_scenario = Scenario(pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1, gdc])
+
+
+benchmark_scenario = Scenario(
+    pulses=[fp, icwc, risp5, risp1, icwc_bis, risp5_bis, risp1_bis, gdc]
+)
 
 ############## BENCHMARK NO GLOW SCENARIO ##############
 risp1_longer_wait = Pulse(
