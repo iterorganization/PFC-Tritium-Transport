@@ -22,7 +22,6 @@ from ITER_scenario import benchmark_scenario
 
 # import dolfinx
 
-NB_FP_PULSES_PER_DAY = 13
 COOLANT_TEMP = 343  # 70 degree C cooling water
 
 data_folder = "data"
@@ -156,16 +155,21 @@ if __name__ == "__main__":
             my_model, quantities = which_model(sub_bin)
 
             # add milestones for stepsize and adaptivity
-            milestones = [
-                pulse.total_duration * (i + 1)
-                for pulse in benchmark_scenario.pulses
-                for i in range(pulse.nb_pulses)
-            ]
-            milestones += [
-                pulse.duration_no_waiting * (i + 1)
-                for pulse in benchmark_scenario.pulses
-                for i in range(pulse.nb_pulses)
-            ]
+            milestones = []
+            current_time = 0
+            for pulse in benchmark_scenario.pulses:
+                start_of_pulse = benchmark_scenario.get_time_start_current_pulse(
+                    current_time
+                )
+                for i in range(pulse.nb_pulses):
+                    milestones.append(start_of_pulse + pulse.total_duration * (i + 1))
+                    milestones.append(
+                        start_of_pulse
+                        + pulse.total_duration * i
+                        + pulse.duration_no_waiting
+                    )
+
+                current_time = start_of_pulse + pulse.total_duration * pulse.nb_pulses
             milestones.append(my_model.settings.final_time)
             milestones = sorted(np.unique(milestones))
             my_model.settings.stepsize.milestones = milestones
@@ -199,16 +203,21 @@ if __name__ == "__main__":
 
         # add milestones for stepsize and adaptivity
         # for each Pulse (and for each pulse in the pulse), add the total duration and the duration without waiting
-        milestones = [
-            pulse.total_duration * (i + 1)
-            for pulse in benchmark_scenario.pulses
-            for i in range(pulse.nb_pulses)
-        ]
-        milestones += [
-            pulse.duration_no_waiting * (i + 1)
-            for pulse in benchmark_scenario.pulses
-            for i in range(pulse.nb_pulses)
-        ]
+        milestones = []
+        current_time = 0
+        for pulse in benchmark_scenario.pulses:
+            start_of_pulse = benchmark_scenario.get_time_start_current_pulse(
+                current_time
+            )
+            for i in range(pulse.nb_pulses):
+                milestones.append(start_of_pulse + pulse.total_duration * (i + 1))
+                milestones.append(
+                    start_of_pulse
+                    + pulse.total_duration * i
+                    + pulse.duration_no_waiting
+                )
+
+            current_time = start_of_pulse + pulse.total_duration * pulse.nb_pulses
         milestones.append(my_model.settings.final_time)
         milestones = sorted(np.unique(milestones))
         my_model.settings.stepsize.milestones = milestones
@@ -217,7 +226,6 @@ if __name__ == "__main__":
         my_model.settings.stepsize.target_nb_iterations = 4
 
         my_model.settings.stepsize.max_stepsize = max_stepsize
-
         my_model.initialise()
         my_model.run()
         my_model.progress_bar.close()
@@ -237,9 +245,19 @@ if __name__ == "__main__":
     # # TODO: add a graph that computes grams
 
     plot_inventories(global_data[fw_bin][sub_bin])
-    plt.show()
 
     plot_inventories(global_data[div_bin])
+
+    # start_time = 0
+    # for pulse in benchmark_scenario.pulses:
+    #     print(pulse.pulse_type)
+    #     start_time = benchmark_scenario.get_time_start_current_pulse(start_time)
+    #     print(start_time)
+    #     start_time += pulse.total_duration * pulse.nb_pulses
+    #     plt.axvline(x=start_time, color="black", linestyle="--")
+
+    # for milestone in milestones:
+    #     plt.axvline(x=milestone, color="red", linestyle="--")
     plt.show()
 
     fig, ax = plt.subplots()
