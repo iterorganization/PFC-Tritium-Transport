@@ -19,6 +19,7 @@ from hisp.scenario import Scenario, Pulse
 from hisp.bin import SubBin, DivBin
 
 from ITER_scenario import benchmark_scenario
+my_scenario = benchmark_scenario
 
 # import dolfinx
 
@@ -44,8 +45,8 @@ if __name__ == "__main__":
     processed_data = []
 
     def max_stepsize(t: float) -> float:
-        pulse = benchmark_scenario.get_pulse(t)
-        relative_time = t - benchmark_scenario.get_time_start_current_pulse(t)
+        pulse = my_scenario.get_pulse(t)
+        relative_time = t - my_scenario.get_time_start_current_pulse(t)
         return periodic_step_function(
             relative_time,
             period_on=pulse.duration_no_waiting,
@@ -64,34 +65,34 @@ if __name__ == "__main__":
             festim.HTransportModel, dict: The model and the quantities to plot
         """
         temperature_fuction = make_temperature_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             coolant_temp=COOLANT_TEMP,
         )
         d_ion_incident_flux = make_particle_flux_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             ion=True,
             tritium=False,
         )
         tritium_ion_flux = make_particle_flux_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             ion=True,
             tritium=True,
         )
         deuterium_atom_flux = make_particle_flux_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             ion=False,
             tritium=False,
         )
         tritium_atom_flux = make_particle_flux_function(
-            scenario=benchmark_scenario,
+            scenario=my_scenario,
             plasma_data_handling=plasma_data_handling,
             bin=subbin,
             ion=False,
@@ -102,7 +103,7 @@ if __name__ == "__main__":
             "tritium_ion_flux": tritium_ion_flux,
             "deuterium_atom_flux": deuterium_atom_flux,
             "tritium_atom_flux": tritium_atom_flux,
-            "final_time": benchmark_scenario.get_maximum_time() - 1,
+            "final_time": my_scenario.get_maximum_time() - 1,
             "temperature": temperature_fuction,
             "L": subbin.thickness,
         }
@@ -139,8 +140,8 @@ if __name__ == "__main__":
             my_model, quantities = which_model(sub_bin)
 
             # add milestones for stepsize and adaptivity
-            milestones = [pulse.total_duration for pulse in benchmark_scenario.pulses]
-            milestones += [pulse.duration_no_waiting for pulse in benchmark_scenario.pulses]
+            milestones = [pulse.total_duration for pulse in my_scenario.pulses]
+            milestones += [pulse.duration_no_waiting for pulse in my_scenario.pulses]
             milestones.append(my_model.settings.final_time)
             milestones = sorted(np.unique(milestones))
             my_model.settings.stepsize.milestones = milestones
@@ -175,12 +176,12 @@ if __name__ == "__main__":
         # for each Pulse (and for each pulse in the pulse), add the total duration and the duration without waiting
         milestones = [
             pulse.total_duration * (i + 1)
-            for pulse in benchmark_scenario.pulses
+            for pulse in my_scenario.pulses
             for i in range(pulse.nb_pulses)
         ]
         milestones += [
             pulse.duration_no_waiting * (i + 1)
-            for pulse in benchmark_scenario.pulses
+            for pulse in my_scenario.pulses
             for i in range(pulse.nb_pulses)
         ]
         milestones.append(my_model.settings.final_time)
