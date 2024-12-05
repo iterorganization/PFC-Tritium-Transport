@@ -19,11 +19,11 @@ from hisp.scenario import Scenario, Pulse
 from hisp.bin import SubBin, DivBin
 
 from ITER_scenario import benchmark_scenario
+
 my_scenario = benchmark_scenario
 
 # import dolfinx
 
-NB_FP_PULSES_PER_DAY = 13
 COOLANT_TEMP = 343  # 70 degree C cooling water
 
 data_folder = "data"
@@ -38,8 +38,23 @@ plasma_data_handling = PlasmaDataHandling(
     path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
 )
 
+
+def plot_inventories(results_dict):
+    plt.figure(figsize=(10, 6))
+    for name, quantity in results_dict.items():
+        plt.plot(quantity.t, quantity.data, label=name, marker="o")
+
+    plt.xlabel("Time (s)", fontsize=14)
+    plt.ylabel("Total quantity (atoms/m2)", fontsize=14)
+    plt.legend()
+    plt.yscale("log")
+    # remove top and right spines
+    plt.gca().spines["top"].set_visible(False)
+    plt.gca().spines["right"].set_visible(False)
+
+
 if __name__ == "__main__":
-    
+
     ############# CREATE EMPTY NP ARRAYS TO STORE ALL DATA #############
     global_data = {}
     processed_data = []
@@ -106,6 +121,7 @@ if __name__ == "__main__":
             "final_time": my_scenario.get_maximum_time() - 1,
             "temperature": temperature_fuction,
             "L": subbin.thickness,
+            "exports": True,
         }
 
         if isinstance(subbin, DivBin):
@@ -116,12 +132,12 @@ if __name__ == "__main__":
         if subbin.material == "W":
             return make_W_mb_model(
                 **common_args,
-                folder=f"mb{parent_bin_index+1}_{sub_bin.mode}_results",
+                folder=f"mb{parent_bin_index+1}_{subbin.mode}_results",
             )
         elif subbin.material == "B":
             return make_B_mb_model(
                 **common_args,
-                folder=f"mb{parent_bin_index+1}_{sub_bin.mode}_results",
+                folder=f"mb{parent_bin_index+1}_{subbin.mode}_results",
             )
         elif subbin.material == "SS":
             return make_DFW_mb_model(
@@ -131,17 +147,29 @@ if __name__ == "__main__":
 
     ############# RUN FW BIN SIMUS #############
     # TODO: adjust to run monoblocks in parallel
-    for fw_bin in FW_bins.bins:  
-
+    for fw_bin in FW_bins.bins[5:6]:
+        print(fw_bin.index)
         global_data[fw_bin] = {}
         fw_bin_data = {"bin_index": fw_bin.index, "sub_bins": []}
 
-        for sub_bin in fw_bin.sub_bins:
+        for sub_bin in fw_bin.sub_bins[2:3]:
+            print(sub_bin.mode)
             my_model, quantities = which_model(sub_bin)
 
             # add milestones for stepsize and adaptivity
-            milestones = [pulse.total_duration for pulse in my_scenario.pulses]
-            milestones += [pulse.duration_no_waiting for pulse in my_scenario.pulses]
+            milestones = []
+            current_time = 0
+            for pulse in my_scenario.pulses:
+                start_of_pulse = my_scenario.get_time_start_current_pulse(current_time)
+                for i in range(pulse.nb_pulses):
+                    milestones.append(start_of_pulse + pulse.total_duration * (i + 1))
+                    milestones.append(
+                        start_of_pulse
+                        + pulse.total_duration * i
+                        + pulse.duration_no_waiting
+                    )
+
+                current_time = start_of_pulse + pulse.total_duration * pulse.nb_pulses
             milestones.append(my_model.settings.final_time)
             milestones = sorted(np.unique(milestones))
             my_model.settings.stepsize.milestones = milestones
@@ -165,25 +193,29 @@ if __name__ == "__main__":
             fw_bin_data["sub_bins"].append(subbin_data)
 
         processed_data.append(fw_bin_data)
-            
 
     ############# RUN DIV BIN SIMUS #############
     # for div_bin in Div_bins.bins:
-    for div_bin in Div_bins.bins:  
+    for div_bin in Div_bins.bins[1:2]:
+        print(div_bin.index)
+        print(div_bin.material)
         my_model, quantities = which_model(div_bin)
 
         # add milestones for stepsize and adaptivity
         # for each Pulse (and for each pulse in the pulse), add the total duration and the duration without waiting
-        milestones = [
-            pulse.total_duration * (i + 1)
-            for pulse in my_scenario.pulses
-            for i in range(pulse.nb_pulses)
-        ]
-        milestones += [
-            pulse.duration_no_waiting * (i + 1)
-            for pulse in my_scenario.pulses
-            for i in range(pulse.nb_pulses)
-        ]
+        milestones = []
+        current_time = 0
+        for pulse in my_scenario.pulses:
+            start_of_pulse = my_scenario.get_time_start_current_pulse(current_time)
+            for i in range(pulse.nb_pulses):
+                milestones.append(start_of_pulse + pulse.total_duration * (i + 1))
+                milestones.append(
+                    start_of_pulse
+                    + pulse.total_duration * i
+                    + pulse.duration_no_waiting
+                )
+
+            current_time = start_of_pulse + pulse.total_duration * pulse.nb_pulses
         milestones.append(my_model.settings.final_time)
         milestones = sorted(np.unique(milestones))
         my_model.settings.stepsize.milestones = milestones
@@ -192,7 +224,6 @@ if __name__ == "__main__":
         my_model.settings.stepsize.target_nb_iterations = 4
 
         my_model.settings.stepsize.max_stepsize = max_stepsize
-
         my_model.initialise()
         my_model.run()
         my_model.progress_bar.close()
@@ -202,7 +233,7 @@ if __name__ == "__main__":
         for key, value in quantities.items():
             bin_data[key] = {"t": value.t, "data": value.data}
         processed_data.append(bin_data)
-        
+
     # write the processed data to JSON
 
     with open("benchmark_results.json", "w+") as f:
@@ -211,25 +242,33 @@ if __name__ == "__main__":
     # ############# Results Plotting #############
     # # TODO: add a graph that computes grams
 
-    # for name, quantity in global_data.items():
-    #     plt.plot(quantity.t, quantity.data, label=name, marker="o")
+    plot_inventories(global_data[fw_bin][sub_bin])
 
-    # plt.xlabel("Time (s)")
-    # plt.ylabel("Total quantity (atoms/m2)")
-    # plt.legend()
-    # plt.yscale("log")
+    plot_inventories(global_data[div_bin])
 
-    # plt.show()
+    # start_time = 0
+    # for pulse in my_scenario.pulses:
+    #     print(pulse.pulse_type)
+    #     start_time = my_scenario.get_time_start_current_pulse(start_time)
+    #     print(start_time)
+    #     start_time += pulse.total_duration * pulse.nb_pulses
+    #     plt.axvline(x=start_time, color="black", linestyle="--")
 
-    # fig, ax = plt.subplots()
+    # for milestone in milestones:
+    #     plt.axvline(x=milestone, color="red", linestyle="--")
+    plt.show()
 
-    # ax.stackplot(
-    #     quantity.t,
-    #     [quantity.data for quantity in global_data.values()],
-    #     labels=global_data.keys(),
-    # )
+    fig, ax = plt.subplots()
 
-    # plt.xlabel("Time (s)")
-    # plt.ylabel("Total quantity (atoms/m2)")
-    # plt.legend()
-    # plt.show()
+    t = list(global_data[div_bin].values())[0].t
+    ax.stackplot(
+        t,
+        [quantity.data for quantity in global_data[div_bin].values()],
+        labels=global_data[div_bin].keys(),
+    )
+
+    plt.xlabel("Time (s)")
+    plt.ylabel("Total quantity (atoms/m2)")
+    plt.legend()
+
+    plt.show()
