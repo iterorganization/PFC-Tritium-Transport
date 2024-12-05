@@ -110,3 +110,6 @@ venv.bak/
 *.bp
 *.xdmf
 *.h5
+
+
+*.DS_Store
