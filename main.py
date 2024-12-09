@@ -41,6 +41,7 @@ def run_scenario(scenario: Scenario, results_file: str):
         fw_bin_data = {"bin_index": fw_bin.index, "sub_bins": []}
 
         for sub_bin in fw_bin.sub_bins:
+            print(f"Running bin FW {fw_bin.index}, {sub_bin.mode}")
             _, quantities = my_hisp_model.run_bin(sub_bin)
 
             global_data[fw_bin][sub_bin] = quantities
@@ -62,6 +63,7 @@ def run_scenario(scenario: Scenario, results_file: str):
 
     # divertor bins
     for div_bin in Div_bins.bins:
+        print(f"Running bin div {div_bin.index}")
         _, quantities = my_hisp_model.run_bin(div_bin)
 
         global_data[div_bin] = quantities
