@@ -9,7 +9,7 @@ risp1_longer_wait = Pulse(
     ramp_up=10,
     steady_state=250,
     ramp_down=10,
-    waiting=242730,  # risp1 waiting plus two days nothing
+    waiting=risp1.waiting + 2 * 24 * 3600 - 6*3600,  # risp1 waiting plus two days nothing, subtract 6am start time
     tritium_fraction=0.0,
 )
 scenario = Scenario(pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1_longer_wait])

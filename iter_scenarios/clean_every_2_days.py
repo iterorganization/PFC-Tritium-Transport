@@ -1,6 +1,6 @@
 from hisp.scenario import Scenario, Pulse
 
-from .clean_every_5_days import gdc, icwc_long, risp6
+from iter_scenarios.clean_every_5_days import gdc, icwc_long, risp6
 
 fp = Pulse(
     pulse_type="FP",
@@ -29,16 +29,6 @@ icwc_short = Pulse(
     waiting=30000,  # icwc waiting takes us to 16h for FP pulse
     tritium_fraction=0.0,
 )
-fp1_start_day = Pulse(
-    pulse_type="FP",
-    nb_pulses=1,
-    ramp_up=429,
-    steady_state=650,
-    ramp_down=455,
-    waiting=5666,
-    tritium_fraction=0.5,
-)
-
 fp1_end_day = Pulse(
     pulse_type="FP",
     nb_pulses=1,
@@ -46,6 +36,15 @@ fp1_end_day = Pulse(
     steady_state=650,
     ramp_down=455,
     waiting=48866,
+    tritium_fraction=0.5,
+)
+fp1_start_day = Pulse(
+    pulse_type="FP",
+    nb_pulses=1,
+    ramp_up=429,
+    steady_state=650,
+    ramp_down=455,
+    waiting=5666,
     tritium_fraction=0.5,
 )
 icwc_short_end_day = Pulse(
@@ -75,6 +74,8 @@ scenario = Scenario(
         risp3,
         icwc_short_end_day,
         fp,
+        risp6,
+        icwc_long,
         risp6,
         icwc_long,
         gdc,
