@@ -56,6 +56,10 @@ def run_scenario(scenario: Scenario, results_file: str):
 
         processed_data.append(fw_bin_data)
 
+        # write the processed data to JSON
+        with open(results_file, "w+") as f:
+            json.dump(processed_data, f, indent=4)
+
     # divertor bins
     for div_bin in Div_bins.bins:
         _, quantities = my_hisp_model.run_bin(div_bin)
@@ -68,10 +72,9 @@ def run_scenario(scenario: Scenario, results_file: str):
         bin_data["bin_index"] = div_bin.index
 
         processed_data.append(bin_data)
-
-    # write the processed data to JSON
-    with open(results_file, "w+") as f:
-        json.dump(processed_data, f, indent=4)
+        # write the processed data to JSON
+        with open(results_file, "w+") as f:
+            json.dump(processed_data, f, indent=4)
 
 
 if __name__ == "__main__":
