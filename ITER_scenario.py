@@ -96,16 +96,26 @@ benchmark_no_glow_scenario = Scenario(
 )
 
 ############## DO NOTHING SCENARIO ##############
+fp = Pulse(
+    pulse_type="FP",
+    nb_pulses=9,
+    ramp_up=429,
+    steady_state=650,
+    ramp_down=455,
+    waiting=84866,
+    tritium_fraction=0.5,
+)
+
 fp_do_nothing = Pulse(
     pulse_type="FP",
-    nb_pulses=10,
+    nb_pulses=1,
     ramp_up=429,
     steady_state=650,
     ramp_down=455,
     waiting=430466,  # fp waiting time plus 4 days of nothing
     tritium_fraction=0.5,
 )
-do_nothing_scenario = Scenario(pulses=[fp_do_nothing])
+do_nothing_scenario = Scenario(pulses=[fp,fp_do_nothing])
 
 ############## CLEAN EVERY 5 DAYS SCENARIO ##############
 fp = Pulse(
@@ -169,7 +179,7 @@ icwc_short = Pulse(
 )
 fp1_start_day = Pulse(
     pulse_type="FP",
-    nb_pulses=2,
+    nb_pulses=1,
     ramp_up=429,
     steady_state=650,
     ramp_down=455,
