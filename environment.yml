@@ -9,6 +9,6 @@ dependencies:
   - pandas
   - pint # need to install pint with conda to avoid conflicts (HTM)
   - pip
-  # - pip:
-  #   - git+https://github.com/festim-dev/FESTIM@effcbac86ba0620da1388dcee4e8424ce33939db
-  #   - git+https://github.com/kaelyndunnell/hisp@ed20a9eb2d39f260f054d1ec8a5e37dc1469edfa
+  - pip:
+      - git+https://github.com/festim-dev/FESTIM@effcbac86ba0620da1388dcee4e8424ce33939db
+      - git+https://github.com/kaelyndunnell/hisp@ed20a9eb2d39f260f054d1ec8a5e37dc1469edfa
