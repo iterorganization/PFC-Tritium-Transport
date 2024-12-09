@@ -207,37 +207,3 @@ if __name__ == "__main__":
     # write the processed data to JSON
     with open("clean_every_2_scenario.json", "w+") as f:
         json.dump(processed_data, f, indent=4)
-
-    # ############# Results Plotting #############
-    # # TODO: add a graph that computes grams
-
-    plot_inventories(global_data[fw_bin][sub_bin])
-
-    plot_inventories(global_data[div_bin])
-
-    # start_time = 0
-    # for pulse in my_scenario.pulses:
-    #     print(pulse.pulse_type)
-    #     start_time = my_scenario.get_time_start_current_pulse(start_time)
-    #     print(start_time)
-    #     start_time += pulse.total_duration * pulse.nb_pulses
-    #     plt.axvline(x=start_time, color="black", linestyle="--")
-
-    # for milestone in milestones:
-    #     plt.axvline(x=milestone, color="red", linestyle="--")
-    plt.show()
-
-    fig, ax = plt.subplots()
-
-    t = list(global_data[div_bin].values())[0].t
-    ax.stackplot(
-        t,
-        [quantity.data for quantity in global_data[div_bin].values()],
-        labels=global_data[div_bin].keys(),
-    )
-
-    plt.xlabel("Time (s)")
-    plt.ylabel("Total quantity (atoms/m2)")
-    plt.legend()
-
-    plt.show()
