@@ -6,33 +6,33 @@ from hisp.plamsa_data_handling import PlasmaDataHandling
 from make_iter_bins import FW_bins, Div_bins, my_reactor
 
 from hisp.model import Model
+from hisp.scenario import Scenario
 
 from ITER_scenario import clean_every_2_scenario
 
-my_scenario = clean_every_2_scenario
 
-# Make a plasma data handling object
-data_folder = "data"
-plasma_data_handling = PlasmaDataHandling(
-    pulse_type_to_data={
-        "FP": pd.read_csv(data_folder + "/Binned_Flux_Data.dat", delimiter=","),
-        "ICWC": pd.read_csv(data_folder + "/ICWC_data.dat", delimiter=","),
-        "GDC": pd.read_csv(data_folder + "/GDC_data.dat", delimiter=","),
-    },
-    path_to_ROSP_data=data_folder + "/ROSP_data",
-    path_to_RISP_data=data_folder + "/RISP_data",
-    path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
-)
+def run_scenario(scenario: Scenario, results_file: str):
+    # Make a plasma data handling object
+    data_folder = "data"
+    plasma_data_handling = PlasmaDataHandling(
+        pulse_type_to_data={
+            "FP": pd.read_csv(data_folder + "/Binned_Flux_Data.dat", delimiter=","),
+            "ICWC": pd.read_csv(data_folder + "/ICWC_data.dat", delimiter=","),
+            "GDC": pd.read_csv(data_folder + "/GDC_data.dat", delimiter=","),
+        },
+        path_to_ROSP_data=data_folder + "/ROSP_data",
+        path_to_RISP_data=data_folder + "/RISP_data",
+        path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
+    )
 
-# Make a HISP model object
-my_hisp_model = Model(
-    reactor=my_reactor,
-    scenario=my_scenario,
-    plasma_data_handling=plasma_data_handling,
-    coolant_temp=343.0,
-)
+    # Make a HISP model object
+    my_hisp_model = Model(
+        reactor=my_reactor,
+        scenario=scenario,
+        plasma_data_handling=plasma_data_handling,
+        coolant_temp=343.0,
+    )
 
-if __name__ == "__main__":
     global_data = {}
     processed_data = []
 
@@ -71,5 +71,10 @@ if __name__ == "__main__":
         processed_data.append(bin_data)
 
     # write the processed data to JSON
-    with open("clean_every_2_scenario.json", "w+") as f:
+    with open(results_file, "w+") as f:
         json.dump(processed_data, f, indent=4)
+
+
+if __name__ == "__main__":
+
+    run_scenario(clean_every_2_scenario, "results.json")
