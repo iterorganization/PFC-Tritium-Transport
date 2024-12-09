@@ -115,7 +115,7 @@ fp_do_nothing = Pulse(
     waiting=430466,  # fp waiting time plus 4 days of nothing
     tritium_fraction=0.5,
 )
-do_nothing_scenario = Scenario(pulses=[fp,fp_do_nothing])
+do_nothing_scenario = Scenario(pulses=[fp, fp_do_nothing])
 
 ############## CLEAN EVERY 5 DAYS SCENARIO ##############
 fp = Pulse(
