@@ -6,10 +6,7 @@ from hisp.plamsa_data_handling import PlasmaDataHandling
 from make_iter_bins import FW_bins, Div_bins, my_reactor
 
 from hisp.model import Model
-
-from ITER_scenario import clean_every_2_scenario
-
-my_scenario = clean_every_2_scenario
+from hisp.scenario import Scenario
 
 # Make a plasma data handling object
 data_folder = "data"
@@ -24,15 +21,17 @@ plasma_data_handling = PlasmaDataHandling(
     path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
 )
 
-# Make a HISP model object
-my_hisp_model = Model(
-    reactor=my_reactor,
-    scenario=my_scenario,
-    plasma_data_handling=plasma_data_handling,
-    coolant_temp=343.0,
-)
 
-if __name__ == "__main__":
+def run_scenario(scenario: Scenario, results_file: str):
+
+    # Make a HISP model object
+    my_hisp_model = Model(
+        reactor=my_reactor,
+        scenario=scenario,
+        plasma_data_handling=plasma_data_handling,
+        coolant_temp=343.0,
+    )
+
     global_data = {}
     processed_data = []
 
@@ -42,6 +41,7 @@ if __name__ == "__main__":
         fw_bin_data = {"bin_index": fw_bin.index, "sub_bins": []}
 
         for sub_bin in fw_bin.sub_bins:
+            print(f"Running bin FW {fw_bin.index}, {sub_bin.mode}")
             _, quantities = my_hisp_model.run_bin(sub_bin)
 
             global_data[fw_bin][sub_bin] = quantities
@@ -57,8 +57,13 @@ if __name__ == "__main__":
 
         processed_data.append(fw_bin_data)
 
+        # write the processed data to JSON
+        with open(results_file, "w+") as f:
+            json.dump(processed_data, f, indent=4)
+
     # divertor bins
     for div_bin in Div_bins.bins:
+        print(f"Running bin div {div_bin.index}")
         _, quantities = my_hisp_model.run_bin(div_bin)
 
         global_data[div_bin] = quantities
@@ -69,7 +74,29 @@ if __name__ == "__main__":
         bin_data["bin_index"] = div_bin.index
 
         processed_data.append(bin_data)
+        # write the processed data to JSON
+        with open(results_file, "w+") as f:
+            json.dump(processed_data, f, indent=4)
 
-    # write the processed data to JSON
-    with open("clean_every_2_scenario.json", "w+") as f:
-        json.dump(processed_data, f, indent=4)
+
+if __name__ == "__main__":
+
+    from iter_scenarios.benchmark import scenario as scenario_benchmark
+    from iter_scenarios.clean_every_2_days import (
+        scenario as scenario_clean_every_2_days,
+    )
+    from iter_scenarios.clean_every_5_days import (
+        scenario as scenario_clean_every_5_days,
+    )
+    from iter_scenarios.do_nothing import scenario as scenario_do_nothing
+    from iter_scenarios.no_glow import scenario as scenario_no_glow
+
+    for scenario, name in [
+        (scenario_benchmark, "benchmark"),
+        (scenario_clean_every_2_days, "clean_every_2_days"),
+        (scenario_clean_every_5_days, "clean_every_5_days"),
+        (scenario_do_nothing, "do_nothing"),
+        (scenario_no_glow, "no_glow"),
+    ]:
+        print(f"Running scenario: {name}")
+        run_scenario(scenario, f"results_{name}.json")
