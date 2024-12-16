@@ -15,11 +15,11 @@ from iter_scenarios.clean_every_2_days import scenario as scenario_clean_every_2
 from iter_scenarios.clean_every_5_days import scenario as scenario_clean_every_5
 from iter_scenarios.no_glow import scenario as scenario_no_glow
 
-T_AMU = 3.016049 # g/mol
-D_AMU = 2.014102 # g/mol
-AVOGADROS_CONST = 6.0221408e+23 # atms/mol
+T_AMU = 3.016049  # g/mol
+D_AMU = 2.014102  # g/mol
+AVOGADROS_CONST = 6.0221408e23  # atms/mol
 
-# FIXME: improve and shorten code 
+# FIXME: improve and shorten code
 time_do_nothing = [0]
 time_benchmark = [0]
 time_no_glow = [0]
@@ -60,7 +60,7 @@ do_nothing_total_T = np.zeros(len(time_do_nothing))
 
 
 def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
-    """Generates lists of inventories at scenario milestones for 
+    """Generates lists of inventories at scenario milestones for
     scenario comparison plotting.
 
     Args:
@@ -73,44 +73,71 @@ def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
         data_list_D: Filled list of inventory in atms at each milestone for Deuterium
         data_list_T: Filled list of inventory in atms at each milestone for Tritium
     """
-    
+
     # open results file
-    with open('results_'+scenario_data+'.json', 'r') as file:
+    with open("results_" + scenario_data + ".json", "r") as file:
         dict_data = json.load(file)
 
     # fw bins
     for bin_index in range(total_fw_bins):
         fw_bin = FW_bins.get_bin(bin_index)
-        avg_r_coord = 0.5*abs(fw_bin.start_point[0]+fw_bin.end_point[0])
-        bin_surf_area = 2*math.pi*avg_r_coord*fw_bin.length
+        avg_r_coord = 0.5 * abs(
+            fw_bin.start_point[0] + fw_bin.end_point[0]
+        )  # TODO remove abs here as it's uneeded an errorprone
+        fw_bin_surf_area = 2 * math.pi * avg_r_coord * fw_bin.length
 
         bin_data = dict_data[bin_index]
-        for sub_bin in bin_data["sub_bins"]: # means that we are now in sub_bin list 
-            for name, quantities_dict in sub_bin.items(): # one dictionary per species (e.g. D, T, trap1_D, etc.)
-                    if name in ["mode", "parent_bin_index"]:
-                        continue  # skip these keys
-        
-                    data = np.array(quantities_dict['data'])
-                    time_points = np.array(quantities_dict['t'])
+        for sub_bin in bin_data["sub_bins"]:  # means that we are now in sub_bin list
+            # get subbin object
+            for sub_bin_obj in fw_bin.sub_bins:
+                if sub_bin_obj.mode == sub_bin["mode"]:
+                    break
 
-                    for idx, time in enumerate(time_points):
-                        if time in np.array(scenario_time): # ADJUST
-                            time_idx = np.where(np.isclose(time, scenario_time))[0]
-                            if "D" in name:
-                                data_list_D[time_idx] += data[idx] #* bin_surf_area * / AVOGADROS_CONST * D_AMU
-                            if "T" in name: 
-                                data_list_T[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * T_AMU
-                        if time == float(1188000-1): # write exception for the last point
-                            time_idx = -1
-                            if "D" in name:
-                                data_list_D[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * D_AMU
-                            if "T" in name: 
-                                data_list_T[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * T_AMU
+            parent_bin_total_area = (
+                sub_bin_obj.total_area
+            )  # NOTE we could modify HISP to make this more intuitive...
+            mode_surface_area_fraction = (
+                sub_bin_obj.surface_area / parent_bin_total_area
+            )
 
-    for bin_index in range(total_fw_bins,total_nb_bins):
+            bin_surf_area = mode_surface_area_fraction * fw_bin_surf_area
+
+            assert mode_surface_area_fraction <= 1
+
+            # one dictionary per species (e.g. D, T, trap1_D, etc.)
+            for name, quantities_dict in sub_bin.items():
+                if name in ["mode", "parent_bin_index"]:
+                    continue  # skip these keys
+
+                data = np.array(quantities_dict["data"])
+                time_points = np.array(quantities_dict["t"])
+
+                for idx, time in enumerate(time_points):
+                    if time in np.array(scenario_time):  # ADJUST
+                        time_idx = np.where(np.isclose(time, scenario_time))[0]
+                        if "D" in name:
+                            data_list_D[time_idx] += (
+                                (data[idx] * bin_surf_area) / AVOGADROS_CONST * T_AMU
+                            )
+                        if "T" in name:
+                            data_list_T[time_idx] += (
+                                (data[idx] * bin_surf_area) / AVOGADROS_CONST * T_AMU
+                            )
+                    if time == float(1188000 - 1):  # write exception for the last point
+                        time_idx = -1
+                        if "D" in name:
+                            data_list_D[time_idx] += (
+                                (data[idx] * bin_surf_area) / AVOGADROS_CONST * T_AMU
+                            )
+                        if "T" in name:
+                            data_list_T[time_idx] += (
+                                (data[idx] * bin_surf_area) / AVOGADROS_CONST * T_AMU
+                            )
+
+    for bin_index in range(total_fw_bins, total_nb_bins):
         div_bin = Div_bins.get_bin(bin_index)
-        avg_r_coord = 0.5*abs(div_bin.start_point[0]+div_bin.end_point[0])
-        bin_surf_area = 2*math.pi*avg_r_coord*div_bin.length
+        avg_r_coord = 0.5 * abs(div_bin.start_point[0] + div_bin.end_point[0])
+        bin_surf_area = 2 * math.pi * avg_r_coord * div_bin.length
 
         bin_data = dict_data[bin_index]
 
@@ -118,54 +145,73 @@ def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
             if name in ["bin_index"]:
                 continue  # skip this key
 
-            data = np.array(quantities_dict['data'])
-            time_points = np.array(quantities_dict['t'])
+            data = np.array(quantities_dict["data"])
+            time_points = np.array(quantities_dict["t"])
 
             for idx, time in enumerate(time_points):
-                if time in np.array(scenario_time): # BENCHMARK SCEN
+                if time in np.array(scenario_time):  # BENCHMARK SCEN
                     time_idx = np.where(np.isclose(time, scenario_time))[0]
                     if "D" in name:
-                        data_list_D[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * D_AMU
-                    if "T" in name: 
-                        data_list_T[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * T_AMU
-                if time == float(1188000-1): # write exception for the last point
-                            time_idx = -1
-                            if "D" in name:
-                                data_list_D[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * D_AMU
-                            if "T" in name: 
-                                data_list_T[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * T_AMU
+                        data_list_D[time_idx] += (
+                            (data[idx] * bin_surf_area) / AVOGADROS_CONST * D_AMU
+                        )
+                    if "T" in name:
+                        data_list_T[time_idx] += (
+                            (data[idx] * bin_surf_area) / AVOGADROS_CONST * D_AMU
+                        )
+                if time == float(1188000 - 1):  # write exception for the last point
+                    time_idx = -1
+                    if "D" in name:
+                        data_list_D[time_idx] += (
+                            (data[idx] * bin_surf_area) / AVOGADROS_CONST * D_AMU
+                        )
+                    if "T" in name:
+                        data_list_T[time_idx] += (
+                            (data[idx] * bin_surf_area) / AVOGADROS_CONST * D_AMU
+                        )
 
     return data_list_D, data_list_T
 
-bench_total_D, bench_total_T = make_plot_lists('benchmark', time_benchmark, bench_total_D, bench_total_T)
-bench_ng_total_D, bench_ng_total_T = make_plot_lists('no_glow',time_no_glow, bench_ng_total_D, bench_ng_total_T)
-do_nothing_total_D, do_nothing_total_T = make_plot_lists('do_nothing', time_do_nothing, do_nothing_total_D,do_nothing_total_T)
-every_5_total_D, every_5_total_T = make_plot_lists('clean_every_5_days', time_every_5, every_5_total_D, every_5_total_T)
-every_2_total_D, every_2_total_T = make_plot_lists('clean_every_2_days', time_every_2, every_2_total_D, every_2_total_T)
 
-# -------- PLOTTING -------- 
+bench_total_D, bench_total_T = make_plot_lists(
+    "benchmark", time_benchmark, bench_total_D, bench_total_T
+)
+# bench_ng_total_D, bench_ng_total_T = make_plot_lists(
+#     "no_glow", time_no_glow, bench_ng_total_D, bench_ng_total_T
+# )
+# do_nothing_total_D, do_nothing_total_T = make_plot_lists(
+#     "do_nothing", time_do_nothing, do_nothing_total_D, do_nothing_total_T
+# )
+# every_5_total_D, every_5_total_T = make_plot_lists(
+#     "clean_every_5_days", time_every_5, every_5_total_D, every_5_total_T
+# )
+# every_2_total_D, every_2_total_T = make_plot_lists(
+#     "clean_every_2_days", time_every_2, every_2_total_D, every_2_total_T
+# )
 
-plt.figure() # D figure
-plt.plot(time_do_nothing, do_nothing_total_D, label="Do Nothing")
+# -------- PLOTTING --------
+
+plt.figure()  # D figure
+# plt.plot(time_do_nothing, do_nothing_total_D, label="Do Nothing")
 plt.plot(time_benchmark, bench_total_D, label="Benchmark")
-plt.plot(time_no_glow, bench_ng_total_D, label="Benchmark No Glow")
-plt.plot(time_every_5, every_5_total_D, label="Clean Every 5")
-plt.plot(time_every_2, every_2_total_D, label="Clean Every 2")
+# plt.plot(time_no_glow, bench_ng_total_D, label="Benchmark No Glow")
+# plt.plot(time_every_5, every_5_total_D, label="Clean Every 5")
+# plt.plot(time_every_2, every_2_total_D, label="Clean Every 2")
 plt.legend()
 plt.title("Two Week Cycle Scenarios: Deuterium")
-plt.ylabel("Total Quantity (atms/m^2)")
+plt.ylabel("Total Quantity (g)")
 plt.xlabel("Time (seconds)")
 plt.show()
 
 
-plt.figure() # T figure
-plt.plot(time_do_nothing, do_nothing_total_T, label="Do Nothing")
+plt.figure()  # T figure
+# plt.plot(time_do_nothing, do_nothing_total_T, label="Do Nothing")
 plt.plot(time_benchmark, bench_total_T, label="Benchmark")
-plt.plot(time_no_glow, bench_ng_total_T, label="Benchmark No Glow")
-plt.plot(time_every_5, every_5_total_T, label="Clean Every 5")
-plt.plot(time_every_2, every_2_total_T, label="Clean Every 2")
+# plt.plot(time_no_glow, bench_ng_total_T, label="Benchmark No Glow")
+# plt.plot(time_every_5, every_5_total_T, label="Clean Every 5")
+# plt.plot(time_every_2, every_2_total_T, label="Clean Every 2")
 plt.legend()
 plt.title("Two Week Cycle Scenarios: Tritium")
-plt.ylabel("Total Quantity (atms/m^2)")
+plt.ylabel("Total Quantity (g)")
 plt.xlabel("Time (seconds)")
 plt.show()

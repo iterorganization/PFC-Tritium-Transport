@@ -50,7 +50,4 @@ gdc = Pulse(
 )
 
 
-scenario = Scenario(
-    pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1, gdc]
-)
-
+scenario = Scenario(pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1, gdc])
