@@ -3,6 +3,7 @@ from iter_scenarios.clean_every_2_days import scenario as clean_every_2_scenario
 from iter_scenarios.clean_every_5_days import scenario as clean_every_5_scenario
 from iter_scenarios.no_glow import scenario as no_glow_scenario
 from iter_scenarios.do_nothing import scenario as do_nothing_scenario
+from iter_scenarios.just_glow import scenario as just_glow_scenario
 
 from hisp.scenario import Pulse
 
@@ -21,5 +22,5 @@ def test_scenario_times(scenario_list):
     print("All tests have passed!")
 
 if __name__=="__main__": 
-    my_scenarios = [benchmark_scenario, clean_every_2_scenario, clean_every_5_scenario, no_glow_scenario, do_nothing_scenario]
+    my_scenarios = [benchmark_scenario, clean_every_2_scenario, clean_every_5_scenario, no_glow_scenario, do_nothing_scenario, just_glow_scenario]
     test_scenario_times(my_scenarios)
