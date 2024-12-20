@@ -1,4 +1,5 @@
 from hisp.scenario import Scenario, Pulse
+from .benchmark import bake
 
 fp = Pulse(
     pulse_type="FP",
@@ -19,4 +20,4 @@ fp_do_nothing = Pulse(
     waiting=fp.waiting + 4 * 24 * 3600, 
     tritium_fraction=0.5,
 )
-scenario = Scenario(pulses=[fp, fp_do_nothing])
+scenario = Scenario(pulses=[fp, fp_do_nothing, bake])

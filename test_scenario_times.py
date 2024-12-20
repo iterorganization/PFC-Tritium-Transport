@@ -7,9 +7,9 @@ from iter_scenarios.do_nothing import scenario as do_nothing_scenario
 from hisp.scenario import Pulse
 
 def test_scenario_times(scenario_list):
-    """Tests that all scenarios are 14 days exactly.
+    """Tests that all scenarios are 21 days exactly.
     """
-    expected_scenario_total_time = 14*24*3600 # 14 days in seconds
+    expected_scenario_total_time = 21*24*3600 # 21 days in seconds
 
     for scenario in scenario_list: 
         total_time = 0.0

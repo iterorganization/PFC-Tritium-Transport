@@ -1,6 +1,6 @@
 from hisp.scenario import Scenario, Pulse
 
-from .benchmark import fp, icwc, risp5, risp1
+from .benchmark import fp, icwc, risp5, risp1, bake
 
 ############## BENCHMARK NO GLOW SCENARIO ##############
 risp1_longer_wait = Pulse(
@@ -12,4 +12,4 @@ risp1_longer_wait = Pulse(
     waiting=risp1.waiting + 2 * 24 * 3600, # risp1 waiting plus two days nothing
     tritium_fraction=0.0,
 )
-scenario = Scenario(pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1_longer_wait])
+scenario = Scenario(pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1_longer_wait, bake])

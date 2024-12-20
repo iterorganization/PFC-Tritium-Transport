@@ -1,6 +1,6 @@
 from hisp.scenario import Scenario, Pulse
 
-from iter_scenarios.clean_every_5_days import gdc, icwc_long, risp6
+from iter_scenarios.clean_every_5_days import gdc, icwc_long, risp6, bake
 
 fp = Pulse(
     pulse_type="FP",
@@ -79,5 +79,6 @@ scenario = Scenario(
         risp6,
         icwc_long,
         gdc,
+        bake,
     ]
 )
