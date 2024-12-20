@@ -15,10 +15,10 @@ fp = Pulse(
 icwc = Pulse(
     pulse_type="ICWC",
     nb_pulses=1,
-    ramp_up=50,
-    steady_state=1200,
-    ramp_down=50,
-    waiting=6000,
+    ramp_up=10,
+    steady_state=280,
+    ramp_down=10,
+    waiting=1500,
     tritium_fraction=0.0,
 )
 risp5 = Pulse(
@@ -36,7 +36,7 @@ risp1 = Pulse(
     ramp_up=10,
     steady_state=250,
     ramp_down=10,
-    waiting=69830,
+    waiting=75330,
     tritium_fraction=0.0,
 )
 gdc = Pulse(
