@@ -12,4 +12,4 @@ dependencies:
   - pip
   - pip:
       - git+https://github.com/festim-dev/FESTIM@effcbac86ba0620da1388dcee4e8424ce33939db
-      - git+https://github.com/kaelyndunnell/hisp@8ffb867bb4114ab22f4bad6bb8cb3875f37b31e0
+      - git+https://github.com/kaelyndunnell/hisp@main
