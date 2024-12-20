@@ -16,7 +16,7 @@ fp_do_nothing = Pulse(
     ramp_up=429,
     steady_state=650,
     ramp_down=455,
-    waiting=fp.waiting + 4 * 24 * 3600 - 6 * 3600, # assume first pulse starts 6am, so subtract initial 6 hours
+    waiting=fp.waiting + 4 * 24 * 3600, 
     tritium_fraction=0.5,
 )
 scenario = Scenario(pulses=[fp, fp_do_nothing])

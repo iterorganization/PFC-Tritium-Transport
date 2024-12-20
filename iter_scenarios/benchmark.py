@@ -1,7 +1,7 @@
 from hisp.scenario import Scenario, Pulse
 
 # assumes first pulse begins at 6am on day one
-# scenarios thus stretch from 6am day one to 11:59:59pm day 14
+# scenarios thus stretch from 6am day one to 6:00am day 15 (for the start of the next scenario)
 
 fp = Pulse(
     pulse_type="FP",
@@ -45,7 +45,7 @@ gdc = Pulse(
     ramp_up=1,
     steady_state=86398,
     ramp_down=1,
-    waiting=64800,
+    waiting=86400,
     tritium_fraction=0.0,
 )
 
