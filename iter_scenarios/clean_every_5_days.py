@@ -1,6 +1,6 @@
 from hisp.scenario import Scenario, Pulse
 
-from .benchmark import gdc
+from .benchmark import gdc, bake
 
 fp = Pulse(
     pulse_type="FP",
@@ -23,10 +23,10 @@ risp6 = Pulse(
 icwc_long = Pulse(
     pulse_type="ICWC",
     nb_pulses=1,
-    ramp_up=50,
-    steady_state=1200,
-    ramp_down=50,
-    waiting=74300,  # icwc waiting plus rest of day
+    ramp_up=10,
+    steady_state=280,
+    ramp_down=10,
+    waiting=75300,  # icwc waiting plus rest of day
     tritium_fraction=0.0,
 )
-scenario = Scenario(pulses=[fp, risp6, icwc_long, fp, risp6, icwc_long, gdc])
+scenario = Scenario(pulses=[fp, risp6, icwc_long, fp, risp6, icwc_long, gdc, bake])

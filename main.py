@@ -90,6 +90,7 @@ if __name__ == "__main__":
     )
     from iter_scenarios.do_nothing import scenario as scenario_do_nothing
     from iter_scenarios.no_glow import scenario as scenario_no_glow
+    from iter_scenarios.just_glow import scenario as scenario_just_glow
 
     for scenario, name in [
         (scenario_benchmark, "benchmark"),
@@ -97,6 +98,7 @@ if __name__ == "__main__":
         (scenario_clean_every_5_days, "clean_every_5_days"),
         (scenario_do_nothing, "do_nothing"),
         (scenario_no_glow, "no_glow"),
+        (scenario_just_glow, "just_glow"),
     ]:
         print(f"Running scenario: {name}")
         run_scenario(scenario, f"results_{name}.json")

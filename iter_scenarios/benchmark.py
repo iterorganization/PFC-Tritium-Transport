@@ -1,7 +1,7 @@
 from hisp.scenario import Scenario, Pulse
 
 # assumes first pulse begins at 6am on day one
-# scenarios thus stretch from 6am day one to 11:59:59pm day 14
+# scenarios thus stretch from 6am day one to 6:00am day 15 (for the start of the next scenario)
 
 fp = Pulse(
     pulse_type="FP",
@@ -15,10 +15,10 @@ fp = Pulse(
 icwc = Pulse(
     pulse_type="ICWC",
     nb_pulses=1,
-    ramp_up=50,
-    steady_state=1200,
-    ramp_down=50,
-    waiting=6000,
+    ramp_up=10,
+    steady_state=280,
+    ramp_down=10,
+    waiting=1500,
     tritium_fraction=0.0,
 )
 risp5 = Pulse(
@@ -36,7 +36,7 @@ risp1 = Pulse(
     ramp_up=10,
     steady_state=250,
     ramp_down=10,
-    waiting=69830,
+    waiting=75330,
     tritium_fraction=0.0,
 )
 gdc = Pulse(
@@ -45,12 +45,21 @@ gdc = Pulse(
     ramp_up=1,
     steady_state=86398,
     ramp_down=1,
-    waiting=64800,
+    waiting=86400,
+    tritium_fraction=0.0,
+)
+bake = Pulse(
+    pulse_type="BAKE",
+    nb_pulses=1,
+    ramp_up=1,
+    steady_state=604797,
+    ramp_down=1,
+    waiting=1,
     tritium_fraction=0.0,
 )
 
 
 scenario = Scenario(
-    pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1, gdc]
+    pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1, gdc, bake]
 )
 

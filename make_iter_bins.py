@@ -39,9 +39,15 @@ for bin_index in [2, 3, 4]:
         subbin.thickness = 10e-3
         subbin.material = "W"
 
-for bin_index in [5, 6, 7, 8, 9, 17]:
+for bin_index in [5, 6, 7, 8, 17]:
     fw_bin = FW_bins.get_bin(bin_index)
     for subbin in fw_bin.sub_bins:
+        subbin.thickness = 12e-3
+        subbin.material = "W"
+
+for bin_index in [9]:
+    fw_bin = FW_bins.get_bin(bin_index)
+    for subbin in fw_bin.sub_bins[:3]:
         subbin.thickness = 12e-3
         subbin.material = "W"
 
