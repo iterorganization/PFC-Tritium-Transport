@@ -14,6 +14,7 @@ from iter_scenarios.benchmark import scenario as scenario_benchmark
 from iter_scenarios.clean_every_2_days import scenario as scenario_clean_every_2
 from iter_scenarios.clean_every_5_days import scenario as scenario_clean_every_5
 from iter_scenarios.no_glow import scenario as scenario_no_glow
+from iter_scenarios.just_glow import scenario as scenario_just_glow
 
 T_AMU = 3.016049 # g/mol
 D_AMU = 2.014102 # g/mol
@@ -25,6 +26,7 @@ time_benchmark = [0]
 time_no_glow = [0]
 time_every_2 = [0]
 time_every_5 = [0]
+time_just_glow = [0]
 
 for pulse in scenario_do_nothing.pulses:
     for i in range(pulse.nb_pulses):
@@ -46,17 +48,23 @@ for pulse in scenario_clean_every_5.pulses:
     for i in range(pulse.nb_pulses):
         time_every_5.append(time_every_5[-1] + pulse.total_duration)
 
+for pulse in scenario_just_glow.pulses:
+    for i in range(pulse.nb_pulses):
+        time_every_5.append(time_just_glow[-1] + pulse.total_duration)
+
 bench_total_D = np.zeros(len(time_benchmark))
 bench_ng_total_D = np.zeros(len(time_no_glow))
 every_2_total_D = np.zeros(len(time_every_2))
 every_5_total_D = np.zeros(len(time_every_5))
 do_nothing_total_D = np.zeros(len(time_do_nothing))
+just_glow_total_D = np.zeros(len(time_just_glow))
 
 bench_total_T = np.zeros(len(time_benchmark))
 bench_ng_total_T = np.zeros(len(time_no_glow))
 every_2_total_T = np.zeros(len(time_every_2))
 every_5_total_T = np.zeros(len(time_every_5))
 do_nothing_total_T = np.zeros(len(time_do_nothing))
+just_glow_total_T = np.zeros(len(time_just_glow))
 
 
 def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
@@ -97,15 +105,15 @@ def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
                         if time in np.array(scenario_time): # ADJUST
                             time_idx = np.where(np.isclose(time, scenario_time))[0]
                             if "D" in name:
-                                data_list_D[time_idx] += data[idx] #* bin_surf_area * / AVOGADROS_CONST * D_AMU
+                                data_list_D[time_idx] += data[idx] * bin_surf_area / AVOGADROS_CONST * D_AMU
                             if "T" in name: 
-                                data_list_T[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * T_AMU
-                        if time == float(1188000-1): # write exception for the last point
+                                data_list_T[time_idx] += data[idx] * bin_surf_area / AVOGADROS_CONST * T_AMU
+                        if time == float(1814400-1): # write exception for the last point
                             time_idx = -1
                             if "D" in name:
-                                data_list_D[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * D_AMU
+                                data_list_D[time_idx] += data[idx] * bin_surf_area / AVOGADROS_CONST * D_AMU
                             if "T" in name: 
-                                data_list_T[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * T_AMU
+                                data_list_T[time_idx] += data[idx] * bin_surf_area / AVOGADROS_CONST * T_AMU
 
     for bin_index in range(total_fw_bins,total_nb_bins):
         div_bin = Div_bins.get_bin(bin_index)
@@ -125,15 +133,15 @@ def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
                 if time in np.array(scenario_time): # BENCHMARK SCEN
                     time_idx = np.where(np.isclose(time, scenario_time))[0]
                     if "D" in name:
-                        data_list_D[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * D_AMU
+                        data_list_D[time_idx] += data[idx] * bin_surf_area / AVOGADROS_CONST * D_AMU
                     if "T" in name: 
-                        data_list_T[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * T_AMU
-                if time == float(1188000-1): # write exception for the last point
+                        data_list_T[time_idx] += data[idx] * bin_surf_area / AVOGADROS_CONST * T_AMU
+                if time == float(1814400-1): # write exception for the last point
                             time_idx = -1
                             if "D" in name:
-                                data_list_D[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * D_AMU
+                                data_list_D[time_idx] += data[idx] * bin_surf_area / AVOGADROS_CONST * D_AMU
                             if "T" in name: 
-                                data_list_T[time_idx] += data[idx] #* bin_surf_area / AVOGADROS_CONST * T_AMU
+                                data_list_T[time_idx] += data[idx] * bin_surf_area / AVOGADROS_CONST * T_AMU
 
     return data_list_D, data_list_T
 
@@ -142,6 +150,7 @@ bench_ng_total_D, bench_ng_total_T = make_plot_lists('no_glow',time_no_glow, ben
 do_nothing_total_D, do_nothing_total_T = make_plot_lists('do_nothing', time_do_nothing, do_nothing_total_D,do_nothing_total_T)
 every_5_total_D, every_5_total_T = make_plot_lists('clean_every_5_days', time_every_5, every_5_total_D, every_5_total_T)
 every_2_total_D, every_2_total_T = make_plot_lists('clean_every_2_days', time_every_2, every_2_total_D, every_2_total_T)
+just_glow_total_D, just_glow_total_T = make_plot_lists('just_glow', time_just_glow, just_glow_total_D, just_glow_total_T)
 
 # -------- PLOTTING -------- 
 
@@ -151,9 +160,10 @@ plt.plot(time_benchmark, bench_total_D, label="Benchmark")
 plt.plot(time_no_glow, bench_ng_total_D, label="Benchmark No Glow")
 plt.plot(time_every_5, every_5_total_D, label="Clean Every 5")
 plt.plot(time_every_2, every_2_total_D, label="Clean Every 2")
+plt.plot(time_just_glow, just_glow_total_D, label="Just Glow")
 plt.legend()
 plt.title("Two Week Cycle Scenarios: Deuterium")
-plt.ylabel("Total Quantity (atms/m^2)")
+plt.ylabel("Total Quantity (g)")
 plt.xlabel("Time (seconds)")
 plt.show()
 
@@ -164,8 +174,9 @@ plt.plot(time_benchmark, bench_total_T, label="Benchmark")
 plt.plot(time_no_glow, bench_ng_total_T, label="Benchmark No Glow")
 plt.plot(time_every_5, every_5_total_T, label="Clean Every 5")
 plt.plot(time_every_2, every_2_total_T, label="Clean Every 2")
+plt.plot(time_just_glow, just_glow_total_T, label="Just Glow")
 plt.legend()
 plt.title("Two Week Cycle Scenarios: Tritium")
-plt.ylabel("Total Quantity (atms/m^2)")
+plt.ylabel("Total Quantity (g)")
 plt.xlabel("Time (seconds)")
 plt.show()
