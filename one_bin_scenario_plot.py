@@ -9,7 +9,7 @@ TRITIUM_AMU = 3.016049  # g/mol
 D_AMU = 2.014102  # g/mol
 AVOGADROS_CONST = 6.0221408e23  # atms/mol
 
-BIN_INDEX = 18
+BIN_INDEX = 13
 
 if BIN_INDEX in range(total_fw_bins):
     my_bin = FW_bins.get_bin(BIN_INDEX)
@@ -39,36 +39,79 @@ def get_bin_data(data: list, bin_index: int) -> dict:
 
 bin_data = get_bin_data(dict_data, BIN_INDEX)
 
-for i in bin_data.items():
-    name = i[0]
-    # skip the bin_index
-    if name == "bin_index":
-        continue
-    print(name)
-    quantities_dict = i[1]
-    data = np.array(quantities_dict["data"])
-    if "D" in name:
-        plt.plot(
-            quantities_dict["t"],
-            data,
-            label=name,
-            marker="o",
-            linewidth=0.5,
-            markersize=0.5,
-        )
-    else:
-        plt.plot(
-            quantities_dict["t"],
-            data,
-            label=name,
-            marker="o",
-            linewidth=0.5,
-            markersize=0.75,
-        )
+if BIN_INDEX in list(range(18,65)):
+    plt.figure()
+    for i in bin_data.items():
+        name = i[0]
+        # skip the bin_index
+        if name == "bin_index":
+            continue
+        print(name)
+        quantities_dict = i[1]
+        data = np.array(quantities_dict["data"])
+        if "D" in name:
+            plt.plot(
+                quantities_dict["t"],
+                data,
+                label=name,
+                marker="o",
+                linewidth=0.5,
+                markersize=0.5,
+            )
+        else:
+            plt.plot(
+                quantities_dict["t"],
+                data,
+                label=name,
+                marker="o",
+                linewidth=0.5,
+                markersize=0.75,
+            )
+    plt.xlabel("Time (s)")
+    plt.ylabel("Total Quantity (atms/m^2)")
+    plt.title("Bin " + str(BIN_INDEX+1) + " Results Benchmark Scenario")
+    plt.yscale("log")
+    plt.legend()
+    plt.show()
 
-plt.xlabel("Time (s)")
-plt.ylabel("Total Quantity (atms/m^2)")
-plt.title("Bin " + str(BIN_INDEX) + " Results Benchmark Scenario")
-plt.yscale("log")
-plt.legend()
-plt.show()
+else:
+    sub_bin_data = bin_data["sub_bins"]
+    for sub_bin in sub_bin_data:
+        mode = sub_bin["mode"]
+        plt.figure()
+        for i in sub_bin.items():
+            name = i[0]
+            # skip the parent bin_index
+            if name == "parent_bin_index":
+                continue
+            if name == "mode": 
+                continue
+            print(name)
+            quantities_dict = i[1]
+            data = np.array(quantities_dict["data"])
+            if "D" in name:
+                plt.plot(
+                    quantities_dict["t"],
+                    data,
+                    label=name,
+                    marker="o",
+                    linewidth=0.5,
+                    markersize=0.5,
+                )
+            else:
+                plt.plot(
+                    quantities_dict["t"],
+                    data,
+                    label=name,
+                    marker="x",
+                    linewidth=0.5,
+                    markersize=0.75,
+                )
+        plt.xlabel("Time (s)")
+        plt.ylabel("Total Quantity (atms/m^2)")
+        plt.title("Bin " + str(BIN_INDEX+1) + " "+mode+" Results Benchmark Scenario")
+        plt.yscale("log")
+        plt.legend()
+        plt.show()
+
+
