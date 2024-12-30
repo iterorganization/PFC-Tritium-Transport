@@ -9,7 +9,7 @@ TRITIUM_AMU = 3.016049  # g/mol
 D_AMU = 2.014102  # g/mol
 AVOGADROS_CONST = 6.0221408e23  # atms/mol
 
-BIN_INDEX = 13
+BIN_INDEX = 18
 
 if BIN_INDEX in range(total_fw_bins):
     my_bin = FW_bins.get_bin(BIN_INDEX)
@@ -20,7 +20,7 @@ avg_r_coord = 0.5 * abs(my_bin.start_point[0] + my_bin.end_point[0])
 bin_surf_area = 2 * math.pi * avg_r_coord * my_bin.length
 
 # open results file
-with open("results_benchmark.json", "r") as file:
+with open("processed_data.json", "r") as file:
     dict_data = json.load(file)
 
 
