@@ -54,12 +54,9 @@ bake = Pulse(
     ramp_up=1,
     steady_state=604797,
     ramp_down=1,
-    waiting=1,
+    waiting=11,  # HISP expects at least 10 s of waiting...
     tritium_fraction=0.0,
 )
 
 
-scenario = Scenario(
-    pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1, gdc, bake]
-)
-
+scenario = Scenario(pulses=[fp, icwc, risp5, risp1, icwc, risp5, risp1, gdc, bake])
