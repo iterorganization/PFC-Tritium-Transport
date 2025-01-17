@@ -39,6 +39,7 @@ def run_scenario(scenario: Scenario, results_file: str):
     for fw_bin in FW_bins.bins:
         global_data[fw_bin] = {}
         fw_bin_data = {"bin_index": fw_bin.index, "sub_bins": []}
+        processed_data.append(fw_bin_data)
 
         for sub_bin in fw_bin.sub_bins:
             print(f"Running bin FW {fw_bin.index}, {sub_bin.mode}")
@@ -55,11 +56,10 @@ def run_scenario(scenario: Scenario, results_file: str):
 
             fw_bin_data["sub_bins"].append(subbin_data)
 
-        processed_data.append(fw_bin_data)
 
-        # write the processed data to JSON
-        with open(results_file, "w+") as f:
-            json.dump(processed_data, f, indent=4)
+            # write the processed data to JSON
+            with open(results_file, "w+") as f:
+                json.dump(processed_data, f, indent=4)
 
     # divertor bins
     for div_bin in Div_bins.bins:
@@ -94,11 +94,11 @@ if __name__ == "__main__":
 
     for scenario, name in [
         (scenario_benchmark, "benchmark"),
-        (scenario_clean_every_2_days, "clean_every_2_days"),
-        (scenario_clean_every_5_days, "clean_every_5_days"),
-        (scenario_do_nothing, "do_nothing"),
-        (scenario_no_glow, "no_glow"),
-        (scenario_just_glow, "just_glow"),
+        # (scenario_clean_every_2_days, "clean_every_2_days"),
+        # (scenario_clean_every_5_days, "clean_every_5_days"),
+        # (scenario_do_nothing, "do_nothing"),
+        # (scenario_no_glow, "no_glow"),
+        # (scenario_just_glow, "just_glow"),
     ]:
         print(f"Running scenario: {name}")
         run_scenario(scenario, f"results_{name}.json")
