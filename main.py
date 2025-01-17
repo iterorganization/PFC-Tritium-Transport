@@ -62,7 +62,7 @@ def run_scenario(scenario: Scenario, results_file: str):
                 with open(results_file, "w+") as f:
                     json.dump(processed_data, f, indent=4)
             except KeyboardInterrupt:
-                print("Process interuppted by user. Exiting...")
+                print("Process interrupted by user. Exiting...")
                 return
             except: 
                 print(f"Failed to run bin FW {fw_bin.index}, {sub_bin.mode}")
@@ -85,7 +85,7 @@ def run_scenario(scenario: Scenario, results_file: str):
             with open(results_file, "w+") as f:
                 json.dump(processed_data, f, indent=4)
         except KeyboardInterrupt:
-            print("Process interuppted by user. Exiting...")
+            print("Process interrupted by user. Exiting...")
             return
         except: 
             print(f"Failed to run bin div {div_bin.index}")
