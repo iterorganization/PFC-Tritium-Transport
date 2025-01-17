@@ -35,48 +35,54 @@ def run_scenario(scenario: Scenario, results_file: str):
     global_data = {}
     processed_data = []
 
-    # first wall bins
+    # # first wall bins
     for fw_bin in FW_bins.bins:
         global_data[fw_bin] = {}
         fw_bin_data = {"bin_index": fw_bin.index, "sub_bins": []}
         processed_data.append(fw_bin_data)
 
         for sub_bin in fw_bin.sub_bins:
-            print(f"Running bin FW {fw_bin.index}, {sub_bin.mode}")
-            _, quantities = my_hisp_model.run_bin(sub_bin)
+            try:
+                print(f"Running bin FW {fw_bin.index}, {sub_bin.mode}")
+                _, quantities = my_hisp_model.run_bin(sub_bin)
 
-            global_data[fw_bin][sub_bin] = quantities
+                global_data[fw_bin][sub_bin] = quantities
 
-            subbin_data = {
-                key: {"t": value.t, "data": value.data}
-                for key, value in quantities.items()
-            }
-            subbin_data["mode"] = sub_bin.mode
-            subbin_data["parent_bin_index"] = sub_bin.parent_bin_index
+                subbin_data = {
+                    key: {"t": value.t, "data": value.data}
+                    for key, value in quantities.items()
+                }
+                subbin_data["mode"] = sub_bin.mode
+                subbin_data["parent_bin_index"] = sub_bin.parent_bin_index
 
-            fw_bin_data["sub_bins"].append(subbin_data)
+                fw_bin_data["sub_bins"].append(subbin_data)
 
 
-            # write the processed data to JSON
-            with open(results_file, "w+") as f:
-                json.dump(processed_data, f, indent=4)
+                # write the processed data to JSON
+                with open(results_file, "w+") as f:
+                    json.dump(processed_data, f, indent=4)
+            except: 
+                print(f"Failed to run bin FW {fw_bin.index}, {sub_bin.mode}")
 
     # divertor bins
     for div_bin in Div_bins.bins:
-        print(f"Running bin div {div_bin.index}")
-        _, quantities = my_hisp_model.run_bin(div_bin)
+        try:
+            print(f"Running bin div {div_bin.index}")
+            _, quantities = my_hisp_model.run_bin(div_bin)
 
-        global_data[div_bin] = quantities
+            global_data[div_bin] = quantities
 
-        bin_data = {
-            key: {"t": value.t, "data": value.data} for key, value in quantities.items()
-        }
-        bin_data["bin_index"] = div_bin.index
+            bin_data = {
+                key: {"t": value.t, "data": value.data} for key, value in quantities.items()
+            }
+            bin_data["bin_index"] = div_bin.index
 
-        processed_data.append(bin_data)
-        # write the processed data to JSON
-        with open(results_file, "w+") as f:
-            json.dump(processed_data, f, indent=4)
+            processed_data.append(bin_data)
+            # write the processed data to JSON
+            with open(results_file, "w+") as f:
+                json.dump(processed_data, f, indent=4)
+        except: 
+            print(f"Failed to run bin div {div_bin.index}")
 
 
 if __name__ == "__main__":
@@ -94,11 +100,11 @@ if __name__ == "__main__":
 
     for scenario, name in [
         (scenario_benchmark, "benchmark"),
-        # (scenario_clean_every_2_days, "clean_every_2_days"),
-        # (scenario_clean_every_5_days, "clean_every_5_days"),
-        # (scenario_do_nothing, "do_nothing"),
-        # (scenario_no_glow, "no_glow"),
-        # (scenario_just_glow, "just_glow"),
+        (scenario_clean_every_2_days, "clean_every_2_days"),
+        (scenario_clean_every_5_days, "clean_every_5_days"),
+        (scenario_do_nothing, "do_nothing"),
+        (scenario_no_glow, "no_glow"),
+        (scenario_just_glow, "just_glow"),
     ]:
         print(f"Running scenario: {name}")
         run_scenario(scenario, f"results_{name}.json")
