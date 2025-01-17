@@ -9,6 +9,7 @@ dependencies:
   - pandas
   - pint # need to install pint with conda to avoid conflicts (HTM)
   - ipykernel
+  - scifem
   - pip
   - pip:
       - git+https://github.com/festim-dev/FESTIM@effcbac86ba0620da1388dcee4e8424ce33939db
