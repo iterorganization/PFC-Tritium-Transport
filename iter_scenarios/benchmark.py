@@ -51,9 +51,9 @@ gdc = Pulse(
 bake = Pulse(
     pulse_type="BAKE",
     nb_pulses=1,
-    ramp_up=347868, # 5C degrees per hour; 96.63 hours total
-    steady_state=8444,
-    ramp_down=248477, # -7C per hour; 69.02 hours total
+    ramp_up=151200, # 5C degrees per hour; 42 hours total
+    steady_state=345600,
+    ramp_down=108000, # -7C per hour; 30 hours total
     waiting=11,  # HISP expects at least 10 s of waiting...
     tritium_fraction=0.0,
 )
