@@ -1,6 +1,6 @@
 from hisp.bin import FWBin3Subs, FWBin2Subs, DivBin, BinCollection, Reactor
 
-total_nb_bins = 64
+total_nb_bins = 62
 total_fw_bins = 18
 
 
@@ -90,7 +90,7 @@ for bin in FW_bins.bins:
 
 # ------- DIV BINS -------
 
-for bin_index in [18, 19, 20, 21, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]:
+for bin_index in [18, 19, 20, 21, 32, 33, 34, 35, 36, 37, 38, 39, 40]:
     div_bin = Div_bins.get_bin(bin_index)
     div_bin.thickness = 1e-6
     div_bin.material = "B"
@@ -107,6 +107,8 @@ for bin_index in [
     29,
     30,
     31,
+    44,
+    45,
     46,
     47,
     48,
@@ -116,15 +118,13 @@ for bin_index in [
     52,
     53,
     54,
-    55,
-    56,
 ]:
     div_bin = Div_bins.get_bin(bin_index)
     div_bin.thickness = 6e-3
     div_bin.material = "W"
     div_bin.set_inner_and_outer_bins()
 
-for bin_index in [42, 43, 44, 45, 57, 58, 59, 60, 61, 62, 63]:
+for bin_index in [41, 42, 43, 44, 55, 56, 57, 58, 59, 60, 61]:
     div_bin = Div_bins.get_bin(bin_index)
     div_bin.thickness = 5e-6
     div_bin.material = "B"
@@ -148,15 +148,8 @@ data = pd.read_csv("bin_data.dat", sep=",")
 
 
 for bin in my_reactor.first_wall.bins + my_reactor.divertor.bins:
-    bin.start_point = (data.loc[bin.index]["R_Coord"], data.loc[bin.index]["Z_Coord"])
-
-# end point is the start point of next bin
-for bin in my_reactor.first_wall.bins + my_reactor.divertor.bins:
-    try:
-        next_bin = my_reactor.get_bin(bin.index + 1)
-    except ValueError:
-        next_bin = my_reactor.get_bin(0)
-    bin.end_point = next_bin.start_point
+    bin.start_point = (data.loc[bin.index]["R_Start"], data.loc[bin.index]["Z_Start"])
+    bin.end_point = (data.loc[bin.index]["R_End"], data.loc[bin.index]["Z_End"])
 
 # test
 assert len(data) == len(FW_bins.bins) + len(
