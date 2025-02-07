@@ -329,7 +329,7 @@ def time_dep(lowest_sp, heat_profile, data, slope, ramp_up, constant_in_time, st
 
             if inner:
                 for x in xc_solps:
-                    if x > xc_bins[-7]: # slow slope
+                    if x > xc_bins[-5]: # slow slope
                         shift = max_sweep_x+slopeslow*(t-(ramp_up+constant_in_time+1))+x
                         xc_long_solps.append(shift)
                     else: # high slope
@@ -762,14 +762,14 @@ if __name__ == '__main__':
     inner_heat, inner_xc_bins = find_xc(inner_data,div_bins)
     outer_heat, outer_xc_bins = find_xc(outer_data,div_bins, inner_flag=False)
 
-    np.savetxt('inner_heat', inner_heat)
+    # np.savetxt('inner_heat', inner_heat)
 
-    inner_xc_bins=inner_xc_bins[27:]
+    inner_xc_bins=inner_xc_bins[25:]
     outer_xc_bins=outer_xc_bins[:15]
 
     # setting swept SOLPS bins as all bins on inner and outer strike points
     
-    inner_bins = list(range(46,len(div_bins+bins)))
+    inner_bins = list(range(44,len(div_bins+bins)))
     outer_bins = list(range(18,34))
 
     # find rate of change of inner and outer sp coordinates
@@ -948,6 +948,7 @@ if __name__ == '__main__':
     # inner heat profile
     x_inner, master_list_inner = time_dep(lowest_in, inner_heat, inner_data, slope_in,ramp_up, constant_in_time, steady_state, ramp_down, inner_xc_bins, angle_coeffs_matlab)
     np.savetxt('inner_master.txt', master_list_inner[200][-1])
+    # print(master_list_inner)
     
     # outer heat profile
     x_outer, master_list_outer = time_dep(lowest_out, outer_heat, outer_data, slope_out,ramp_up, constant_in_time, steady_state, ramp_down, outer_xc_bins, angle_coeffs_matlab, inner=False)
@@ -979,20 +980,20 @@ if __name__ == '__main__':
     time.extend(list(range(ramp_up+constant_in_time,ramp_up+steady_state+1)))
     time.append(ramp_up+steady_state+ramp_down)
 
-    data_wall1 = read_wall_soledge('raw_data/sol_simus/wall.shot106000.run1.dat')
-    data_wall, removed_idx = remove_structure_points_soledge(data_wall1)
+    # data_wall1 = read_wall_soledge('raw_data/sol_simus/wall.shot106000.run1.dat')
+    # data_wall, removed_idx = remove_structure_points_soledge(data_wall1)
 
-    # SOLEDGE binning for time independent case for main chamber values and dome values
-    indices, div_indices, ion_flux_total, atom_flux_total, E_ion_total, E_atom_total, alpha_ion_total, alpha_atom_total, heat_total, binned_ion_flux, binned_atom_flux, binned_div_ion, binned_div_atom, div_E_ion, div_E_atom, div_alpha_ion, div_alpha_atom, div_heat, wall_E_ion, wall_E_atom, wall_alpha_ion, wall_alpha_atom, wall_heat, heat_ion_total = bin_SOLEDGE_fluxes(data_wall, data_div, bins, div_bins)
+    # # SOLEDGE binning for time independent case for main chamber values and dome values
+    # indices, div_indices, ion_flux_total, atom_flux_total, E_ion_total, E_atom_total, alpha_ion_total, alpha_atom_total, heat_total, binned_ion_flux, binned_atom_flux, binned_div_ion, binned_div_atom, div_E_ion, div_E_atom, div_alpha_ion, div_alpha_atom, div_heat, wall_E_ion, wall_E_atom, wall_alpha_ion, wall_alpha_atom, wall_heat, heat_ion_total = bin_SOLEDGE_fluxes(data_wall, data_div, bins, div_bins)
 
-    header = "Bin_Index,Flux_Ion,Flux_Atom,E_ion,E_atom,alpha_ion,alpha_atom,heat_total,heat_ion"
-    data_to_save = np.array([
-        [bin_index,ion_flux, atom_flux, E_ion, E_atom, alpha_ion, alpha_atom, heat, heat_ion]
-        for bin_index,ion_flux, atom_flux, E_ion, E_atom, alpha_ion, alpha_atom, heat, heat_ion in zip(list(range(len(bins)+len(div_bins)+1)),ion_flux_total, atom_flux_total, E_ion_total, E_atom_total, alpha_ion_total, alpha_atom_total, heat_total, heat_ion_total)
-    ])
-    np.savetxt("RISP_Wall_data", data_to_save, delimiter=',', header=header, comments='', fmt=['%d']  + ['%.18e'] * (data_to_save.shape[1] - 1)) #, fmt=['%d', '%f', '%f', '%f', '%f', '%f', '%f', '%f'])
+    # header = "Bin_Index,Flux_Ion,Flux_Atom,E_ion,E_atom,alpha_ion,alpha_atom,heat_total,heat_ion"
+    # data_to_save = np.array([
+    #     [bin_index,ion_flux, atom_flux, E_ion, E_atom, alpha_ion, alpha_atom, heat, heat_ion]
+    #     for bin_index,ion_flux, atom_flux, E_ion, E_atom, alpha_ion, alpha_atom, heat, heat_ion in zip(list(range(len(bins)+len(div_bins)+1)),ion_flux_total, atom_flux_total, E_ion_total, E_atom_total, alpha_ion_total, alpha_atom_total, heat_total, heat_ion_total)
+    # ])
+    # np.savetxt("RISP_Wall_data", data_to_save, delimiter=',', header=header, comments='', fmt=['%d']  + ['%.18e'] * (data_to_save.shape[1] - 1)) #, fmt=['%d', '%f', '%f', '%f', '%f', '%f', '%f', '%f'])
 
-    inner_bin_ids = list(range(45, 64))
+    inner_bin_ids = list(range(43, 62))
     outer_bin_ids = list(range(18, 32)) 
 
     # now, we do SOLPS binning
