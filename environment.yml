@@ -12,5 +12,5 @@ dependencies:
   - scifem
   - pip
   - pip:
-      - git+https://github.com/festim-dev/FESTIM@effcbac86ba0620da1388dcee4e8424ce33939db
+      - git+https://github.com/festim-dev/FESTIM@9ac79df299171f12a57406755e441d8deb35c186
       - git+https://github.com/kaelyndunnell/hisp@fix-b-bins
