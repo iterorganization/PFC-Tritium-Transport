@@ -9,7 +9,7 @@ TRITIUM_AMU = 3.016049  # g/mol
 D_AMU = 2.014102  # g/mol
 AVOGADROS_CONST = 6.0221408e23  # atms/mol
 
-BIN_INDEX = 9
+BIN_INDEX = 22
 
 def get_bin_data(data: list, bin_index: int) -> dict:
     """Returns the right dictionary for a given bin index
@@ -66,8 +66,9 @@ if BIN_INDEX in list(range(18,65)):
     T_grams = T_inventory * bin_surf_area / AVOGADROS_CONST * D_AMU
     plt.plot(time, D_grams, label="D", marker="o", linewidth=0.5, markersize=0.75)
     plt.plot(time, T_grams, label="T", marker="o", linewidth=0.5, markersize=0.75)
+    plt.vlines([429,1079,1534,86400,86829,87479,87934,172800,173229,173879,174334],0,50,linestyles="-", linewidth=0.1)
     plt.xlabel("Time (s)")
-    plt.ylabel("Total Quantity (atms/m^2)")
+    plt.ylabel("Total Quantity (g)")
     plt.title("Bin " + str(BIN_INDEX+1) + " Results Benchmark Scenario")
     plt.yscale("log")
     plt.legend()
@@ -111,14 +112,14 @@ else:
             D_inventory += D_sub
             T_inventory += T_sub
 
-D_grams = D_inventory * bin_surf_area / AVOGADROS_CONST * D_AMU
-T_grams = T_inventory * bin_surf_area / AVOGADROS_CONST * D_AMU
-plt.plot(time, D_grams, label="D", marker="o", linewidth=0.5, markersize=0.75)
-plt.plot(time, T_grams, label="T", marker="o", linewidth=0.5, markersize=0.75)
-plt.vlines([429,1079,1534,86400,86829,87479,87934,172800,173229,173879,174334],0,50,linestyles="-", linewidth=0.1)
-plt.xlabel("Time (s)")
-plt.ylabel("Total Quantity (atms/m^2)")
-plt.title("Bin " + str(BIN_INDEX+1) + " "+mode+" Results Benchmark Scenario")
-plt.yscale("log")
-plt.legend()
-plt.show()
+    D_grams = D_inventory * bin_surf_area / AVOGADROS_CONST * D_AMU
+    T_grams = T_inventory * bin_surf_area / AVOGADROS_CONST * D_AMU
+    plt.plot(time, D_grams, label="D", marker="o", linewidth=0.5, markersize=0.75)
+    plt.plot(time, T_grams, label="T", marker="o", linewidth=0.5, markersize=0.75)
+    plt.vlines([429,1079,1534,86400,86829,87479,87934,172800,173229,173879,174334],0,50,linestyles="-", linewidth=0.1)
+    plt.xlabel("Time (s)")
+    plt.ylabel("Total Quantity (g)")
+    plt.title("Bin " + str(BIN_INDEX+1) + " "+mode+" Results Benchmark Scenario")
+    plt.yscale("log")
+    plt.legend()
+    plt.show()
