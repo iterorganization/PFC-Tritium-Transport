@@ -1,6 +1,5 @@
-import plotly.express as px
-import pandas as pd
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 import json
 from make_iter_bins import Div_bins, total_fw_bins, FW_bins
@@ -41,7 +40,6 @@ bin_data = get_bin_data(dict_data, BIN_INDEX)
 
 if BIN_INDEX in list(range(18,65)):
     Time_Full = False
-    D_Full = False
     for name, value in bin_data.items():
         # skip the bin_index
         if name == "bin_index":
@@ -52,6 +50,8 @@ if BIN_INDEX in list(range(18,65)):
             Time_Full = True
         D_inventory = np.zeros(len(time))
         T_inventory = np.zeros(len(time))
+        D_surface_flux = np.zeros(len(time))
+        T_surface_flux = np.zeros(len(time))
     for name, value in bin_data.items():
         # skip the bin_index
         if name == "bin_index":
@@ -59,39 +59,46 @@ if BIN_INDEX in list(range(18,65)):
         print(name)
         quantities_dict = value
         data = np.array(quantities_dict["data"])
+        if "temperature" in name:
+            surface_time = np.array(quantities_dict["t"])
+            surface_temp = data
         if "D" in name:
-            D_inventory += data
-        else:
-            T_inventory += data
+            if "flux" in name:
+                D_surface_flux = data
+            else:
+                D_inventory += data
+        elif "T" in name:
+            if "flux" in name:
+                T_surface_flux = data
+            else:
+                T_inventory += data
     D_grams = D_inventory * bin_surf_area / AVOGADROS_CONST * D_AMU
     T_grams = T_inventory * bin_surf_area / AVOGADROS_CONST * D_AMU
 
     # plotting with plotly
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=time, y=D_grams,
-                        name='D',
-                        line=dict(color='firebrick', width=2)))
+    fig = make_subplots(rows=3, cols=1,subplot_titles=("Inventory", "Surface Fluxes", "Surface Temperature"),shared_xaxes=True,vertical_spacing=0.05)
+
+    fig.add_trace(go.Scatter(x=time, y=D_grams,name='D',line=dict(color='firebrick', width=2)), 
+                  row=1, col=1)
     fig.add_trace(go.Scatter(x=time, y=T_grams,
                         name='T',
-                        line=dict(color='royalblue', width=2)))
+                        line=dict(color='royalblue', width=2)), row=1, col=1)
+    fig.add_trace(go.Scatter(x=time, y=D_surface_flux,
+                        line=dict(color='firebrick', width=2), showlegend=False), row=2, col=1)
+    fig.add_trace(go.Scatter(x=time, y=T_surface_flux,
+                        line=dict(color='royalblue', width=2), showlegend=False), row=2, col=1)
+    fig.add_trace(go.Scatter(x=surface_time, y=surface_temp, showlegend=False), row=3, col=1)
+
     # for point in [429,1079,1534,86400,86829,87479,87934,172800,173229,173879,174334]:
     #     fig.add_vline(x=point, line_width=0.5, line_color="green")
 
-    fig.update_layout(
-        title=dict(
-            text='Bin ' + str(BIN_INDEX+1) + ' Results Test Scenario'
-        ),
-        xaxis=dict(
-            title=dict(
-                text='Time (s)'
-            )
-        ),
-        yaxis=dict(
-            title=dict(
-                text='Total Quantity (g)'
-            )
-        ),
-)
+    fig.update_xaxes(title_text="Time (s)", row=3, col=1)
+    fig.update_yaxes(title_text="Total Quantity (g)", row=1, col=1)
+    fig.update_yaxes(title_text="Flux (part/m2 s)", row=2, col=1)
+    fig.update_yaxes(title_text="Temperature (K)", row=3, col=1)
+
+    fig.update_layout(title_text='Bin ' + str(BIN_INDEX+1) + ' Results Test Scenario')
+    
     fig.show()
 
 else:
@@ -111,6 +118,13 @@ else:
                 Time_Full = True
         D_sub = np.zeros(len(time))
         T_sub = np.zeros(len(time))
+        if mode == "wetted" or mode == "high_wetted":
+            if "temperature" in name:
+                data = np.array(quantities_dict["data"])
+                surface_temp = data
+            else:
+                D_surface_flux = np.zeros(len(time))
+                T_surface_flux = np.zeros(len(time))
         for name, quantities_dict in sub_bin.items():
             # skip the parent bin_index
             if name == "parent_bin_index":
@@ -120,9 +134,16 @@ else:
             print(name)
             data = np.array(quantities_dict["data"])
             if "D" in name:
-                D_sub += data
-            else:
-                T_sub += data
+                if "flux" in name and D_surface_flux is not None:
+                    D_surface_flux = data
+                else:
+                    D_sub += data
+            elif "T" in name:
+                if "flux" in name and T_surface_flux is not None:
+                    T_surface_flux = data
+                else:
+                    T_sub += data
+
         if not D_Full:
             D_inventory = D_sub
             T_inventory = T_sub
@@ -134,29 +155,27 @@ else:
     T_grams = T_inventory * bin_surf_area / AVOGADROS_CONST * D_AMU
 
     # plotting with plotly
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=time, y=D_grams,
-                        name='D',
-                        line=dict(color='firebrick', width=2)))
+    fig = make_subplots(rows=3, cols=1,subplot_titles=("Inventory", "Surface Fluxes", "Surface Temperature"),shared_xaxes=True,vertical_spacing=0.05)
+
+    fig.add_trace(go.Scatter(x=time, y=D_grams,name='D',line=dict(color='firebrick', width=2)), 
+                  row=1, col=1)
     fig.add_trace(go.Scatter(x=time, y=T_grams,
                         name='T',
-                        line=dict(color='royalblue', width=2)))
+                        line=dict(color='royalblue', width=2)), row=1, col=1)
+    fig.add_trace(go.Scatter(x=time, y=D_surface_flux,
+                        name='D',
+                        line=dict(color='firebrick', width=2), showlegend=False), row=2, col=1)
+    fig.add_trace(go.Scatter(x=time, y=T_surface_flux,
+                        name='T',
+                        line=dict(color='royalblue', width=2), showlegend=False), row=2, col=1)
+    fig.add_trace(go.Scatter(x=time, y=surface_temp), row=3, col=1)
+
     # for point in [429,1079,1534,86400,86829,87479,87934,172800,173229,173879,174334]:
     #     fig.add_vline(x=point, line_width=0.5, line_color="green")
 
-    fig.update_layout(
-        title=dict(
-            text='Bin ' + str(BIN_INDEX+1) + ' ' + mode + ' Results Test Scenario'
-        ),
-        xaxis=dict(
-            title=dict(
-                text='Time (s)'
-            )
-        ),
-        yaxis=dict(
-            title=dict(
-                text='Total Quantity (g)'
-            )
-        ),
-)
-    fig.show()
+    fig.update_xaxes(title_text="Time (s)", row=3, col=1)
+    fig.update_yaxes(title_text="Total Quantity (g)", row=1, col=1)
+    fig.update_yaxes(title_text="Flux (part/m2 s)", row=2, col=1)
+    fig.update_yaxes(title_text="Temperature (K)", row=3, col=1)
+
+    fig.update_layout(title_text='Bin ' + str(BIN_INDEX+1) + ' ' + mode + ' Results Test Scenario')
