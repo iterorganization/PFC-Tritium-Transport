@@ -68,27 +68,27 @@ def run_scenario(scenario: Scenario, results_file: str):
                 print(f"Failed to run bin FW {fw_bin.index}, {sub_bin.mode}")
 
     # divertor bins
-    for div_bin in Div_bins.bins:
-        try:
-            print(f"Running bin div {div_bin.index+1}")
-            _, quantities = my_hisp_model.run_bin(div_bin)
+    # for div_bin in Div_bins.bins:
+    #     try:
+    #         print(f"Running bin div {div_bin.index+1}")
+    #         _, quantities = my_hisp_model.run_bin(div_bin)
 
-            global_data[div_bin] = quantities
+    #         global_data[div_bin] = quantities
 
-            bin_data = {
-                key: {"t": value.t, "data": value.data} for key, value in quantities.items()
-            }
-            bin_data["bin_index"] = div_bin.index
+    #         bin_data = {
+    #             key: {"t": value.t, "data": value.data} for key, value in quantities.items()
+    #         }
+    #         bin_data["bin_index"] = div_bin.index
 
-            processed_data.append(bin_data)
-            # write the processed data to JSON
-            with open(results_file, "w+") as f:
-                json.dump(processed_data, f, indent=4)
-        except KeyboardInterrupt:
-            print("Process interrupted by user. Exiting...")
-            return
-        except: 
-            print(f"Failed to run bin div {div_bin.index}")
+    #         processed_data.append(bin_data)
+    #         # write the processed data to JSON
+    #         with open(results_file, "w+") as f:
+    #             json.dump(processed_data, f, indent=4)
+    #     except KeyboardInterrupt:
+    #         print("Process interrupted by user. Exiting...")
+    #         return
+    #     except: 
+    #         print(f"Failed to run bin div {div_bin.index}")
 
 
 if __name__ == "__main__":
@@ -105,12 +105,12 @@ if __name__ == "__main__":
     from iter_scenarios.just_glow import scenario as scenario_just_glow
 
     for scenario, name in [
-        (scenario_benchmark, "benchmark"),
-        (scenario_clean_every_2_days, "clean_every_2_days"),
-        (scenario_clean_every_5_days, "clean_every_5_days"),
-        (scenario_do_nothing, "do_nothing"),
-        (scenario_no_glow, "no_glow"),
-        (scenario_just_glow, "just_glow"),
+        (scenario_benchmark, "benchmark_fw_bins"),
+        # (scenario_clean_every_2_days, "clean_every_2_days"),
+        # (scenario_clean_every_5_days, "clean_every_5_days"),
+        # (scenario_do_nothing, "do_nothing"),
+        # (scenario_no_glow, "no_glow"),
+        # (scenario_just_glow, "just_glow"),
     ]:
         print(f"Running scenario: {name}")
         run_scenario(scenario, f"results_{name}.json")
