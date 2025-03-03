@@ -66,6 +66,18 @@ every_5_total_T = np.zeros(len(time_every_5))
 do_nothing_total_T = np.zeros(len(time_do_nothing))
 just_glow_total_T = np.zeros(len(time_just_glow))
 
+def get_bin_data(data: list, bin_index: int) -> dict:
+    """Returns the right dictionary for a given bin index
+
+    Args:
+        data (list): the list of dictionaries
+        bin_index (int): the bin index
+    """
+
+    for i in data:
+        if i["bin_index"] == bin_index:
+            return i
+
 
 def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
     """Generates lists of inventories at scenario milestones for 
@@ -92,7 +104,7 @@ def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
         avg_r_coord = 0.5*abs(fw_bin.start_point[0]+fw_bin.end_point[0])
         bin_surf_area = 2*math.pi*avg_r_coord*fw_bin.length
 
-        bin_data = dict_data[bin_index]
+        bin_data = get_bin_data(dict_data, bin_index=bin_index)
         for sub_bin in bin_data["sub_bins"]: # means that we are now in sub_bin list 
             for name, quantities_dict in sub_bin.items(): # one dictionary per species (e.g. D, T, trap1_D, etc.)
                     if name in ["mode", "parent_bin_index"]:
@@ -120,7 +132,7 @@ def make_plot_lists(scenario_data, scenario_time, data_list_D, data_list_T):
         avg_r_coord = 0.5*abs(div_bin.start_point[0]+div_bin.end_point[0])
         bin_surf_area = 2*math.pi*avg_r_coord*div_bin.length
 
-        bin_data = dict_data[bin_index]
+        bin_data = get_bin_data(dict_data, bin_index=bin_index)
 
         for name, quantities_dict in bin_data.items():
             if name in ["bin_index"]:
