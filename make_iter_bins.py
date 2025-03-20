@@ -31,12 +31,14 @@ for bin_index in [0, 1]:
     fw_bin = FW_bins.get_bin(bin_index)
     for subbin in fw_bin.sub_bins:
         subbin.thickness = 6e-3
+        subbin.copper_thickness = 2e-3  # Cu
         subbin.material = "W"
 
 for bin_index in [2, 3, 4]:
     fw_bin = FW_bins.get_bin(bin_index)
     for subbin in fw_bin.sub_bins:
         subbin.thickness = 10e-3
+        subbin.copper_thickness = 1e-3 + 3e-3  # Cu thicknes + CuCrZr thickness
         subbin.material = "W"
 
 for bin_index in [5, 6, 7, 8, 17]:
@@ -44,11 +46,18 @@ for bin_index in [5, 6, 7, 8, 17]:
     for subbin in fw_bin.sub_bins:
         subbin.thickness = 12e-3
         subbin.material = "W"
+        if subbin.parent_bin_index == 5:
+            subbin.copper_thickness = 4e-3  # Cu
+        elif subbin.parent_bin_index in [6, 7, 8]:
+            subbin.copper_thickness = 2e-3 + 3e-3  # Cu + CuCrZr
+        else:
+            subbin.copper_thickness = 2e-3  # Cu
 
 for bin_index in [9]:
     fw_bin = FW_bins.get_bin(bin_index)
     for subbin in fw_bin.sub_bins[:3]:
         subbin.thickness = 12e-3
+        subbin.copper_thickness = 2e-3  # Cu
         subbin.material = "W"
 
 for bin_index in [10, 11, 12]:
@@ -58,15 +67,23 @@ for bin_index in [10, 11, 12]:
     FW_bins.get_bin(bin_index).low_wetted_subbin.material = "B"
     FW_bins.get_bin(bin_index).shadowed_subbin.thickness = 1e-6
     FW_bins.get_bin(bin_index).shadowed_subbin.material = "B"
+    if bin_index in [10, 11]:
+        FW_bins.get_bin(bin_index).high_wetted_subbin.copper_thickness = 2e-3  # Cu
+    else:
+        FW_bins.get_bin(bin_index).high_wetted_subbin.copper_thickness = 4e-3  # Cu
 
 for bin_index in [13, 14]:
     FW_bins.get_bin(bin_index).wetted_subbin.thickness = 6e-3
+    FW_bins.get_bin(bin_index).wetted_subbin.copper_thickness = 2e-3  # Cu
     FW_bins.get_bin(bin_index).wetted_subbin.material = "W"
     FW_bins.get_bin(bin_index).shadowed_subbin.thickness = 1e-6
     FW_bins.get_bin(bin_index).shadowed_subbin.material = "B"
 
 for bin_index in [15]:
     FW_bins.get_bin(bin_index).high_wetted_subbin.thickness = 6e-3
+    FW_bins.get_bin(bin_index).high_wetted_subbin.copper_thickness = (
+        2e-3 + 3e-3
+    )  # Cu + CuCrZr
     FW_bins.get_bin(bin_index).high_wetted_subbin.material = "W"
     FW_bins.get_bin(bin_index).low_wetted_subbin.thickness = 100e-9
     FW_bins.get_bin(bin_index).low_wetted_subbin.material = "B"
@@ -75,6 +92,9 @@ for bin_index in [15]:
 
 for bin_index in [16]:
     FW_bins.get_bin(bin_index).wetted_subbin.thickness = 6e-3
+    FW_bins.get_bin(bin_index).wetted_subbin.copper_thickness = (
+        2e-3 + 3e-3
+    )  # Cu + CuCrZr
     FW_bins.get_bin(bin_index).wetted_subbin.material = "W"
     FW_bins.get_bin(bin_index).shadowed_subbin.thickness = 1e-6
     FW_bins.get_bin(bin_index).shadowed_subbin.material = "B"
