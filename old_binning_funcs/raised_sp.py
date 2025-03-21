@@ -365,9 +365,12 @@ def time_dep(
     slopeslow = -6.131e-03
     slopefast = -8.434e-03
     sweep_time_half = sweep_time / 2
-    max_sweep_x = (
-        -slopefast * sweep_time_half - slopeslow * sweep_time_half + lowest_sp
-    )  # max position of the sweep ~ 1.3m for inner
+    if inner:
+        max_sweep_x = (
+            -slopefast * sweep_time_half - slopeslow * sweep_time_half + lowest_sp
+        )  # max position of the sweep ~ 1.3m for inner TODO: define differently as slowslope * time slow slope takes or fast_slope * corresponding time
+    else:
+        max_sweep_x = -slope * sweep_time + lowest_sp
     # creating heat profile for each timestep
     for idx, t in enumerate(time):
         xc_long_solps = []
@@ -395,8 +398,12 @@ def time_dep(
             else:  # for inner = False
                 for x in xc_solps:
                     shift = (
-                        max_sweep_x + slope * (t - (ramp_up + constant_in_time + 1)) + x
+                        lowest_sp + slope * (t - (ramp_up + constant_in_time + 1)) + x
                     )
+                    # shift = (
+                    #     max_sweep_x + slope * (t - (ramp_up + constant_in_time + 1)) + x
+                    # )
+
                     # shift = (lowest_sp- slope * sweep_time+ slope * (t - (ramp_up + constant_in_time + 1)) + x )
                     xc_long_solps.append(shift)
 
@@ -967,7 +974,7 @@ if __name__ == "__main__":
     )
     bins = create_bins(z_coord_start, r_coord_start, z_coord_end, r_coord_end)
     div_bins = create_bins(div_z_start, div_r_start, div_z_end, div_r_end)
-    print(len(bins) + len(div_bins))
+    print(f"Total Number of bins {len(bins) + len(div_bins)}")
 
     # find center xc values for our bins
     inner_heat, inner_xc_bins = find_xc(inner_data, div_bins)
@@ -976,6 +983,9 @@ if __name__ == "__main__":
     # np.savetxt('inner_heat', inner_heat)
     inner_xc_bins = inner_xc_bins[25:]
     outer_xc_bins = outer_xc_bins[:15]
+    outer_xc_bins = outer_xc_bins[
+        ::-1
+    ]  # need to reverse order because x=0 is at the bottom of SP (i.e. bin 15)
 
     # setting swept SOLPS bins as all bins on inner and outer strike points
     inner_bins = list(range(18 + 25, len(div_bins + bins)))
