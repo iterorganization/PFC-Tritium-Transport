@@ -141,6 +141,7 @@ for bin_index in [
 ]:
     div_bin = Div_bins.get_bin(bin_index)
     div_bin.thickness = 6e-3
+    div_bin.copper_thickness = None
     div_bin.material = "W"
     div_bin.set_inner_and_outer_bins()
 
