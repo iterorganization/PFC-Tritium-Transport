@@ -3,13 +3,22 @@ from hisp.scenario import Scenario, Pulse
 # assumes first pulse begins at 6am on day one
 # scenarios thus stretch from 6am day one to 6:00am day 15 (for the start of the next scenario)
 
+# fp = Pulse(
+#     pulse_type="FP",
+#     nb_pulses=10,
+#     ramp_up=429,
+#     steady_state=650,
+#     ramp_down=455,
+#     waiting=84866,
+#     tritium_fraction=0.5,
+# )
 fp = Pulse(
     pulse_type="FP",
     nb_pulses=10,
     ramp_up=429,
     steady_state=650,
     ramp_down=455,
-    waiting=84866,
+    waiting=3600,
     tritium_fraction=0.5,
 )
 icwc = Pulse(

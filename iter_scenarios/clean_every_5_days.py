@@ -1,16 +1,17 @@
 from hisp.scenario import Scenario, Pulse
 
-from .benchmark import gdc, bake
+from iter_scenarios.benchmark import gdc, bake
+from iter_scenarios.do_nothing import fp
 
-fp = Pulse(
-    pulse_type="FP",
-    nb_pulses=5,
-    ramp_up=429,
-    steady_state=650,
-    ramp_down=455,
-    waiting=84866,
-    tritium_fraction=0.5,
-)
+# fp = Pulse(
+#     pulse_type="FP",
+#     nb_pulses=5,
+#     ramp_up=429,
+#     steady_state=650,
+#     ramp_down=455,
+#     waiting=84866,
+#     tritium_fraction=0.5,
+# )
 risp6 = Pulse(
     pulse_type="RISP",
     nb_pulses=6,
