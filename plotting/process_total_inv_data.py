@@ -1,8 +1,6 @@
 import json
 import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-from make_iter_bins import Div_bins, total_fw_bins, FW_bins
+from make_iter_bins import Div_bins, FW_bins
 import math
 
 # Constants
@@ -11,8 +9,8 @@ D_AMU = 2.01410177811  # Atomic mass unit for Deuterium
 T_AMU = 3.0160492779  # Atomic mass unit for Tritium
 
 # import scenarios
-from iter_scenarios.do_nothing import scenario as scenario
 # from iter_scenarios.do_nothing import scenario as scenario
+from iter_scenarios.capability_test import scenario as scenario
 
 # pull milestones for plotting
 time_points = [0]
@@ -205,8 +203,8 @@ for i in range(18,62):
     )
 
 # save data in case plotting go awry
-np.savetxt("cycle_data_d", D_inventory)
-np.savetxt("cycle_data_t", T_inventory)
+np.savetxt("plot_d_"+scenario, D_inventory)
+np.savetxt("plot_t"+scenario, T_inventory)
 
 # Plotting with Plotly
 # plot_time = np.array(time_points) / 3600

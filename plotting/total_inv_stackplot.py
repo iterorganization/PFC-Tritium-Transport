@@ -2,9 +2,19 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+###### THIS FILE PLOTS THE TOTAL INVENTORY OF A SCENARIO AS A STACK PLOT ######
+## There are a few things that need to be adjusted depending on what you want to plot:
+# System path directory on line 16
+# Scenario that you'd like to import and plot on line 17 
+# D and T inventory file names created from process_total_inv_data.py on lines 38 and 39
+# Plot title and figure name on lines 66 and 68
+## Then you're good to go!
+
+
 #  Plotting with Plotly
-from iter_scenarios.do_nothing import scenario as scenario
-# from iter_scenarios.do_nothing import scenario as scenario
+import sys
+sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/iter_scenarios')
+from do_nothing import scenario as scenario
 
 # pull milestones for plotting
 time_points = [0]
@@ -25,8 +35,8 @@ for pulse in scenario.pulses:
 
 plot_time = np.array(time_points) / 3600
 
-D_inventory = np.loadtxt('cycle_data_d')
-T_inventory = np.loadtxt('cycle_data_t')
+D_inventory = np.loadtxt('plotting/cycle_data_d_donothing')
+T_inventory = np.loadtxt('plotting/cycle_data_t_donothing')
 
 fig = go.Figure()
 
