@@ -8,9 +8,18 @@ AVOGADROS_CONST = 6.02214076e23
 D_AMU = 2.01410177811  # Atomic mass unit for Deuterium
 T_AMU = 3.0160492779  # Atomic mass unit for Tritium
 
+###### THIS FILE CREATES PLOT-READY DATA FILES FROM SIMULATION RESULTS DATA FOR ONLY TOTAL INVENTORY PLOTTING ######
+## There are a few things that need to be adjusted depending on which scenario you want to look at:
+# System path directory on line 20
+# Scenario that you'd like to import and plot on line 21 
+# Output plot-ready-data file names based on the scenario you're using on lines 215 and 216
+## Then you're good to go!
+
 # import scenarios
-# from iter_scenarios.do_nothing import scenario as scenario
-from iter_scenarios.capability_test import scenario as scenario
+import sys
+sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/iter_scenarios')
+from do_nothing import scenario as scenario
+
 
 # pull milestones for plotting
 time_points = [0]
@@ -203,39 +212,5 @@ for i in range(18,62):
     )
 
 # save data in case plotting go awry
-np.savetxt("plot_d_"+scenario, D_inventory)
-np.savetxt("plot_t"+scenario, T_inventory)
-
-# Plotting with Plotly
-# plot_time = np.array(time_points) / 3600
-
-# fig = go.Figure()
-
-# fig.add_trace(
-#     go.Scatter(
-#         x=plot_time,
-#         y=D_inventory,
-#         name="Total D",
-#         line=dict(color="firebrick", width=2),
-#         stackgroup="one",
-#     )
-# )
-
-# fig.add_trace(
-#     go.Scatter(
-#         x=plot_time,
-#         y=T_inventory,
-#         name="Total T",
-#         line=dict(color="royalblue", width=2),
-#         stackgroup="one",
-#     )
-# )
-
-# fig.update_xaxes(title_text="Time (hrs)")
-# fig.update_yaxes(title_text="Total Quantity (g)") #,type='log')
-
-# fig.update_layout(title_text="Total Inventory for 'Do Nothing'")
-
-# fig.write_html("do_nothing_inventory_plot.html", auto_open=True)
-
-# print('Finished.')
+np.savetxt("plot_total_d_donothing", D_inventory)
+np.savetxt("plot_total_t_donothing", T_inventory)

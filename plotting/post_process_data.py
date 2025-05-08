@@ -4,10 +4,17 @@ import numpy as np
 from make_iter_bins import Div_bins, total_fw_bins, FW_bins
 import math
 
-# import scenarios
-from iter_scenarios.do_nothing import scenario as scenario
+###### THIS FILE CREATES PLOT-READY DATA FILES FROM SIMULATION RESULTS DATA ######
+## There are a few things that need to be adjusted depending on which scenario you want to look at:
+# System path directory on line 17
+# Scenario that you'd like to import and plot on line 18 
+# Output plot-ready-data file names based on the scenario you're using on lines 200 and 202
+## Then you're good to go!
 
-# from iter_scenarios.capability_test import scenario as scenario
+# import scenarios
+import sys
+sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/iter_scenarios')
+from do_nothing import scenario as scenario
 
 # pull milestones at end of each pulse type for plotting
 time_points = [0]
