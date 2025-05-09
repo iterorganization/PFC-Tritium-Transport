@@ -24,4 +24,4 @@ ml tqdm
 ml scifem
 ml dolfinx/0.9.0-foss-2023b
 
-python cycle_parallel_plot.py
+python post_process_data.py
