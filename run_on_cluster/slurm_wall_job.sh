@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1         # Adjust CPU usage
 #SBATCH --mem=1gb                 # Adjust memory
-#SBATCH --partition=gen10         # Adjust partition name
+#SBATCH --partition=sirius       # Adjust partition name
 
 # Load modules (if required)
 module load IMAS
@@ -27,10 +27,10 @@ ml dolfinx/0.9.0-foss-2023b
 python -m pip install --ignore-installed git+https://github.com/festim-dev/FESTIM@d1b71deed2d0998159b99591951493bffa1f5ca8
 
 # Install correct HISP version 
-python -m pip install git+https://github.com/kaelyndunnell/hisp@fix-b-bins
+python -m pip install git+https://github.com/festim-dev/hisp@fix-b-bins
 
 # Loop over bins and modes
-for i in $(seq 0 17); do  # First wall bins
+for i in $(seq 10 16); do  # (0 17) First wall bins
     case $i in 
         13|14|16|17)
             modes=('shadowed' 'shadowed' 'wetted')
@@ -51,7 +51,7 @@ for i in $(seq 0 17); do  # First wall bins
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1gb
-#SBATCH --partition=gen10
+#SBATCH --partition=sirius
 
 # Load modules and activate environment
 module load IMAS
@@ -64,7 +64,7 @@ ml scifem
 ml dolfinx/0.9.0-foss-2023b
 
 # Run the Python script
-python run_on_cluster/run_wall_bin.py $i $mode iter_scenarios just_glow
+python run_on_cluster/run_wall_bin.py $i $mode iter_scenarios capability_test
 EOF
     done
 done

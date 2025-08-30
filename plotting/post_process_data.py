@@ -132,7 +132,7 @@ def load_and_process_bin_data(
 
 
 # Process wall bins (0 to 17)
-for i in range(1):
+for i in range(18):
     sub_dict_D = {}
     sub_dict_T = {}
 
@@ -170,7 +170,7 @@ for i in range(1):
 
 
 # process div bins
-for i in range(18, 19):
+for i in range(18, 62):
     sub_dict_D = {}
     sub_dict_T = {}
 
@@ -188,7 +188,7 @@ for i in range(18, 19):
         material,
         sub_dict_D,
         sub_dict_T,
-        bin_surf_area=bin_surf_area,
+        # bin_surf_area=bin_surf_area,
     )
 
     D_inventory[i] = sub_dict_D

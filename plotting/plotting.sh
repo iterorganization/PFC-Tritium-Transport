@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=cycleplot
-#SBATCH --output=cycleplot.out # Log file for each job
-#SBATCH --error=cycleplot.err   # Error log
+#SBATCH --job-name=totalinvprocess
+#SBATCH --output=totalinvprocess.out # Log file for each job
+#SBATCH --error=totalinvprocess.err   # Error log
 #SBATCH --time=300:00:00           # Adjust time limit
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1         # Adjust CPU usage
@@ -24,4 +24,4 @@ ml tqdm
 ml scifem
 ml dolfinx/0.9.0-foss-2023b
 
-python post_process_data.py
+python plotting/post_process_data.py

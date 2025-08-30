@@ -41,7 +41,7 @@ with open("processed_data.json", "r") as file:
 
 bin_data = get_bin_data(dict_data, BIN_INDEX)
 
-if BIN_INDEX in list(range(18, 65)):
+if BIN_INDEX in list(range(18, 62)):
     fig = make_subplots(
         rows=4,
         cols=1,

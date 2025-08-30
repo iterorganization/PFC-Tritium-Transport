@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1         # Adjust CPU usage
 #SBATCH --mem=1gb                 # Adjust memory
-#SBATCH --partition=gen10         # Adjust partition name
+#SBATCH --partition=sirius       # Adjust partition name
 
 # Load modules (if required)
 module load IMAS
@@ -27,13 +27,13 @@ ml dolfinx/0.9.0-foss-2023b
 python -m pip install --ignore-installed git+https://github.com/festim-dev/FESTIM@d1b71deed2d0998159b99591951493bffa1f5ca8
 
 # Install correct HISP version 
-python -m pip install git+https://github.com/kaelyndunnell/hisp@fix-b-bins
+python -m pip install git+https://github.com/festim-dev/hisp@fix-b-bins
 
 # Run festim for given bin
 # python run_on_cluster/run_div_bin.py 18 iter_scenarios testcase
 
 # Loop over bins and submit separate jobs
-for i in $(seq 18 62); do  # Div wall bins
+for i in $(seq 58 58); do # $(seq18 61); do  # Div wall bins
     # Create a temporary job script for each i
     cat <<EOF > job_${i}.sh
 #!/bin/bash
@@ -44,7 +44,7 @@ for i in $(seq 18 62); do  # Div wall bins
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1gb
-#SBATCH --partition=gen10
+#SBATCH --partition=sirius
 
 # Load modules and activate environment
 module load IMAS
@@ -57,7 +57,7 @@ ml scifem
 ml dolfinx/0.9.0-foss-2023b
 
 # Run the Python script
-python run_on_cluster/run_div_bin.py $i iter_scenarios just_glow
+python run_on_cluster/run_div_bin.py $i iter_scenarios benchmark
 EOF
 
     # Submit the job script

@@ -84,8 +84,8 @@ x_labels = [
     "IVT 64",
 ]
 
-file_path_d = "plotting/do_nothing_data_D.json"
-file_path_t = "plotting/do_nothing_data_T.json"
+file_path_d = "plotting/do_nothing_D_data.json"
+file_path_t = "plotting/do_nothing_T_data.json"
 
 with open(file_path_d, "r") as file:
     d_plot_data = json.load(file)
@@ -102,21 +102,21 @@ for i, val in enumerate(data_t, start=1):
     globals()[fig_pattern.format(i)] = make_subplots(rows=2, cols=2, shared_xaxes=True)
     globals()[fig_pattern.format(i)].update_layout(
         title_text="Hydrogen Inventory (atm) after Pulse Type " + str(i),
-        legend=dict(title=dict(text="Material and/or Mode")),
+        legend=dict(title=dict(text="Material and/or Mode")), 
     )
     globals()[fig_pattern.format(i)].update_xaxes(title_text="Bin Index", row=2, col=2)
     globals()[fig_pattern.format(i)].update_xaxes(title_text="Bin Index", row=2, col=1)
     globals()[fig_pattern.format(i)].update_yaxes(
-        title_text="D Quantity (atm)", row=1, col=1
+        title_text="D Quantity (atm)", row=1, col=1, type='log' #range=[10**16,10**22], autorange=False,
     )
     globals()[fig_pattern.format(i)].update_yaxes(
-        title_text="T Quantity (atm)", row=2, col=1
+        title_text="T Quantity (atm)", row=2, col=1, type='log'
     )
     globals()[fig_pattern.format(i)].update_yaxes(
-        title_text="D Quantity (atm/m)", row=1, col=2
+        title_text="D Quantity (atm/m)", row=1, col=2, type='log' #range=[10**19,10**24], , autorange=False,
     )
     globals()[fig_pattern.format(i)].update_yaxes(
-        title_text="D Quantity (atm/m)", row=2, col=2
+        title_text="T Quantity (atm/m)", row=2, col=2, type='log'
     )
 
 # plotting tritium
@@ -126,13 +126,13 @@ for name, value in t_plot_data.items():
 
         if bin_idx in range(18):
             if mode == "shadowed":
-                material = FW_bins.get_bin(i).shadowed_subbin.material
+                material = FW_bins.get_bin(bin_idx).shadowed_subbin.material
             elif mode == "low_wetted":
-                material = FW_bins.get_bin(i).low_wetted_subbin.material
+                material = FW_bins.get_bin(bin_idx).low_wetted_subbin.material
             elif mode == "high_wetted":
-                material = FW_bins.get_bin(i).high_wetted_subbin.material
+                material = FW_bins.get_bin(bin_idx).high_wetted_subbin.material
             else:
-                material = FW_bins.get_bin(i).wetted_subbin.material
+                material = FW_bins.get_bin(bin_idx).wetted_subbin.material 
         else:
             material = Div_bins.get_bin(bin_idx).material
 
@@ -157,6 +157,7 @@ for name, value in t_plot_data.items():
                 color = "orange"
             else:
                 color = "pink"
+            width = 0.2
 
         elif bin_idx in range(18, 62):
             right_col = 2  # separating wall and divertor values
@@ -164,6 +165,7 @@ for name, value in t_plot_data.items():
                 color = "darkblue"
             elif material == "B":
                 color = "darkred"
+            width = 0.8
 
         for numb in range(1, len(data_lst) + 1):
             globals()[fig_pattern.format(numb)].add_trace(  # just tritium plotting here
@@ -173,6 +175,7 @@ for name, value in t_plot_data.items():
                     name=material + " " + mode,
                     marker_color=color,
                     showlegend=False,
+                    width=width,
                 ),
                 row=2,
                 col=right_col,
@@ -185,13 +188,13 @@ for name, value in d_plot_data.items():
 
         if bin_idx in range(18):
             if mode == "shadowed":
-                material = FW_bins.get_bin(i).shadowed_subbin.material
+                material = FW_bins.get_bin(bin_idx).shadowed_subbin.material
             elif mode == "low_wetted":
-                material = FW_bins.get_bin(i).low_wetted_subbin.material
+                material = FW_bins.get_bin(bin_idx).low_wetted_subbin.material
             elif mode == "high_wetted":
-                material = FW_bins.get_bin(i).high_wetted_subbin.material
+                material = FW_bins.get_bin(bin_idx).high_wetted_subbin.material
             else:
-                material = FW_bins.get_bin(i).wetted_subbin.material
+                material = FW_bins.get_bin(bin_idx).wetted_subbin.material 
         else:
             material = Div_bins.get_bin(bin_idx).material
 
@@ -216,6 +219,7 @@ for name, value in d_plot_data.items():
                 color = "orange"
             else:
                 color = "pink"
+            width = 0.2
 
         elif bin_idx in range(18, 62):
             right_col = 2  # separating wall and divertor values
@@ -223,6 +227,7 @@ for name, value in d_plot_data.items():
                 color = "darkblue"
             elif material == "B":
                 color = "darkred"
+            width = 0.8
 
         for numb in range(1, len(data_lst) + 1):
             globals()[
@@ -234,6 +239,7 @@ for name, value in d_plot_data.items():
                     name=material + " " + mode,
                     marker_color=color,
                     showlegend=False,
+                    width=width,
                 ),
                 row=1,
                 col=right_col,
@@ -308,6 +314,26 @@ for i, val in enumerate(data_t, start=1):
             mode="markers",
             marker=dict(color="orange", symbol="circle"),
             name="B Shadowed",
+            showlegend=True,
+        )
+    )
+    globals()[fig_pattern.format(i)].add_trace(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            marker=dict(color="darkred", symbol="circle"),
+            name="B Div",
+            showlegend=True,
+        )
+    )
+    globals()[fig_pattern.format(i)].add_trace(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            marker=dict(color="darkblue", symbol="circle"),
+            name="W Div",
             showlegend=True,
         )
     )

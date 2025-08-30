@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1         # Adjust CPU usage
 #SBATCH --mem=1gb                 # Adjust memory
-#SBATCH --partition=gen10         # Adjust partition name
+#SBATCH --partition=sirius       # Adjust partition name
 
 # Load modules (if required)
 module load IMAS
@@ -44,7 +44,7 @@ for i in 9 13 14; do  # First wall bins
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1gb
-#SBATCH --partition=gen10
+#SBATCH --partition=sirius
 
 # Load modules and activate environment
 module load IMAS
@@ -57,7 +57,7 @@ ml scifem
 ml dolfinx/0.9.0-foss-2023b
 
 # Run the Python script
-python run_on_cluster/run_dfw_bin.py $i $mode iter_scenarios just_glow
+python run_on_cluster/run_dfw_bin.py $i $mode iter_scenarios benchmark
 EOF
     done
 done
