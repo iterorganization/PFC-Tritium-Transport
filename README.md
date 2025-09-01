@@ -4,7 +4,7 @@ This repository contains `hisp` (see https://github.com/festim-dev/hisp) scripts
 
 ## How to Install:
 
-Clone the repository and checkout to the branch dfw-permeation-study
+Clone the repository and checkout to the relevant branch
 ```
 git clone https://github.com/iterorganization/PFC-Tritium-Transport
 cd PFC-Tritium-Transport
@@ -29,7 +29,7 @@ ml dolfinx/0.9.0-foss-2023b
 python -m pip install git+https://github.com/festim-dev/FESTIM@d1b71deed2d0998159b99591951493bffa1f5ca8
 
 # install custom hisp
-python -m pip install git+https://github.com/kaelyndunnell/hisp@fix-b-bins
+python -m pip install git+https://github.com/festim-dev/hisp@fix-b-bins
 ```
 ## How to Run:
 
