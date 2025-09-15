@@ -11,12 +11,13 @@ import math
 ## Then you’re good to go!
 # import scenarios
 
-from iter_scenarios.capability_test import scenario as scenario
-# from iter_scenarios.just_glow import scenario as scenario
+# from iter_scenarios.capability_test import scenario as scenario
+from iter_scenarios.just_glow import scenario as scenario
 # from iter_scenarios.do_nothing import scenario as scenario
 
 # folder = "results_do_nothing"
-folder = "results_capability_test"
+folder = "results_just_glow"
+# folder = "results_capability_test"
 # pull milestones at end of each pulse type for plotting
 time_points = [0]
 for pulse in scenario.pulses:
@@ -66,6 +67,9 @@ def load_and_process_bin_data(
         for time_id, time_of_interest in enumerate(scenario_time):
             idx = np.where(np.isclose(time, time_of_interest, atol=10, rtol=0))[0][0]
             print(idx, data[idx])
+            assert time[idx] <= time_of_interest, (
+                "Time in data exceeds time of interest"
+            )
             if "D" in name:
                 data_list_D[time_id] += data[idx] * unit_factor
             elif "T" in name:
@@ -120,7 +124,7 @@ for i in range(18):
     D_inventory[i] = sub_dict_D
     T_inventory[i] = sub_dict_T
 # process div bins
-for i in range(19, 62):
+for i in range(18, 62):
     sub_dict_D = {}
     sub_dict_T = {}
     current_bin = Div_bins.get_bin(i)
