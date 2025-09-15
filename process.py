@@ -11,11 +11,12 @@ import math
 ## Then you’re good to go!
 # import scenarios
 
-# from iter_scenarios.capability_test import scenario as scenario
+from iter_scenarios.capability_test import scenario as scenario
 # from iter_scenarios.just_glow import scenario as scenario
-from iter_scenarios.do_nothing import scenario as scenario
+# from iter_scenarios.do_nothing import scenario as scenario
 
-folder = "results_do_nothing"
+# folder = "results_do_nothing"
+folder = "results_capability_test"
 # pull milestones at end of each pulse type for plotting
 time_points = [0]
 for pulse in scenario.pulses:

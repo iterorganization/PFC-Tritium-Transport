@@ -10,7 +10,7 @@ dependencies:
   - pint # need to install pint with conda to avoid conflicts (HTM)
   - ipykernel
   - scifem
+  - festim
   - pip
   - pip:
-      - git+https://github.com/festim-dev/FESTIM@d1b71deed2d0998159b99591951493bffa1f5ca8
       - git+https://github.com/kaelyndunnell/hisp@fix-b-bins
