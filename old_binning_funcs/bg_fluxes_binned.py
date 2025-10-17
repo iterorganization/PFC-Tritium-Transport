@@ -993,40 +993,59 @@ def bin_2D_plots(bins, div_bins, data_div, data_wall, div_indices):
 
     div_z.append(end_div_z[len(end_div_z) - 1])
     div_r.append(end_div_r[len(end_div_r) - 1])
+    total_r = wall_r + div_r
+    total_z = wall_z + div_z
 
     # plotting
     plt.figure(figsize=(20, 20))
-    # plt.plot(div_r, div_z, color='green')
-    plt.scatter(div_r, div_z, marker="+", s=200, color="black")
-    plt.xlabel("Radius: R-Axis (m)", fontsize=35)
-    plt.ylabel("Height: Z-Axis (m)", fontsize=35)
-    plt.xticks(fontsize=35)
-    plt.yticks(fontsize=35)
-    plt.title("Divertor Bins", fontsize=35)
+    ax = plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    plt.scatter(total_r[18:], total_z[18:], marker="+", s=200, color="black")
+    # plt.plot(div_r, div_z, color='black')
+    plt.plot(total_r[18:35], total_z[18:35], color="black")
+    plt.plot(total_r[35:41], total_z[35:41], color="black")
+    plt.plot(total_r[41:65], total_z[41:65], color="black")
+    # plt.scatter(div_r, div_z, marker="+", s=200, color="black")
+    plt.xlabel("Radius: R-Axis (m)", fontsize=60)
+    plt.ylabel("Height: Z-Axis (m)", fontsize=60)
+    rect_60 = plt.Rectangle((total_r[-3]-0.1,total_z[-3]),0.1,.11,facecolor='darkblue',alpha=0.5) # bins 50,60, and 20
+    ax.add_patch(rect_60)
+    plt.annotate("60", xy=(4.5,-4.5),xytext=(total_r[-3]-0.3,total_z[-3]+0.04),fontsize=60,color='darkblue')
+    rect_50 = plt.Rectangle((total_r[51],total_z[51]),0.04,.06,facecolor='forestgreen',alpha=0.5) # bins 50,60, and 20
+    ax.add_patch(rect_50)
+    plt.annotate("50", xy=(4.5,-4.5),xytext=(total_r[51]-0.2,total_z[51]+0.02),fontsize=60,color='forestgreen')
+    rect_20 = plt.Rectangle((total_r[21],total_z[21]),0.19,0.2,facecolor='cadetblue',alpha=0.5) # bins 50,60, and 20
+    ax.add_patch(rect_20)
+    plt.annotate("20", xy=(4.5,-4.5),xytext=(total_r[21]-0.2,total_z[21]+0.07),fontsize=60,color='cadetblue')
+    plt.xticks(fontsize=50)
+    plt.yticks(fontsize=50)
+    # plt.title("Divertor Bins", fontsize=50)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig("old_binning_funcs/Divertor_Bins")
+    plt.savefig("old_binning_funcs/Divertor_Bins.pdf", format="pdf", bbox_inches="tight")
 
     # plotting it all together
     plt.figure(figsize=(15, 30))
-    plt.scatter(div_r, div_z, marker="+", s=200, color="green", label="Main Chamber")
-    plt.scatter(wall_r, wall_z, marker="+", s=200, color="black", label="Divertor")
+    plt.scatter(div_r, div_z, marker="+", s=200, color="black", label="Main Chamber")
+    plt.scatter(wall_r, wall_z, marker="+", s=200, color="green", label="Divertor")
     total_r = wall_r + div_r
     total_z = wall_z + div_z
-    plt.plot(total_r[0:35], total_z[0:35], color="green")
-    plt.plot(total_r[35:41], total_z[35:41], color="green")
-    plt.plot(total_r[41:65], total_z[41:65], color="green")
+    plt.plot(total_r[0:19], total_z[0:19], color="green")
+    plt.plot(total_r[18:35], total_z[18:35], color="black")
+    plt.plot(total_r[35:41], total_z[35:41], color="black")
+    plt.plot(total_r[41:65], total_z[41:65], color="black")
     # plt.scatter(r1d, z1d, marker='+', s=200, color='blue', label='Actual Divertor Points')
     # plt.scatter(r1w, z1w, marker='+', s=200, color='blue', label='Actual Wall Points')
-    plt.xlabel("Radius: R-Axis (m)", fontsize=35)
-    plt.ylabel("Height: Z-Axis (m)", fontsize=35)
-    plt.xticks(fontsize=35)
-    plt.yticks(fontsize=35)
-    plt.title("Bins", fontsize=35)
+    plt.xlabel("Radius: R-Axis (m)", fontsize=50)
+    plt.ylabel("Height: Z-Axis (m)", fontsize=50)
+    plt.xticks(fontsize=50)
+    plt.yticks(fontsize=50)
+    plt.title("Bins", fontsize=50)
     plt.grid(True)
-    plt.legend()
+    plt.legend(fontsize=35)
     plt.tight_layout()
-    plt.savefig("old_binning_funcs/All_Bins")
+    plt.savefig("old_binning_funcs/All_Bins.pdf", format="pdf", bbox_inches="tight")
 
 
 if __name__ == "__main__":
