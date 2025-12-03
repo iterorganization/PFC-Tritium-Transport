@@ -71,10 +71,12 @@ def run_scenario_wall(scenario: Scenario):
                             _, quantities = my_hisp_model.run_bin(sub_bin)
 
                             # Format the data
+                            t_sampled = next(iter(quantities.values())).t[::1]
                             wall_subbin_data = {
-                                key: {"t": value.t, "data": value.data}
+                                key: {"data": value.data[::1]}
                                 for key, value in quantities.items()
                             }
+                            wall_subbin_data["t"] = t_sampled
                             wall_subbin_data["mode"] = sub_bin.mode
                             wall_subbin_data["parent_bin_index"] = sub_bin.parent_bin_index
 

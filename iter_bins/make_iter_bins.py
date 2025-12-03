@@ -159,13 +159,13 @@ for bin in Div_bins.bins:
 
 # read wetted data
 
-filename = "./iter_bins/Wetted_Frac_Bin_Data.csv"
+filename = "Wetted_Frac_Bin_Data.csv"
 my_reactor.read_wetted_data(filename)
 
 # add start and end points to bins
 import pandas as pd
 
-data = pd.read_csv("./iter_bins/iter_bins.dat", sep=",")
+data = pd.read_csv("bin_data.dat", sep=",")
 
 
 for bin in my_reactor.first_wall.bins + my_reactor.divertor.bins:

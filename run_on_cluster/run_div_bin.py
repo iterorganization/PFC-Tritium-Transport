@@ -2,10 +2,12 @@ import os
 import sys
 import json
 import pandas as pd
+import numpy as np
 
 from hisp.plamsa_data_handling import PlasmaDataHandling
 from hisp.model import Model
 from hisp.scenario import Scenario
+from hisp.festim_models import make_temperature_function
 
 # Get the parent directory of the current script
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -48,6 +50,7 @@ def run_scenario_div(scenario: Scenario):
         scenario=scenario,
         plasma_data_handling=plasma_data_handling,
         coolant_temp=343.0,
+        BC_type="New",
     )
 
     # # Save job data to a JSON file
@@ -66,11 +69,25 @@ def run_scenario_div(scenario: Scenario):
                 print(f"Running divertor bin {div_bin.index}")
                 _, quantities = my_hisp_model.run_bin(div_bin)
 
-                # Format results
+                temperature_function = make_temperature_function(
+                        scenario=scenario,
+                        plasma_data_handling=plasma_data_handling,
+                        bin=div_bin,
+                        coolant_temp=343.0,
+                        )
+
+                # Format the data
+                t_sampled = next(iter(quantities.values())).t[::1]
                 div_bin_data = {
-                    key: {"t": value.t, "data": value.data} for key, value in quantities.items()
+                    key: {"data": value.data[::1]}
+                    for key, value in quantities.items()
                 }
+                div_bin_data["t"] = t_sampled
                 div_bin_data["bin_index"] = div_bin.index
+
+                x_eval = np.array([[0.0]])  # x = 0
+                temperature_values = [float(temperature_function(x_eval, float(t))[0]) for t in t_sampled]
+                div_bin_data["temperature_at_x0"] = temperature_values
 
                 # Save results to JSON
                 output_file = f"results_{scenario_name}/div_bin_{div_bin.index}.json"

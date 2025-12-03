@@ -9,34 +9,34 @@
 #SBATCH --partition=sirius       # Adjust partition name
 
 # Load modules (if required)
-module load IMAS
-# module load FESTIM
+
 
 # Activate virtual environment
-source myenv/bin/activate
+module load IMAS
+source /home/ITER/llealsa/miniconda3/etc/profile.d/conda.sh
+conda activate festim-fenicsx
+export PATH="/home/ITER/llealsa/miniconda3/envs/festim-fenicsx/bin:$PATH"
+
+unset PYTHONPATH
+export PYTHONNOUSERSITE=1
+
+module unload SciPy-bundle        2>/dev/null
+module unload Python-bundle-PyPI  2>/dev/null
+module unload Python              2>/dev/null
+module unload numpy               2>/dev/null
+module unload mpi4py              2>/dev/null
+module unload scifem              2>/dev/null
 
 # Load other modules
-ml foss
-ml SciPy-bundle 
-ml mpi4py
-ml tqdm
-ml scifem
-ml dolfinx/0.9.0-foss-2023b
-
-# Install correct FESTIM version
-python -m pip install --ignore-installed git+https://github.com/festim-dev/FESTIM@d1b71deed2d0998159b99591951493bffa1f5ca8
-
-# Install correct HISP version 
-python -m pip install git+https://github.com/festim-dev/hisp@fix-b-bins
 
 # Loop over bins and modes
-for i in $(seq 10 16); do  # (0 17) First wall bins
+for i in $(seq 0 17); do  # (0 17) First wall bins
     case $i in 
         13|14|16|17)
-            modes=('shadowed' 'shadowed' 'wetted')
+            modes=('shadowed' 'wetted')
             ;;
         *)
-            modes=('shadowed' 'shadowed' 'low_wetted' 'high_wetted')
+            modes=('shadowed' 'low_wetted' 'high_wetted')
             ;;
     esac
 
@@ -54,17 +54,34 @@ for i in $(seq 10 16); do  # (0 17) First wall bins
 #SBATCH --partition=sirius
 
 # Load modules and activate environment
+
 module load IMAS
-source myenv/bin/activate
-ml foss
-ml SciPy-bundle 
-ml mpi4py
-ml tqdm
-ml scifem
-ml dolfinx/0.9.0-foss-2023b
+source /home/ITER/llealsa/miniconda3/etc/profile.d/conda.sh
+conda activate festim-fenicsx
+export PATH="/home/ITER/llealsa/miniconda3/envs/festim-fenicsx/bin:$PATH"
+
+unset PYTHONPATH
+export PYTHONNOUSERSITE=1
+
+module unload SciPy-bundle        2>/dev/null
+module unload Python-bundle-PyPI  2>/dev/null
+module unload Python              2>/dev/null
+module unload numpy               2>/dev/null
+module unload mpi4py              2>/dev/null
+module unload scifem              2>/dev/null
+
+
 
 # Run the Python script
-python run_on_cluster/run_wall_bin.py $i $mode iter_scenarios capability_test
+
+ Double-disable user-site and print FESTIM location & version
+PYTHONNOUSERSITE=1 python -s -c "import festim, sys; print('FESTIM import path:', festim.__file__)"
+PYTHONNOUSERSITE=1 python -s -c "import importlib.metadata as m; print('FESTIM version:', m.version('festim'))"
+
+# Run with user-site disabled
+PYTHONNOUSERSITE=1 python -s run_on_cluster/run_wall_bin_2.py $i $mode iter_scenarios capability_test_2
+
+
 EOF
     done
 done

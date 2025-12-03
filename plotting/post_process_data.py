@@ -1,6 +1,18 @@
 # post-process inventory bar graphs
 import json
 import numpy as np
+import os
+import sys
+
+# Add the parent directory to sys.path to access examples
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, parent_dir)
+
+# Change to examples directory to access required data files
+examples_dir = os.path.join(parent_dir, "examples")
+original_cwd = os.getcwd()
+os.chdir(examples_dir)
+
 from make_iter_bins import Div_bins, total_fw_bins, FW_bins
 import math
 
@@ -12,8 +24,7 @@ import math
 ## Then you're good to go!
 
 # import scenarios
-import sys
-sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/iter_scenarios')
+sys.path.insert(0, os.path.join(parent_dir, 'iter_scenarios'))
 from do_nothing import scenario as scenario
 
 # pull milestones at end of each pulse type for plotting
@@ -60,7 +71,7 @@ def load_and_process_bin_data(
             if name == "bin_index" or name == "parent_bin_index":
                 bin_idx = value
             elif name == "mode":
-                mode == value
+                mode = value
             continue
 
         quantities_dict = value
@@ -138,7 +149,7 @@ for i in range(18):
 
     if i in [13, 14, 16, 17]:
         for mode in ["shadowed", "wetted"]:
-            file_path = f"results_do_nothing/wall_bin_{i}_sub_bin_{mode}.json"
+            file_path = f"../results_do_nothing/wall_bin_{i}_sub_bin_{mode}.json"
             if mode == "shadowed":
                 material = FW_bins.get_bin(i).shadowed_subbin.material
             elif mode == "wetted":
@@ -148,7 +159,7 @@ for i in range(18):
             )
     else:
         for mode in ["shadowed", "low_wetted", "high_wetted"]:
-            file_path = f"results_do_nothing/wall_bin_{i}_sub_bin_{mode}.json"
+            file_path = f"../results_do_nothing/wall_bin_{i}_sub_bin_{mode}.json"
             if mode == "shadowed":
                 material = FW_bins.get_bin(i).shadowed_subbin.material
             elif mode == "low_wetted":
@@ -159,7 +170,7 @@ for i in range(18):
                 file_path, time_points, material, sub_dict_D, sub_dict_T
             )
     if i in [9, 13, 14]:
-        file_path = f"results_do_nothing/wall_bin_{i}_sub_bin_dfw.json"
+        file_path = f"../results_do_nothing/wall_bin_{i}_sub_bin_dfw.json"
         material = "DFW"
         sub_dict_D, sub_dict_T = load_and_process_bin_data(
             file_path, time_points, material, sub_dict_D, sub_dict_T
@@ -175,7 +186,7 @@ for i in range(18, 62):
     sub_dict_T = {}
 
     current_bin = Div_bins.get_bin(i)
-    file_path = f"results_do_nothing/div_bin_{i}.json"
+    file_path = f"../results_do_nothing/div_bin_{i}.json"
     bin_surf_area = calculate_bin_surface_area(
         current_bin.start_point,
         current_bin.end_point,
@@ -194,6 +205,9 @@ for i in range(18, 62):
     D_inventory[i] = sub_dict_D
     T_inventory[i] = sub_dict_T
 
+
+# restore original working directory
+os.chdir(original_cwd)
 
 # save data
 with open("do_nothing_D_data.json", "w") as file:

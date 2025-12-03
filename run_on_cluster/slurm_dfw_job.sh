@@ -9,25 +9,23 @@
 #SBATCH --partition=sirius       # Adjust partition name
 
 # Load modules (if required)
-module load IMAS
-# module load FESTIM
+
 
 # Activate virtual environment
-source myenv/bin/activate
+module load IMAS
+source /home/ITER/llealsa/miniconda3/etc/profile.d/conda.sh
+conda activate festim-fenicsx
+export PATH="/home/ITER/llealsa/miniconda3/envs/festim-fenicsx/bin:$PATH"
 
-# Load other modules
-ml foss
-ml SciPy-bundle 
-ml mpi4py
-ml tqdm
-ml scifem
-ml dolfinx/0.9.0-foss-2023b
+unset PYTHONPATH
+export PYTHONNOUSERSITE=1
 
-# Install correct FESTIM version
-python -m pip install --ignore-installed git+https://github.com/festim-dev/FESTIM@d1b71deed2d0998159b99591951493bffa1f5ca8
-
-# Install correct HISP version 
-python -m pip install git+https://github.com/kaelyndunnell/hisp@fix-b-bins
+module unload SciPy-bundle        2>/dev/null
+module unload Python-bundle-PyPI  2>/dev/null
+module unload Python              2>/dev/null
+module unload numpy               2>/dev/null
+module unload mpi4py              2>/dev/null
+module unload scifem              2>/dev/null
 
 # Loop over bins and modes
 for i in 9 13 14; do  # First wall bins
@@ -47,17 +45,25 @@ for i in 9 13 14; do  # First wall bins
 #SBATCH --partition=sirius
 
 # Load modules and activate environment
+
 module load IMAS
-source myenv/bin/activate
-ml foss
-ml SciPy-bundle 
-ml mpi4py
-ml tqdm
-ml scifem
-ml dolfinx/0.9.0-foss-2023b
+source /home/ITER/llealsa/miniconda3/etc/profile.d/conda.sh
+conda activate festim-fenicsx
+export PATH="/home/ITER/llealsa/miniconda3/envs/festim-fenicsx/bin:$PATH"
+
+unset PYTHONPATH
+export PYTHONNOUSERSITE=1
+
+module unload SciPy-bundle        2>/dev/null
+module unload Python-bundle-PyPI  2>/dev/null
+module unload Python              2>/dev/null
+module unload numpy               2>/dev/null
+module unload mpi4py              2>/dev/null
+module unload scifem              2>/dev/null
+
 
 # Run the Python script
-python run_on_cluster/run_dfw_bin.py $i $mode iter_scenarios benchmark
+python run_on_cluster/run_dfw_bin.py $i $mode iter_scenarios capability_test
 EOF
     done
 done
