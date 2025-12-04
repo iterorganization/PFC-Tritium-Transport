@@ -31,11 +31,11 @@ This will install:
 ---
 
 ### 3. Install custom HISP version
-We use a specific branch of HISP from your fork:
+We use a specific branch of HISP which will remain static until significant improvements are made. 
+To avoid FESTIM version conflicts, we install HISP **without dependencies**:
 ```bash
-pip install git+https://github.com/AdriaLlealS/hisp.git@fix-b-bins
+pip install --no-deps git+https://github.com/AdriaLlealS/hisp.git@fix-b-bins
 ```
-This ensures the exact commit from your branch is installed.
 
 ---
 
@@ -44,6 +44,15 @@ Prepare your batch job `job.sh` in the `run_on_cluster` folder. Then:
 ```bash
 sh run_on_cluster/job.sh
 ```
-
+Make sure to load the IMAS module and activate the conda environment on your .sh file with:
+```bash
+module load IMAS
+source <your-conda-installation-path>
+conda activate festim-fenicsx
+```
+Replace <your-conda-installation-path> with the path to your own conda installation. For example:
+```bash
+source /opt/miniconda3/etc/profile.d/conda.sh'
+```
 --
 
