@@ -2,10 +2,12 @@ import os
 import sys
 import json
 import pandas as pd
+import numpy as np
 
 from hisp.plamsa_data_handling import PlasmaDataHandling
 from hisp.model import Model
 from hisp.scenario import Scenario
+from hisp.festim_models import make_temperature_function
 
 # Get the parent directory of the current script
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -50,6 +52,7 @@ def run_scenario_wall(scenario: Scenario):
         scenario=scenario,
         plasma_data_handling=plasma_data_handling,
         coolant_temp=343.0,
+        BC_type="New",
     )
 
     # # Load the corresponding job data
@@ -71,13 +74,26 @@ def run_scenario_wall(scenario: Scenario):
                         print(f"Running wall bin {bin_index}, {sub_bin.mode}")
                         _, quantities = my_hisp_model.run_bin(sub_bin)
 
+                        temperature_function = make_temperature_function(
+                        scenario=scenario,
+                        plasma_data_handling=plasma_data_handling,
+                        bin=sub_bin,
+                        coolant_temp=343.0,
+                        )
                         # Format the data
+                        t_sampled = next(iter(quantities.values())).t[::1]
                         wall_subbin_data = {
-                            key: {"t": value.t, "data": value.data}
+                            key: {"data": value.data[::1]}
                             for key, value in quantities.items()
                         }
+                        wall_subbin_data["t"] = t_sampled
                         wall_subbin_data["mode"] = sub_bin.mode
                         wall_subbin_data["parent_bin_index"] = sub_bin.parent_bin_index
+
+                        x_eval = np.array([[0.0]])  # x = 0
+                        temperature_values = [float(temperature_function(x_eval, float(t))[0]) for t in t_sampled]
+                        wall_subbin_data["temperature_at_x0"] = temperature_values
+
 
                         # Save results to JSON
                         # TODO make subdirectories for different scenarios
