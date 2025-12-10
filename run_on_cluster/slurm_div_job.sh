@@ -23,7 +23,7 @@ module unload scifem              2>/dev/null
 
 # Loop over bins and submit separate jobs
 for i in $(seq 18 61); do
-#for i in 50; do
+#for i in 47; do
     cat <<EOF > job_${i}.sh
 #!/bin/bash --login
 #SBATCH --job-name=bin_${i}
@@ -48,7 +48,7 @@ module unload mpi4py              2>/dev/null
 module unload scifem              2>/dev/null
 
 # Run the actual job
-python run_on_cluster/run_div_bin.py ${i} iter_scenarios capability_test_2
+python run_on_cluster/run_div_bin.py ${i} iter_scenarios just_glow_K
 EOF
 
     sbatch --export=NONE job_${i}.sh

@@ -52,7 +52,7 @@ def run_scenario_wall(scenario: Scenario):
         scenario=scenario,
         plasma_data_handling=plasma_data_handling,
         coolant_temp=343.0,
-        BC_type="New",
+        BC_type="Old",
     )
 
     # # Load the corresponding job data

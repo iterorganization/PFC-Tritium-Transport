@@ -79,7 +79,7 @@ PYTHONNOUSERSITE=1 python -s -c "import festim, sys; print('FESTIM import path:'
 PYTHONNOUSERSITE=1 python -s -c "import importlib.metadata as m; print('FESTIM version:', m.version('festim'))"
 
 # Run with user-site disabled
-PYTHONNOUSERSITE=1 python -s run_on_cluster/run_wall_bin.py $i $mode iter_scenarios capability_test_2
+PYTHONNOUSERSITE=1 python -s run_on_cluster/run_wall_bin.py $i $mode iter_scenarios just_glow_K
 
 
 EOF

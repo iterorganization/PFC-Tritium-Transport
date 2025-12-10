@@ -7,14 +7,15 @@ from pathlib import Path
 import re
 
 # -------- CONFIG --------
-RESULTS_DIR = Path("../results_test_adri")  # Directory with JSON files
+RESULTS_DIR = Path("../results_do_nothing")  # Directory with JSON files
 CSV_FILE = Path("/home/ITER/llealsa/AdriaLlealS/PFC-Tritium-Transport/iter_bins/Wetted_Frac_Bin_Data.csv")         # CSV file with bin surface data
 DIVERTOR_BIN_FILE = Path("/home/ITER/llealsa/AdriaLlealS/PFC-Tritium-Transport/iter_bins/iter_bins.dat")  # Divertor bin geometry data
-PLOTS_DIR = Path("./plots_do_test_adri")
+PLOTS_DIR = Path("./new_inv_do_nothing")
 FIGSIZE = (6, 8)  # Taller figure for two subplots
 LEFT_XLIM_HOURS = 0.001
 RIGHT_XLIM_HOURS = 250
 TARGET_INTERVAL = 100  # seconds
+MOVING_AVERAGE_WINDOW = 0  # Window size for moving average smoothing
 # -------------------------.
 
 def parse_filename(stem: str):
@@ -51,7 +52,8 @@ def load_divertor_bin_data(dat_path):
             z_start = float(row["Z_Start"])
             z_end = float(row["Z_End"])
             
-            area = np.pi * abs(r_start + r_end) * abs(z_end - z_start)
+            #area = np.pi * abs(r_start + r_end) * abs(z_end - z_start)
+            area = 2 * np.pi * (r_start * abs(z_end - z_start)+(r_end - r_start)*z_start + abs((r_end-r_start)*(z_end - z_start))*abs(z_end**2-z_start**2)/2)  # More accurate area calculation
             divertor_areas[idx + 18] = area  # Divertor bins start at index 18
     
     return divertor_areas
@@ -185,20 +187,64 @@ def main():
     avogadro = 6.02214076e23  # atoms/mol
     tritium_mass = 3.0160492  # g/mol
 
+    # Debug: Check initial values before smoothing
+    print(f"[DEBUG] Raw values at first few time points:")
+    print(f"  Times (hours): {times_hours[:5]}")
+    print(f"  W_wall (g): {tritium_mass * W_totals_wall[:5] / avogadro}")
+    print(f"  B_wall (g): {tritium_mass * B_totals_wall[:5] / avogadro}")
+    print(f"  W_div (g): {tritium_mass * W_totals_div[:5] / avogadro}")
+    print(f"  B_div (g): {tritium_mass * B_totals_div[:5] / avogadro}")
+
     # Apply moving average for smoothing
- 
+    W_totals_wall_smooth = moving_average(W_totals_wall, MOVING_AVERAGE_WINDOW)
+    B_totals_wall_smooth = moving_average(B_totals_wall, MOVING_AVERAGE_WINDOW)
+    total_wall_smooth = moving_average(W_totals_wall + B_totals_wall, MOVING_AVERAGE_WINDOW)
+    
+    W_totals_div_smooth = moving_average(W_totals_div, MOVING_AVERAGE_WINDOW)
+    B_totals_div_smooth = moving_average(B_totals_div, MOVING_AVERAGE_WINDOW)
+    total_div_smooth = moving_average(W_totals_div + B_totals_div, MOVING_AVERAGE_WINDOW)
+
+    # Debug: Check values after smoothing
+    #print(f"[DEBUG] Smoothed values at first few time points:")
+    #print(f"  W_wall_smooth (g): {tritium_mass * W_totals_wall_smooth[:5] / avogadro}")
+    #print(f"  B_wall_smooth (g): {tritium_mass * B_totals_wall_smooth[:5] / avogadro}")
+    #print(f"  W_div_smooth (g): {tritium_mass * W_totals_div_smooth[:5] / avogadro}")
+    #print(f"  B_div_smooth (g): {tritium_mass * B_totals_div_smooth[:5] / avogadro}")
 
     # Calculate total inventories (W + B) for analysis
-    total_wall_inventory = W_totals_wall + B_totals_wall
-    total_div_inventory = W_totals_div + B_totals_div
+    total_wall_inventory = W_totals_wall_smooth + B_totals_wall_smooth
+    total_div_inventory = W_totals_div_smooth + B_totals_div_smooth
+
+    # Convert to grams for analysis
+    total_wall_inventory_g = tritium_mass * total_wall_inventory / avogadro
+    total_div_inventory_g = tritium_mass * total_div_inventory / avogadro
+
+    # Calculate ratios: inventory at last time / maximum inventory
+    wall_last_value = total_wall_inventory_g[-1]
+    wall_max_value = max(total_wall_inventory_g)
+    wall_ratio = wall_last_value / wall_max_value if wall_max_value > 0 else 0
+
+    div_last_value = total_div_inventory_g[-1]
+    div_max_value = max(total_div_inventory_g)
+    div_ratio = div_last_value / div_max_value if div_max_value > 0 else 0
+
+    print(f"[ANALYSIS] Wall inventory:")
+    print(f"  Last time inventory: {wall_last_value:.6e} g")
+    print(f"  Maximum inventory: {wall_max_value:.6e} g")
+    print(f"  Ratio (last/max): {wall_ratio:.4f}")
+
+    print(f"[ANALYSIS] Divertor inventory:")
+    print(f"  Last time inventory: {div_last_value:.6e} g")
+    print(f"  Maximum inventory: {div_max_value:.6e} g")
+    print(f"  Ratio (last/max): {div_ratio:.4f}")
 
     # Create subplot layout
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=FIGSIZE, sharex=True)
     
     # Top plot: Divertor inventory
-    ax1.plot(times_hours, tritium_mass*W_totals_div/avogadro, label="Total T in Tungsten", color="tab:blue", linewidth=2)
-    ax1.plot(times_hours, tritium_mass*B_totals_div/avogadro, label="Total T in Boron", color="tab:green", linewidth=2)
-    ax1.plot(times_hours, tritium_mass*total_div_inventory/avogadro, label="Total T", color="black", linewidth=2)
+    ax1.plot(times_hours, tritium_mass*W_totals_div_smooth/avogadro, label="Total T in Tungsten", color="tab:blue", linewidth=2)
+    ax1.plot(times_hours, tritium_mass*B_totals_div_smooth/avogadro, label="Total T in Boron", color="tab:green", linewidth=2)
+    ax1.plot(times_hours, tritium_mass*total_div_smooth/avogadro, label="Total T", color="black", linewidth=2)
     ax1.set_xscale("log")
     ax1.set_xlim(left=times_hours[0] if times_hours[0] > 0 else times_hours[1], right=times_hours[-1])  # Start from first non-zero time
     ax1.set_ylabel("Total Tritium Inventory (g)")
@@ -207,9 +253,9 @@ def main():
     ax1.legend()
     
     # Bottom plot: Wall inventory
-    ax2.plot(times_hours, tritium_mass*W_totals_wall/avogadro, label="Total T in Tungsten", color="tab:blue", linewidth=2)
-    ax2.plot(times_hours, tritium_mass*B_totals_wall/avogadro, label="Total T in Boron", color="tab:green", linewidth=2)
-    ax2.plot(times_hours, tritium_mass*total_wall_inventory/avogadro, label="Total T", color="black", linewidth=2)
+    ax2.plot(times_hours, tritium_mass*W_totals_wall_smooth/avogadro, label="Total T in Tungsten", color="tab:blue", linewidth=2)
+    ax2.plot(times_hours, tritium_mass*B_totals_wall_smooth/avogadro, label="Total T in Boron", color="tab:green", linewidth=2)
+    ax2.plot(times_hours, tritium_mass*total_wall_smooth/avogadro, label="Total T", color="black", linewidth=2)
     ax2.set_xscale("log")
     ax2.set_xlim(left=times_hours[0] if times_hours[0] > 0 else times_hours[1], right=times_hours[-1])  # Start from first non-zero time
     ax2.set_xlabel("Time (hours)")

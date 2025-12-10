@@ -50,7 +50,7 @@ def run_scenario_div(scenario: Scenario):
         scenario=scenario,
         plasma_data_handling=plasma_data_handling,
         coolant_temp=343.0,
-        BC_type="New",
+        BC_type="Old",
     )
 
     # # Save job data to a JSON file
