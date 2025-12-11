@@ -9,7 +9,7 @@ from plotly.subplots import make_subplots
 # Load the JSON file
 # file_path = "results_just_glow/wall_bin_5_sub_bin_high_wetted.json"  # Update the path if needed
 # 
-file_path = "results_just_glow/div_bin_20.json"  # Update the path if needed
+file_path = "../results_no_risp_test/wall_bin_11_sub_bin_high_wetted.json"  # Update the path if needed
 # file_path = "results_benchmark/div_bin_46.json"  # Update the path if needed
 with open(file_path, "r") as file:
     data = json.load(file)
@@ -58,15 +58,16 @@ if total_T is not None:
 # ax_top.plot(time_values, total_D, label="Total D", linestyle='--', linewidth=2, color='blue')
 
 # --- Format top axis ---
-ax_top.set_xscale("log")
+ax_top.set_xscale("linear")
 # ax_top.set_yscale("log")  # Uncomment if needed
 # ax_top.set_xlim(0.05, 15)
-ax_top.set_xlim(0.05, 200)
+#ax_top.set_xlim(0.05, 200)
+ax_top.set_xlim(left=0.05)
 # ax_top.set_ylim(1e16, 1e23)  # Uncomment if needed
 ax_top.set_ylabel("Tritium Value (atms/m^2)")
 ax_top.legend(loc='upper left')
 ax_top.grid(which="both", linestyle="--", linewidth=0.5)
-ax_top.set_title("Boron Divertor Bin 20")
+ax_top.set_title("Tungsten high-wetted Wall bin 11")
 
 # ax_middle.legend()
 
@@ -79,7 +80,7 @@ ax_bottom.grid(which="both", linestyle="--", linewidth=0.5)
 # plotly_fig.write_html("1_bin.html", auto_open=True)
 
 plt.tight_layout()
-plt.savefig("1_bin")
+plt.savefig("1_bin_2")
 print('done')
 # plt.show()
 

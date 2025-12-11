@@ -1,42 +1,31 @@
-#!/bin/bash
+#!/bin/bash --login
 #SBATCH --job-name=bin_job
-#SBATCH --output=logs/bin_%j.out  # Log file for each job
-#SBATCH --error=logs/bin_%j.err   # Error log
-#SBATCH --time=1:00:00           # Adjust time limit
+#SBATCH --output=logs/bin_%j.out
+#SBATCH --error=logs/bin_%j.err
+#SBATCH --time=1:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1         # Adjust CPU usage
-#SBATCH --mem=1gb                 # Adjust memory
-#SBATCH --partition=sirius       # Adjust partition name
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=1gb
+#SBATCH --partition=sirius
 
-# Load modules (if required)
 module load IMAS
-# module load FESTIM
+source /home/ITER/llealsa/miniconda3/etc/profile.d/conda.sh
+conda activate festim-fenicsx
 
-# Activate virtual environment
-source myenv/bin/activate
-
-# Load other modules
-ml foss
-ml SciPy-bundle 
-ml mpi4py
-ml tqdm
-ml scifem
-ml dolfinx/0.9.0-foss-2023b
-
-# Install correct FESTIM version
-python -m pip install --ignore-installed git+https://github.com/festim-dev/FESTIM@d1b71deed2d0998159b99591951493bffa1f5ca8
-
-# Install correct HISP version 
-python -m pip install git+https://github.com/festim-dev/hisp@fix-b-bins
-
-# Run festim for given bin
-# python run_on_cluster/run_div_bin.py 18 iter_scenarios testcase
+unset PYTHONPATH
+export PYTHONNOUSERSITE=1
+module unload SciPy-bundle        2>/dev/null
+module unload Python-bundle-PyPI  2>/dev/null
+module unload Python              2>/dev/null
+module unload numpy               2>/dev/null
+module unload mpi4py              2>/dev/null
+module unload scifem              2>/dev/null
 
 # Loop over bins and submit separate jobs
-for i in $(seq 58 58); do # $(seq18 61); do  # Div wall bins
-    # Create a temporary job script for each i
+for i in $(seq 18 61); do
+#for i in 47; do
     cat <<EOF > job_${i}.sh
-#!/bin/bash
+#!/bin/bash --login
 #SBATCH --job-name=bin_${i}
 #SBATCH --output=logs/bin_${i}_%j.out
 #SBATCH --error=logs/bin_${i}_%j.err
@@ -46,23 +35,22 @@ for i in $(seq 58 58); do # $(seq18 61); do  # Div wall bins
 #SBATCH --mem=1gb
 #SBATCH --partition=sirius
 
-# Load modules and activate environment
 module load IMAS
-source myenv/bin/activate
-ml foss
-ml SciPy-bundle 
-ml mpi4py
-ml tqdm
-ml scifem
-ml dolfinx/0.9.0-foss-2023b
+source /home/ITER/llealsa/miniconda3/etc/profile.d/conda.sh
+conda activate festim-fenicsx
+unset PYTHONPATH
+export PYTHONNOUSERSITE=1
+module unload SciPy-bundle        2>/dev/null
+module unload Python-bundle-PyPI  2>/dev/null
+module unload Python              2>/dev/null
+module unload numpy               2>/dev/null
+module unload mpi4py              2>/dev/null
+module unload scifem              2>/dev/null
 
-# Run the Python script
-python run_on_cluster/run_div_bin.py $i iter_scenarios benchmark
+# Run the actual job
+python run_on_cluster/run_div_bin.py ${i} iter_scenarios just_glow_K
 EOF
 
-    # Submit the job script
-    sbatch job_${i}.sh
-
-    # Optionally, remove the temporary job script after submission
+    sbatch --export=NONE job_${i}.sh
     rm job_${i}.sh
 done
