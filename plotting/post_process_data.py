@@ -24,7 +24,7 @@ import math
 ## Then you're good to go!
 
 # import scenarios
-sys.path.insert(0, os.path.join(parent_dir, 'iter_scenarios'))
+sys.path.insert(0, os.path.join(parent_dir, 'scenarios'))
 from do_nothing import scenario as scenario
 
 # pull milestones at end of each pulse type for plotting

@@ -13,7 +13,7 @@ from plotly.subplots import make_subplots
 
 #  Plotting with Plotly
 import sys
-sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/iter_scenarios')
+sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/scenarios')
 from do_nothing import scenario as scenario
 
 # pull milestones for plotting

@@ -14,7 +14,7 @@ import numpy as np
 
 # import scenarios
 import sys
-sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/iter_scenarios')
+sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/scenarios')
 from do_nothing import scenario as scenario
 
 x_labels = [

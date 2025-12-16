@@ -1,95 +1,95 @@
-﻿Bin number,Z_start (m),R_start (m),Z_end (m),R_end (m),Material,Thickness (m),Cu thickness (m),mode,S. Area parent bin (m^2),Surface area (m^2),f (ion flux fraction),location,rtol,atol,FP max. stepsize (s),Max. stepsize no FP (s),BC Plasma Facing Surface,BC rear surface,,,,
-1,-2.51E+00,4.10E+00,-1.50E+00,4.10E+00,W,6.00E-03,2.00E-03,high_wetted,2.60E+01,8.86E-01,9.19E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Robin - Surf. Rec. + Implantation,Neumann - no flux,,,,
-1,-2.51E+00,4.10E+00,-1.50E+00,4.10E+00,W,6.00E-03,2.00E-03,low_wetted,2.60E+01,9.99E-02,8.08E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration,,,,
-1,-2.51E+00,4.10E+00,-1.50E+00,4.10E+00,W,6.00E-03,2.00E-03,shadowed,2.60E+01,2.51E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-2,-1.50E+00,4.10E+00,-4.87E-01,4.10E+00,W,6.00E-03,2.00E-03,high_wetted,2.61E+01,3.30E+00,9.78E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-2,-1.50E+00,4.10E+00,-4.87E-01,4.10E+00,W,6.00E-03,2.00E-03,low_wetted,2.61E+01,1.37E-01,2.23E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-2,-1.50E+00,4.10E+00,-4.87E-01,4.10E+00,W,6.00E-03,2.00E-03,shadowed,2.61E+01,2.27E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-3,-4.87E-01,4.10E+00,5.28E-01,4.10E+00,W,1.00E-02,4.00E-03,high_wetted,2.61E+01,1.75E+00,4.35E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-3,-4.87E-01,4.10E+00,5.28E-01,4.10E+00,W,1.00E-02,4.00E-03,low_wetted,2.61E+01,4.46E+00,5.65E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-3,-4.87E-01,4.10E+00,5.28E-01,4.10E+00,W,1.00E-02,4.00E-03,shadowed,2.61E+01,1.99E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-4,5.28E-01,4.10E+00,1.54E+00,4.10E+00,W,1.00E-02,4.00E-03,high_wetted,2.62E+01,4.75E-01,2.84E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-4,5.28E-01,4.10E+00,1.54E+00,4.10E+00,W,1.00E-02,4.00E-03,low_wetted,2.62E+01,3.18E+00,7.16E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-4,5.28E-01,4.10E+00,1.54E+00,4.10E+00,W,1.00E-02,4.00E-03,shadowed,2.62E+01,2.25E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-5,1.54E+00,4.10E+00,2.56E+00,4.10E+00,W,1.00E-02,4.00E-03,high_wetted,2.61E+01,3.90E+00,9.88E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-5,1.54E+00,4.10E+00,2.56E+00,4.10E+00,W,1.00E-02,4.00E-03,low_wetted,2.61E+01,1.64E-01,1.15E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-5,1.54E+00,4.10E+00,2.56E+00,4.10E+00,W,1.00E-02,4.00E-03,shadowed,2.61E+01,2.20E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-6,2.56E+00,4.10E+00,3.57E+00,4.12E+00,W,1.20E-02,4.00E-03,high_wetted,2.61E+01,3.10E-01,9.81E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-6,2.56E+00,4.10E+00,3.57E+00,4.12E+00,W,1.20E-02,4.00E-03,low_wetted,2.61E+01,9.47E-03,1.89E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-6,2.56E+00,4.10E+00,3.57E+00,4.12E+00,W,1.20E-02,4.00E-03,shadowed,2.61E+01,2.58E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-7,3.57E+00,4.12E+00,4.33E+00,4.33E+00,W,1.20E-02,5.00E-03,high_wetted,2.08E+01,3.10E-01,9.81E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-7,3.57E+00,4.12E+00,4.33E+00,4.33E+00,W,1.20E-02,5.00E-03,low_wetted,2.08E+01,9.47E-03,1.89E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-7,3.57E+00,4.12E+00,4.33E+00,4.33E+00,W,1.20E-02,5.00E-03,shadowed,2.08E+01,2.05E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-8,4.33E+00,4.33E+00,4.70E+00,4.93E+00,W,1.20E-02,5.00E-03,high_wetted,2.07E+01,1.94E+00,9.92E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-8,4.33E+00,4.33E+00,4.70E+00,4.93E+00,W,1.20E-02,5.00E-03,low_wetted,2.07E+01,5.76E-02,8.13E-03,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-8,4.33E+00,4.33E+00,4.70E+00,4.93E+00,W,1.20E-02,5.00E-03,shadowed,2.07E+01,1.87E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-9,4.70E+00,4.93E+00,4.52E+00,5.75E+00,W,1.20E-02,5.00E-03,high_wetted,2.82E+01,4.86E+00,9.73E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-9,4.70E+00,4.93E+00,4.52E+00,5.75E+00,W,1.20E-02,5.00E-03,low_wetted,2.82E+01,3.11E-01,2.65E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-9,4.70E+00,4.93E+00,4.52E+00,5.75E+00,W,1.20E-02,5.00E-03,shadowed,2.82E+01,2.30E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-10,4.52E+00,5.75E+00,3.94E+00,6.51E+00,W,1.20E-02,2.00E-03,high_wetted,2.45E+01,4.86E+00,9.73E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-10,4.52E+00,5.75E+00,3.94E+00,6.51E+00,W,1.20E-02,2.00E-03,low_wetted,2.45E+01,3.11E-01,2.65E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-10,4.52E+00,5.75E+00,3.94E+00,6.51E+00,W,1.20E-02,2.00E-03,shadowed,2.45E+01,1.93E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-11,3.94E+00,6.51E+00,3.16E+00,7.40E+00,W,1.20E-02,2.00E-03,high_wetted,5.16E+01,4.86E+00,9.73E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-11,3.94E+00,6.51E+00,3.16E+00,7.40E+00,B,1.00E-07,0.00E+00,low_wetted,5.16E+01,3.11E-01,2.65E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-11,3.94E+00,6.51E+00,3.16E+00,7.40E+00,B,1.00E-06,0.00E+00,shadowed,5.16E+01,4.64E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-12,3.16E+00,7.40E+00,2.44E+00,7.90E+00,W,1.20E-02,2.00E-03,high_wetted,4.20E+01,3.59E-03,5.22E-03,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-12,3.16E+00,7.40E+00,2.44E+00,7.90E+00,B,1.00E-07,0.00E+00,low_wetted,4.20E+01,5.20E+00,9.95E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-12,3.16E+00,7.40E+00,2.44E+00,7.90E+00,B,1.00E-06,0.00E+00,shadowed,4.20E+01,3.68E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-13,2.44E+00,7.90E+00,1.66E+00,8.26E+00,W,1.20E-02,4.00E-03,high_wetted,4.36E+01,1.40E-01,7.41E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-13,2.44E+00,7.90E+00,1.66E+00,8.26E+00,B,1.00E-07,0.00E+00,low_wetted,4.36E+01,1.27E-01,2.59E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-13,2.44E+00,7.90E+00,1.66E+00,8.26E+00,B,1.00E-06,0.00E+00,shadowed,4.36E+01,4.33E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-14,1.66E+00,8.26E+00,6.13E-01,8.38E+00,W,6.00E-03,2.00E-03,wetted,2.76E+01,4.44E+00,1.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-14,1.66E+00,8.26E+00,6.13E-01,8.38E+00,B,1.00E-06,0.00E+00,shadowed,2.76E+01,2.32E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-15,6.13E-01,8.38E+00,-4.41E-01,8.29E+00,W,6.00E-03,2.00E-03,wetted,2.77E+01,4.55E+00,1.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-15,6.13E-01,8.38E+00,-4.41E-01,8.29E+00,B,1.00E-06,0.00E+00,shadowed,2.77E+01,2.32E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-16,-4.41E-01,8.29E+00,-1.36E+00,7.89E+00,W,6.00E-03,5.00E-03,high_wetted,5.07E+01,8.99E-02,5.14E-02,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-16,-4.41E-01,8.29E+00,-1.36E+00,7.89E+00,B,1.00E-07,0.00E+00,low_wetted,5.07E+01,5.42E+00,9.49E-01,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-16,-4.41E-01,8.29E+00,-1.36E+00,7.89E+00,B,1.00E-06,0.00E+00,shadowed,5.07E+01,4.52E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-17,-1.36E+00,7.89E+00,-2.26E+00,7.27E+00,W,6.00E-03,5.00E-03,wetted,5.26E+01,3.52E+00,1.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-17,-1.36E+00,7.89E+00,-2.26E+00,7.27E+00,B,1.00E-06,0.00E+00,shadowed,5.26E+01,4.91E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-18,-2.26E+00,7.27E+00,-3.25E+00,6.06E+00,W,1.20E-02,2.00E-03,wetted,5.44E+01,8.34E+00,1.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-18,-2.26E+00,7.27E+00,-3.25E+00,6.06E+00,W,1.20E-02,0.00E+00,shadowed,5.44E+01,4.61E+01,0.00E+00,FW,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-19,-3.25E+00,6.06E+00,-3.35E+00,5.83E+00,B,1.00E-06,0.00E+00,,9.37E+00,9.37E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-20,-3.35E+00,5.83E+00,-3.54E+00,5.66E+00,B,1.00E-06,0.00E+00,,9.20E+00,9.20E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-21,-3.54E+00,5.66E+00,-3.77E+00,5.57E+00,B,1.00E-06,0.00E+00,,8.71E+00,8.71E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-22,-3.77E+00,5.57E+00,-3.93E+00,5.56E+00,B,1.00E-06,0.00E+00,,5.61E+00,5.61E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-23,-3.93E+00,5.56E+00,-4.01E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.79E+00,2.79E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-24,-4.01E+00,5.56E+00,-4.08E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.45E+00,2.45E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-25,-4.08E+00,5.56E+00,-4.14E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.10E+00,2.10E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-26,-4.14E+00,5.56E+00,-4.20E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.10E+00,2.10E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-27,-4.20E+00,5.56E+00,-4.26E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.10E+00,2.10E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-28,-4.26E+00,5.56E+00,-4.32E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.10E+00,2.10E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-29,-4.32E+00,5.56E+00,-4.38E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.10E+00,2.10E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-30,-4.38E+00,5.56E+00,-4.44E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.10E+00,2.10E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-31,-4.44E+00,5.56E+00,-4.50E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.10E+00,2.10E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-32,-4.50E+00,5.56E+00,-4.58E+00,5.56E+00,W,6.00E-03,0.00E+00,,2.79E+00,2.79E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-33,-4.58E+00,5.56E+00,-4.41E+00,5.41E+00,B,1.00E-06,0.00E+00,,7.81E+00,7.81E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-34,-4.41E+00,5.41E+00,-4.27E+00,5.27E+00,B,1.00E-06,0.00E+00,,6.64E+00,6.64E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-35,-3.99E+00,5.25E+00,-3.86E+00,5.16E+00,B,1.00E-06,0.00E+00,,5.17E+00,5.17E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-36,-3.86E+00,5.16E+00,-3.77E+00,5.04E+00,B,1.00E-06,0.00E+00,,4.81E+00,4.81E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-37,-3.77E+00,5.04E+00,-3.73E+00,4.94E+00,B,1.00E-06,0.00E+00,,3.38E+00,3.38E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-38,-3.73E+00,4.94E+00,-3.71E+00,4.82E+00,B,1.00E-06,0.00E+00,,3.73E+00,3.73E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-39,-3.71E+00,4.82E+00,-3.72E+00,4.74E+00,B,1.00E-06,0.00E+00,,2.42E+00,2.42E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-40,-3.72E+00,4.74E+00,-3.75E+00,4.64E+00,B,1.00E-06,0.00E+00,,3.08E+00,3.08E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-41,-3.91E+00,4.49E+00,-3.90E+00,4.39E+00,B,1.00E-06,0.00E+00,,2.80E+00,2.80E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-42,-3.90E+00,4.39E+00,-3.90E+00,4.29E+00,B,5.00E-06,0.00E+00,,2.73E+00,2.73E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-43,-3.90E+00,4.29E+00,-3.89E+00,4.22E+00,B,5.00E-06,0.00E+00,,1.89E+00,1.89E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-44,-3.89E+00,4.22E+00,-3.92E+00,4.16E+00,B,5.00E-06,0.00E+00,,1.77E+00,1.77E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-45,-3.92E+00,4.16E+00,-3.87E+00,4.18E+00,B,5.00E-06,0.00E+00,,1.41E+00,1.41E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-46,-3.87E+00,4.18E+00,-3.81E+00,4.21E+00,W,6.00E-03,0.00E+00,,1.77E+00,1.77E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-47,-3.81E+00,4.21E+00,-3.76E+00,4.24E+00,W,6.00E-03,0.00E+00,,1.55E+00,1.55E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-48,-3.76E+00,4.24E+00,-3.71E+00,4.26E+00,W,6.00E-03,0.00E+00,,1.44E+00,1.44E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-49,-3.71E+00,4.26E+00,-3.64E+00,4.29E+00,W,6.00E-03,0.00E+00,,2.05E+00,2.05E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-50,-3.64E+00,4.29E+00,-3.59E+00,4.32E+00,W,6.00E-03,0.00E+00,,1.58E+00,1.58E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-51,-3.59E+00,4.32E+00,-3.54E+00,4.35E+00,W,6.00E-03,0.00E+00,,1.59E+00,1.59E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-52,-3.54E+00,4.35E+00,-3.48E+00,4.37E+00,W,6.00E-03,0.00E+00,,1.73E+00,1.73E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-53,-3.48E+00,4.37E+00,-3.43E+00,4.40E+00,W,6.00E-03,0.00E+00,,1.61E+00,1.61E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-54,-3.43E+00,4.40E+00,-3.38E+00,4.42E+00,W,6.00E-03,0.00E+00,,1.49E+00,1.49E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-55,-3.38E+00,4.42E+00,-3.31E+00,4.46E+00,W,6.00E-03,0.00E+00,,2.25E+00,2.25E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-56,-3.31E+00,4.46E+00,-3.24E+00,4.49E+00,B,5.00E-06,0.00E+00,,2.14E+00,2.14E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-57,-3.24E+00,4.49E+00,-3.14E+00,4.51E+00,B,5.00E-06,0.00E+00,,2.88E+00,2.88E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-58,-3.14E+00,4.51E+00,-3.04E+00,4.52E+00,B,5.00E-06,0.00E+00,,2.85E+00,2.85E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-59,-3.04E+00,4.52E+00,-2.93E+00,4.50E+00,B,5.00E-06,0.00E+00,,3.17E+00,3.17E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-60,-2.93E+00,4.50E+00,-2.79E+00,4.44E+00,B,5.00E-06,0.00E+00,,4.28E+00,4.28E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-61,-2.79E+00,4.44E+00,-2.67E+00,4.35E+00,B,5.00E-06,0.00E+00,,4.14E+00,4.14E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
-62,-2.67E+00,4.35E+00,-2.51E+00,4.10E+00,B,5.00E-06,0.00E+00,,7.88E+00,7.88E+00,1.00E+00,Div,1.00E-10,1.00E+10,5.00E+00,1.00E+02,Dirichlet - Implantation approx.,Dirichlet - 0 concentration,,,,
+Bin number,Z_start (m),R_start (m),Z_end (m),R_end (m),Material,Thickness (m),Cu thickness (m),mode,S. Area parent bin (m^2),Surface area (m^2),f (ion flux fraction),location,rtol,atol,FP max. stepsize (s),Max. stepsize no FP (s),BC Plasma Facing Surface,BC rear surface
+1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,high_wetted,26,0.886,0.919,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Neumann - no flux
+1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,low_wetted,26,0.0999,0.0808,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,shadowed,26,25.1,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+2,-1.5,4.1,-0.487,4.1,W,0.006,0.002,high_wetted,26.1,3.3,0.978,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+2,-1.5,4.1,-0.487,4.1,W,0.006,0.002,low_wetted,26.1,0.137,0.0223,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+2,-1.5,4.1,-0.487,4.1,W,0.006,0.002,shadowed,26.1,22.7,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+3,-0.487,4.1,0.528,4.1,W,0.01,0.004,high_wetted,26.1,1.75,0.435,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+3,-0.487,4.1,0.528,4.1,W,0.01,0.004,low_wetted,26.1,4.46,0.565,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+3,-0.487,4.1,0.528,4.1,W,0.01,0.004,shadowed,26.1,19.9,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+4,0.528,4.1,1.54,4.1,W,0.01,0.004,high_wetted,26.2,0.475,0.284,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+4,0.528,4.1,1.54,4.1,W,0.01,0.004,low_wetted,26.2,3.18,0.716,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+4,0.528,4.1,1.54,4.1,W,0.01,0.004,shadowed,26.2,22.5,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+5,1.54,4.1,2.56,4.1,W,0.01,0.004,high_wetted,26.1,3.9,0.988,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+5,1.54,4.1,2.56,4.1,W,0.01,0.004,low_wetted,26.1,0.164,0.0115,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+5,1.54,4.1,2.56,4.1,W,0.01,0.004,shadowed,26.1,22,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+6,2.56,4.1,3.57,4.12,W,0.012,0.004,high_wetted,26.1,0.31,0.981,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+6,2.56,4.1,3.57,4.12,W,0.012,0.004,low_wetted,26.1,0.00947,0.0189,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+6,2.56,4.1,3.57,4.12,W,0.012,0.004,shadowed,26.1,25.8,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+7,3.57,4.12,4.33,4.33,W,0.012,0.005,high_wetted,20.8,0.31,0.981,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+7,3.57,4.12,4.33,4.33,W,0.012,0.005,low_wetted,20.8,0.00947,0.0189,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+7,3.57,4.12,4.33,4.33,W,0.012,0.005,shadowed,20.8,20.5,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+8,4.33,4.33,4.7,4.93,W,0.012,0.005,high_wetted,20.7,1.94,0.992,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+8,4.33,4.33,4.7,4.93,W,0.012,0.005,low_wetted,20.7,0.0576,0.00813,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+8,4.33,4.33,4.7,4.93,W,0.012,0.005,shadowed,20.7,18.7,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+9,4.7,4.93,4.52,5.75,W,0.012,0.005,high_wetted,28.2,4.86,0.973,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+9,4.7,4.93,4.52,5.75,W,0.012,0.005,low_wetted,28.2,0.311,0.0265,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+9,4.7,4.93,4.52,5.75,W,0.012,0.005,shadowed,28.2,23,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+10,4.52,5.75,3.94,6.51,W,0.012,0.002,high_wetted,24.5,4.86,0.973,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+10,4.52,5.75,3.94,6.51,W,0.012,0.002,low_wetted,24.5,0.311,0.0265,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+10,4.52,5.75,3.94,6.51,W,0.012,0.002,shadowed,24.5,19.3,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+11,3.94,6.51,3.16,7.4,W,0.012,0.002,high_wetted,51.6,4.86,0.973,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+11,3.94,6.51,3.16,7.4,B,1E-07,0,low_wetted,51.6,0.311,0.0265,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+11,3.94,6.51,3.16,7.4,B,1E-06,0,shadowed,51.6,46.4,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+12,3.16,7.4,2.44,7.9,W,0.012,0.002,high_wetted,42,0.00359,0.00522,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+12,3.16,7.4,2.44,7.9,B,1E-07,0,low_wetted,42,5.2,0.995,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+12,3.16,7.4,2.44,7.9,B,1E-06,0,shadowed,42,36.8,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+13,2.44,7.9,1.66,8.26,W,0.012,0.004,high_wetted,43.6,0.14,0.741,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+13,2.44,7.9,1.66,8.26,B,1E-07,0,low_wetted,43.6,0.127,0.259,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+13,2.44,7.9,1.66,8.26,B,1E-06,0,shadowed,43.6,43.3,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+14,1.66,8.26,0.613,8.38,W,0.006,0.002,wetted,27.6,4.44,1,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+14,1.66,8.26,0.613,8.38,B,1E-06,0,shadowed,27.6,23.2,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+15,0.613,8.38,-0.441,8.29,W,0.006,0.002,wetted,27.7,4.55,1,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+15,0.613,8.38,-0.441,8.29,B,1E-06,0,shadowed,27.7,23.2,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+16,-0.441,8.29,-1.36,7.89,W,0.006,0.005,high_wetted,50.7,0.0899,0.0514,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+16,-0.441,8.29,-1.36,7.89,B,1E-07,0,low_wetted,50.7,5.42,0.949,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+16,-0.441,8.29,-1.36,7.89,B,1E-06,0,shadowed,50.7,45.2,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+17,-1.36,7.89,-2.26,7.27,W,0.006,0.005,wetted,52.6,3.52,1,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+17,-1.36,7.89,-2.26,7.27,B,1E-06,0,shadowed,52.6,49.1,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+18,-2.26,7.27,-3.25,6.06,W,0.012,0.002,wetted,54.4,8.34,1,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+18,-2.26,7.27,-3.25,6.06,W,0.012,0,shadowed,54.4,46.1,0,FW,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+19,-3.25,6.06,-3.35,5.83,B,1E-06,0,,9.37,9.37,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+20,-3.35,5.83,-3.54,5.66,B,1E-06,0,,9.2,9.2,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+21,-3.54,5.66,-3.77,5.57,B,1E-06,0,,8.71,8.71,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+22,-3.77,5.57,-3.93,5.56,B,1E-06,0,,5.61,5.61,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+23,-3.93,5.56,-4.01,5.56,W,0.006,0,,2.79,2.79,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+24,-4.01,5.56,-4.08,5.56,W,0.006,0,,2.45,2.45,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+25,-4.08,5.56,-4.14,5.56,W,0.006,0,,2.1,2.1,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+26,-4.14,5.56,-4.2,5.56,W,0.006,0,,2.1,2.1,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+27,-4.2,5.56,-4.26,5.56,W,0.006,0,,2.1,2.1,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+28,-4.26,5.56,-4.32,5.56,W,0.006,0,,2.1,2.1,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+29,-4.32,5.56,-4.38,5.56,W,0.006,0,,2.1,2.1,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+30,-4.38,5.56,-4.44,5.56,W,0.006,0,,2.1,2.1,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+31,-4.44,5.56,-4.5,5.56,W,0.006,0,,2.1,2.1,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+32,-4.5,5.56,-4.58,5.56,W,0.006,0,,2.79,2.79,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+33,-4.58,5.56,-4.41,5.41,B,1E-06,0,,7.81,7.81,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+34,-4.41,5.41,-4.27,5.27,B,1E-06,0,,6.64,6.64,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+35,-3.99,5.25,-3.86,5.16,B,1E-06,0,,5.17,5.17,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+36,-3.86,5.16,-3.77,5.04,B,1E-06,0,,4.81,4.81,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+37,-3.77,5.04,-3.73,4.94,B,1E-06,0,,3.38,3.38,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+38,-3.73,4.94,-3.71,4.82,B,1E-06,0,,3.73,3.73,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+39,-3.71,4.82,-3.72,4.74,B,1E-06,0,,2.42,2.42,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+40,-3.72,4.74,-3.75,4.64,B,1E-06,0,,3.08,3.08,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+41,-3.91,4.49,-3.9,4.39,B,1E-06,0,,2.8,2.8,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+42,-3.9,4.39,-3.9,4.29,B,5E-06,0,,2.73,2.73,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+43,-3.9,4.29,-3.89,4.22,B,5E-06,0,,1.89,1.89,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+44,-3.89,4.22,-3.92,4.16,B,5E-06,0,,1.77,1.77,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+45,-3.92,4.16,-3.87,4.18,B,5E-06,0,,1.41,1.41,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+46,-3.87,4.18,-3.81,4.21,W,0.006,0,,1.77,1.77,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+47,-3.81,4.21,-3.76,4.24,W,0.006,0,,1.55,1.55,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+48,-3.76,4.24,-3.71,4.26,W,0.006,0,,1.44,1.44,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+49,-3.71,4.26,-3.64,4.29,W,0.006,0,,2.05,2.05,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+50,-3.64,4.29,-3.59,4.32,W,0.006,0,,1.58,1.58,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+51,-3.59,4.32,-3.54,4.35,W,0.006,0,,1.59,1.59,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+52,-3.54,4.35,-3.48,4.37,W,0.006,0,,1.73,1.73,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+53,-3.48,4.37,-3.43,4.4,W,0.006,0,,1.61,1.61,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+54,-3.43,4.4,-3.38,4.42,W,0.006,0,,1.49,1.49,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+55,-3.38,4.42,-3.31,4.46,W,0.006,0,,2.25,2.25,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+56,-3.31,4.46,-3.24,4.49,B,5E-06,0,,2.14,2.14,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+57,-3.24,4.49,-3.14,4.51,B,5E-06,0,,2.88,2.88,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+58,-3.14,4.51,-3.04,4.52,B,5E-06,0,,2.85,2.85,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+59,-3.04,4.52,-2.93,4.5,B,5E-06,0,,3.17,3.17,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+60,-2.93,4.5,-2.79,4.44,B,5E-06,0,,4.28,4.28,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+61,-2.79,4.44,-2.67,4.35,B,5E-06,0,,4.14,4.14,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+62,-2.67,4.35,-2.51,4.1,B,5E-06,0,,7.88,7.88,1,Div,1.00E-09,1.00E+11,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration

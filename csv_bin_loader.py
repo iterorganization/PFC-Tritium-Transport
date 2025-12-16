@@ -1,14 +1,14 @@
 """
-CSV loader for creating CSVBin objects from CSV configuration files.
+CSV loader for creating Bin objects from CSV configuration files.
 """
 
 import pandas as pd
 from typing import List, Dict, Any
-from csv_bin import CSVBin, CSVBinCollection, CSVReactor, BinConfiguration
+from csv_bin import Bin, BinCollection, Reactor, BinConfiguration
 
 
 class CSVBinLoader:
-    """Loads CSVBin objects from CSV configuration files."""
+    """Loads Bin objects from CSV configuration files."""
     
     def __init__(self, csv_path: str):
         """
@@ -45,16 +45,16 @@ class CSVBinLoader:
             return value
         return default
     
-    def load_bin_from_row(self, row: pd.Series, row_index: int) -> CSVBin:
+    def load_bin_from_row(self, row: pd.Series, row_index: int) -> Bin:
         """
-        Create a CSVBin from a pandas DataFrame row.
+        Create a Bin from a pandas DataFrame row.
         
         Args:
             row: Pandas Series representing one row from the CSV
             row_index: Index of the row (0-based)
             
         Returns:
-            CSVBin object
+            Bin object
         """
         # Required geometric properties
         bin_number = int(row['Bin number'])
@@ -102,8 +102,8 @@ class CSVBinLoader:
             bc_rear_surface=bc_rear
         )
         
-        # Create and return CSVBin
-        return CSVBin(
+        # Create and return Bin
+        return Bin(
             bin_number=bin_number,
             z_start=z_start,
             r_start=r_start,
@@ -122,12 +122,12 @@ class CSVBinLoader:
             bin_id=row_index + 1  # 1-based row numbering
         )
     
-    def load_all_bins(self) -> CSVBinCollection:
+    def load_all_bins(self) -> BinCollection:
         """
         Load all bins from the CSV file.
         
         Returns:
-            CSVBinCollection containing all bins
+            BinCollection containing all bins
         """
         bins = []
         
@@ -140,17 +140,17 @@ class CSVBinLoader:
                 continue
         
         print(f"✓ Successfully loaded {len(bins)} bins from CSV")
-        return CSVBinCollection(bins)
+        return BinCollection(bins)
     
-    def load_reactor(self) -> CSVReactor:
+    def load_reactor(self) -> Reactor:
         """
         Load a complete reactor from the CSV file.
         
         Returns:
-            CSVReactor containing all bins
+            Reactor containing all bins
         """
         bin_collection = self.load_all_bins()
-        return CSVReactor(bin_collection.bins)
+        return Reactor(bin_collection.bins)
     
     def get_summary(self) -> Dict[str, Any]:
         """
@@ -190,7 +190,7 @@ class CSVBinLoader:
             print(f"  {mode}: {count}")
 
 
-def load_csv_reactor(csv_path: str) -> CSVReactor:
+def load_csv_reactor(csv_path: str) -> Reactor:
     """
     Convenience function to load a reactor from CSV file.
     
@@ -198,7 +198,7 @@ def load_csv_reactor(csv_path: str) -> CSVReactor:
         csv_path: Path to the CSV configuration file
         
     Returns:
-        CSVReactor object
+        Reactor object
     """
     loader = CSVBinLoader(csv_path)
     return loader.load_reactor()

@@ -14,7 +14,7 @@ def load_scenario_variable(scenario_folder, scenario_name, variable_name="scenar
     Dynamically loads a Python script and retrieves a variable from it.
 
     Parameters:
-    - scenario_folder (str): The main folder (e.g., 'iter_scenarios')
+    - scenario_folder (str): The main folder (e.g., 'scenarios')
     - scenario_name (str): The Python file (without .py extension) inside the folder
     - variable_name (str): The name of the variable to retrieve (default: 'scenario')
 

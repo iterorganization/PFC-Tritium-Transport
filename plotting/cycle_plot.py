@@ -9,11 +9,11 @@ import pandas as pd
 from make_iter_bins import Div_bins, total_nb_bins, total_fw_bins, FW_bins
 import math
 
-from iter_scenarios.do_nothing import scenario as scenario_do_nothing
-from iter_scenarios.benchmark import scenario as scenario_benchmark
-from iter_scenarios.clean_every_2_days import scenario as scenario_clean_every_2
-from iter_scenarios.clean_every_5_days import scenario as scenario_clean_every_5
-from iter_scenarios.no_glow import scenario as scenario_no_glow
+from scenarios.do_nothing import scenario as scenario_do_nothing
+from scenarios.benchmark import scenario as scenario_benchmark
+from scenarios.clean_every_2_days import scenario as scenario_clean_every_2
+from scenarios.clean_every_5_days import scenario as scenario_clean_every_5
+from scenarios.no_glow import scenario as scenario_no_glow
 
 T_AMU = 3.016049 # g/mol
 D_AMU = 2.014102 # g/mol
