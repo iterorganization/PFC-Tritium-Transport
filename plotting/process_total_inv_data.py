@@ -17,7 +17,7 @@ T_AMU = 3.0160492779  # Atomic mass unit for Tritium
 
 # import scenarios
 import sys
-sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/iter_scenarios')
+sys.path.insert(0, '/home/ITER/dunnelk/PFC-tritium-transport/scenarios')
 from do_nothing import scenario as scenario
 
 

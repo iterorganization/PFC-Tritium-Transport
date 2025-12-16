@@ -29,7 +29,7 @@ class BinConfiguration:
             raise ValueError(f"max_stepsize_no_fp must be positive, got {self.max_stepsize_no_fp}")
 
 
-class CSVBin:
+class Bin:
     """
     A bin class representing one row from the CSV configuration table.
     Each bin contains all geometric, material, and simulation properties.
@@ -160,7 +160,7 @@ class CSVBin:
     def __str__(self) -> str:
         """String representation of the bin."""
         return (
-            f"CSVBin(id={self.bin_id}, bin_num={self.bin_number}, "
+            f"Bin(id={self.bin_id}, bin_num={self.bin_number}, "
             f"material={self.material}, mode={self.mode}, "
             f"location={self.location}, thickness={self.thickness*1000:.1f}mm)"
         )
@@ -170,50 +170,50 @@ class CSVBin:
         return self.__str__()
 
 
-class CSVBinCollection:
+class BinCollection:
     """Collection of CSV-based bins."""
     
-    def __init__(self, bins: list[CSVBin] = None):
-        """Initialize collection with list of CSVBin objects."""
+    def __init__(self, bins: list[Bin] = None):
+        """Initialize collection with list of Bin objects."""
         self.bins = bins if bins is not None else []
     
-    def add_bin(self, bin: CSVBin):
+    def add_bin(self, bin: Bin):
         """Add a bin to the collection."""
         self.bins.append(bin)
     
-    def get_bin_by_id(self, bin_id: int) -> CSVBin:
+    def get_bin_by_id(self, bin_id: int) -> Bin:
         """Get bin by its CSV row ID."""
         for bin in self.bins:
             if bin.bin_id == bin_id:
                 return bin
         raise ValueError(f"No bin found with ID {bin_id}")
     
-    def get_bin_by_number(self, bin_number: int) -> CSVBin:
+    def get_bin_by_number(self, bin_number: int) -> Bin:
         """Get bin by its bin number."""
         for bin in self.bins:
             if bin.bin_number == bin_number:
                 return bin
         raise ValueError(f"No bin found with number {bin_number}")
     
-    def get_bins_by_material(self, material: str) -> list[CSVBin]:
+    def get_bins_by_material(self, material: str) -> list[Bin]:
         """Get all bins with specified material."""
         return [bin for bin in self.bins if bin.material.upper() == material.upper()]
     
-    def get_bins_by_location(self, location: str) -> list[CSVBin]:
+    def get_bins_by_location(self, location: str) -> list[Bin]:
         """Get all bins at specified location (FW, DIV, etc.)."""
         return [bin for bin in self.bins if bin.location.upper() == location.upper()]
     
-    def get_bins_by_mode(self, mode: str) -> list[CSVBin]:
+    def get_bins_by_mode(self, mode: str) -> list[Bin]:
         """Get all bins with specified mode."""
         return [bin for bin in self.bins if bin.mode.lower() == mode.lower()]
     
     @property
-    def first_wall_bins(self) -> list[CSVBin]:
+    def first_wall_bins(self) -> list[Bin]:
         """Get all first wall bins."""
         return [bin for bin in self.bins if bin.is_first_wall]
     
     @property
-    def divertor_bins(self) -> list[CSVBin]:
+    def divertor_bins(self) -> list[Bin]:
         """Get all divertor bins."""
         return [bin for bin in self.bins if bin.is_divertor]
     
@@ -229,28 +229,28 @@ class CSVBinCollection:
         """String representation of the collection."""
         fw_count = len(self.first_wall_bins)
         div_count = len(self.divertor_bins)
-        return f"CSVBinCollection({len(self.bins)} bins: {fw_count} FW, {div_count} DIV)"
+        return f"BinCollection({len(self.bins)} bins: {fw_count} FW, {div_count} DIV)"
 
 
-class CSVReactor(CSVBinCollection):
+class Reactor(BinCollection):
     """
     A reactor representing the complete collection of all bins from a CSV table.
     This is the main class for representing the entire ITER reactor configuration.
     """
     
-    def __init__(self, bins: list[CSVBin] = None, csv_path: str = None):
+    def __init__(self, bins: list[Bin] = None, csv_path: str = None):
         """
         Initialize reactor with list of CSVBin objects.
         
         Args:
-            bins: List of CSVBin objects representing all reactor bins
+            bins: List of Bin objects representing all reactor bins
             csv_path: Optional path to the source CSV file for reference
         """
         super().__init__(bins)
         self.csv_path = csv_path
     
     @classmethod
-    def from_csv(cls, csv_path: str) -> 'CSVReactor':
+    def from_csv(cls, csv_path: str) -> 'Reactor':
         """
         Create a complete reactor by loading all bins from a CSV table.
         
@@ -258,7 +258,7 @@ class CSVReactor(CSVBinCollection):
             csv_path: Path to the CSV configuration file
             
         Returns:
-            CSVReactor: Complete reactor with all bins from the CSV table
+            Reactor: Complete reactor with all bins from the CSV table
         """
         # Import here to avoid circular imports
         from csv_bin_loader import CSVBinLoader
@@ -293,7 +293,7 @@ class CSVReactor(CSVBinCollection):
     def get_reactor_summary(self) -> str:
         """Get comprehensive summary of the reactor configuration."""
         summary = [
-            f"CSVReactor Summary:",
+            f"Reactor Summary:",
             f"  Total bins: {self.total_bins}",
             f"  CSV source: {self.csv_path or 'Not specified'}",
             f"  First Wall bins: {len(self.first_wall_bins)}",
@@ -305,4 +305,4 @@ class CSVReactor(CSVBinCollection):
     
     def __str__(self) -> str:
         """String representation of the reactor."""
-        return f"CSVReactor({self.total_bins} total bins: {len(self.first_wall_bins)} FW, {len(self.divertor_bins)} DIV)"
+        return f"Reactor({self.total_bins} total bins: {len(self.first_wall_bins)} FW, {len(self.divertor_bins)} DIV)"

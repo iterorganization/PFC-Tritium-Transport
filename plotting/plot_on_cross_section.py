@@ -19,7 +19,7 @@ finally:
     os.chdir(project_root)
 
 try:
-    from iter_scenarios.do_nothing import scenario as scenario
+    from scenarios.do_nothing import scenario as scenario
 finally:
     # Restore original working directory
     os.chdir(original_cwd)

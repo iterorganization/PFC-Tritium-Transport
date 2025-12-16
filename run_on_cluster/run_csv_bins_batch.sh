@@ -4,9 +4,9 @@
 # Usage: ./run_csv_bins_batch.sh scenario_folder scenario_name [csv_file] [bin_ids...]
 #
 # Examples:
-#   ./run_csv_bins_batch.sh iter_scenarios testcase                     # Run all bins
-#   ./run_csv_bins_batch.sh iter_scenarios testcase input_table.csv     # Run all bins with specific CSV
-#   ./run_csv_bins_batch.sh iter_scenarios testcase input_table.csv 0 1 2  # Run specific bin IDs
+#   ./run_csv_bins_batch.sh scenarios testcase                     # Run all bins
+#   ./run_csv_bins_batch.sh scenarios testcase input_table.csv     # Run all bins with specific CSV
+#   ./run_csv_bins_batch.sh scenarios testcase input_table.csv 0 1 2  # Run specific bin IDs
 
 set -e
 
@@ -17,9 +17,9 @@ if [ $# -lt 2 ]; then
     echo "Note: bin_ids are row indices (0-based) in the CSV file"
     echo ""
     echo "Examples:"
-    echo "  $0 iter_scenarios testcase                        # Run all bins"
-    echo "  $0 iter_scenarios testcase input_table.csv        # Run all bins with specific CSV"
-    echo "  $0 iter_scenarios testcase input_table.csv 0 1 2  # Run specific bin IDs"
+    echo "  $0 scenarios testcase                        # Run all bins"
+    echo "  $0 scenarios testcase input_table.csv        # Run all bins with specific CSV"
+    echo "  $0 scenarios testcase input_table.csv 0 1 2  # Run specific bin IDs"
     exit 1
 fi
 

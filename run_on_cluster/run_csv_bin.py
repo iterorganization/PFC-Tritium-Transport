@@ -4,9 +4,15 @@ import json
 import pandas as pd
 import numpy as np
 
-from hisp.plamsa_data_handling import PlasmaDataHandling
+# Ensure HISP can locate PFC-Tritium-Transport's csv_bin.py without user setup
+# If not set, derive PFC_TT_PATH as the repo root (parent of this script's folder)
+if "PFC_TT_PATH" not in os.environ and "HISP_PFC_TT_PATH" not in os.environ:
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    os.environ["PFC_TT_PATH"] = repo_root
+
+from hisp.plasma_data_handling import PlasmaDataHandling
 from hisp.model import Model
-from hisp.scenario import Scenario
+from scenario import Scenario
 from hisp.festim_models import make_temperature_function
 
 # Get the parent directory of the current script
@@ -17,7 +23,7 @@ sys.path.insert(0, parent_dir)
 
 # Import CSV bin system
 from csv_bin_loader import CSVBinLoader
-from csv_bin import CSVReactor
+from csv_bin import Reactor
 from run_bin_functions import load_scenario_variable
 
 # Load command-line arguments
@@ -28,7 +34,7 @@ csv_file_path = sys.argv[4] if len(sys.argv) > 4 else "input_table.csv"
 
 # Uncomment for testing
 # bin_id = 0  # First bin (row index 0)
-# scenario_folder = "iter_scenarios"
+# scenario_folder = "scenarios"
 # scenario_name = "testcase"
 # csv_file_path = "input_table.csv"
 
@@ -37,7 +43,7 @@ scenario = load_scenario_variable(scenario_folder, scenario_name)
 
 print(f"Loading CSV bins from: {csv_file_path}")
 # Load CSV reactor
-csv_reactor = CSVReactor.from_csv(csv_file_path)
+csv_reactor = Reactor.from_csv(csv_file_path)
 
 print(f"Loaded {len(csv_reactor)} bins from CSV")
 print(csv_reactor.get_reactor_summary())
@@ -78,6 +84,37 @@ def run_csv_bin_scenario(scenario: Scenario, bin_id: int):
 
     try:
         print(f"Running CSV bin ID {bin_id} (bin_number={target_bin.bin_number}, {target_bin.material}, {target_bin.mode}, {target_bin.location})")
+        
+        # Debug: Print flux values during flat-top
+        print("\n=== Flux Debug (before running simulation) ===")
+        from hisp.festim_models import make_particle_flux_function
+        
+        # Get a time during flat-top of first FP pulse
+        first_fp_pulse = None
+        cumulative_time = 0
+        for pulse in scenario.pulses:
+            if pulse.pulse_type == "FP":
+                first_fp_pulse = pulse
+                break
+            cumulative_time += pulse.total_duration
+        
+        if first_fp_pulse:
+            flat_top_time = float(cumulative_time + first_fp_pulse.ramp_up + 10)  # 10s into flat-top
+            
+            # Create flux functions
+            d_ion_flux = make_particle_flux_function(scenario, plasma_data_handling, target_bin, ion=True, tritium=False)
+            t_ion_flux = make_particle_flux_function(scenario, plasma_data_handling, target_bin, ion=True, tritium=True)
+            d_atom_flux = make_particle_flux_function(scenario, plasma_data_handling, target_bin, ion=False, tritium=False)
+            t_atom_flux = make_particle_flux_function(scenario, plasma_data_handling, target_bin, ion=False, tritium=True)
+            
+            print(f"  Debug time: {flat_top_time:.1f}s (flat-top of first FP pulse)")
+            print(f"  Bin {target_bin.bin_number} (mode={target_bin.mode})")
+            print(f"  D ion flux: {d_ion_flux(flat_top_time):.6e} part/m^2/s")
+            print(f"  T ion flux: {t_ion_flux(flat_top_time):.6e} part/m^2/s")
+            print(f"  D atom flux: {d_atom_flux(flat_top_time):.6e} part/m^2/s")
+            print(f"  T atom flux: {t_atom_flux(flat_top_time):.6e} part/m^2/s")
+            print(f"  ion_scaling_factor: {target_bin.ion_scaling_factor:.6f}")
+        print("===========================================\n")
         
         # Run the bin
         model, quantities = my_hisp_model.run_bin(target_bin)

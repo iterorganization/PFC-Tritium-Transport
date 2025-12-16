@@ -8,16 +8,16 @@
 #SBATCH --mem=1gb                 # Adjust memory
 #SBATCH --partition=rigel        # Adjust partition name
 
-# CSV Bin SLURM Job Submitter
+# CSV Bin SLURM Job Submitter (using festim-fenicsx-clean environment)
 # Usage: 
-#   ./slurm_csv_jobs.sh                                    # Use default configuration
-#   ./slurm_csv_jobs.sh scenario_name                      # Run all bins with custom scenario
-#   ./slurm_csv_jobs.sh scenario_name "bin_id1 bin_id2"    # Run specific bin IDs with custom scenario
+#   ./slurm_csv_jobs_clean.sh                                    # Use default configuration
+#   ./slurm_csv_jobs_clean.sh scenario_name                      # Run all bins with custom scenario
+#   ./slurm_csv_jobs_clean.sh scenario_name "bin_id1 bin_id2"    # Run specific bin IDs with custom scenario
 #
 # Examples:
-#   ./slurm_csv_jobs.sh                                    # Default: just_glow_K scenario, all bins
-#   ./slurm_csv_jobs.sh capability_test_K                  # Run all bins with capability_test_K scenario
-#   ./slurm_csv_jobs.sh just_glow_K "0 1 5 10"             # Run bin IDs 0,1,5,10 with just_glow_K scenario
+#   ./slurm_csv_jobs_clean.sh                                    # Default: just_glow_K scenario, all bins
+#   ./slurm_csv_jobs_clean.sh capability_test_K                  # Run all bins with capability_test_K scenario
+#   ./slurm_csv_jobs_clean.sh just_glow_K "0 1 5 10"             # Run bin IDs 0,1,5,10 with just_glow_K scenario
 
 # Load modules (if required)
 
@@ -25,8 +25,8 @@
 # Activate virtual environment
 module load IMAS
 source /home/ITER/llealsa/miniconda3/etc/profile.d/conda.sh
-conda activate festim-fenicsx
-export PATH="/home/ITER/llealsa/miniconda3/envs/festim-fenicsx/bin:$PATH"
+conda activate PFC-T-T
+export PATH="/home/ITER/llealsa/miniconda3/envs/PFC-T-T/bin:$PATH"
 
 unset PYTHONPATH
 export PYTHONNOUSERSITE=1
@@ -41,7 +41,7 @@ module unload scifem              2>/dev/null
 # Load other modules
 
 # Default configuration
-DEFAULT_SCENARIO_FOLDER="iter_scenarios"
+DEFAULT_SCENARIO_FOLDER="scenarios"
 DEFAULT_SCENARIO_NAME="just_glow_K"
 DEFAULT_CSV_FILE="input_table.csv"
 
@@ -90,8 +90,10 @@ echo "  CSV file: $CSV_FILE"
 # Determine which bin IDs to run
 if [ -z "$BIN_IDS" ]; then
     # No specific bin IDs provided, run all bins
+    # Count data rows (excluding header)
     NUM_ROWS=$(tail -n +2 "$CSV_FILE" | wc -l)
-    BIN_IDS_ARRAY=($(seq 0 $((NUM_ROWS-1))))
+    # Start from bin_id=1 (row index 1, which is the first data row after header)
+    BIN_IDS_ARRAY=($(seq 1 $NUM_ROWS))
     echo "  Bin IDs: ALL (${BIN_IDS_ARRAY[@]})"
     echo "  Total bins: $NUM_ROWS"
 else
@@ -105,7 +107,7 @@ fi
 mkdir -p logs
 
 echo ""
-echo "Submitting jobs to SLURM cluster..."
+echo "Submitting jobs to SLURM cluster (festim-fenicsx-clean env)..."
 echo "=========================================="
 
 # Loop over specified bin IDs
@@ -120,14 +122,14 @@ for bin_id in "${BIN_IDS_ARRAY[@]}"; do
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1gb
-#SBATCH --partition=rigel
+#SBATCH --partition=sirius
 
 # Load modules and activate environment
 
 module load IMAS
 source /home/ITER/llealsa/miniconda3/etc/profile.d/conda.sh
-conda activate festim-fenicsx
-export PATH="/home/ITER/llealsa/miniconda3/envs/festim-fenicsx/bin:$PATH"
+conda activate PFC-T-T
+export PATH="/home/ITER/llealsa/miniconda3/envs/PFC-T-T/bin:$PATH"
 
 unset PYTHONPATH
 export PYTHONNOUSERSITE=1
@@ -154,6 +156,7 @@ done
 echo ""
 echo "=========================================="
 echo "All CSV bin jobs submitted!"
+echo "  Environment: festim-fenicsx-clean"
 echo "  Scenario: $SCENARIO_NAME"
 echo "  Jobs submitted: ${#BIN_IDS_ARRAY[@]}"
 echo ""

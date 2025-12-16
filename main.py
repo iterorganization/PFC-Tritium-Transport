@@ -1,13 +1,13 @@
 import json
 import pandas as pd
 
-from hisp.plamsa_data_handling import PlasmaDataHandling
+from hisp.plasma_data_handling import PlasmaDataHandling
 
 from iter_bins.make_iter_bins import FW_bins, Div_bins, my_reactor
 from bin_data.bin_data import load_geometry, create_bins, read_dat_file, read_div_solps, bin_fluxes_div, bin_fluxes_wall
 
 from hisp.model import Model
-from hisp.scenario import Scenario
+from scenario import Scenario
 
 from imas_data.wall_loads import wall_loads # includes dataclasses for loading and storing the IMAS data
 
@@ -158,16 +158,16 @@ def run_scenario(scenario: Scenario, results_file: str):
 
 if __name__ == "__main__":
 
-    from iter_scenarios.benchmark import scenario as scenario_benchmark
-    from iter_scenarios.clean_every_2_days import (
+    from scenarios.benchmark import scenario as scenario_benchmark
+    from scenarios.clean_every_2_days import (
         scenario as scenario_clean_every_2_days,
     )
-    from iter_scenarios.clean_every_5_days import (
+    from scenarios.clean_every_5_days import (
         scenario as scenario_clean_every_5_days,
     )
-    from iter_scenarios.do_nothing import scenario as scenario_do_nothing
-    from iter_scenarios.no_glow import scenario as scenario_no_glow
-    from iter_scenarios.just_glow import scenario as scenario_just_glow
+    from scenarios.do_nothing import scenario as scenario_do_nothing
+    from scenarios.no_glow import scenario as scenario_no_glow
+    from scenarios.just_glow import scenario as scenario_just_glow
 
     for scenario, name in [
         (scenario_benchmark, "benchmark_fw_bins"),
