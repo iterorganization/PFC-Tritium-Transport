@@ -1,17 +1,18 @@
 from hisp.scenario import Scenario, Pulse
 
-from iter_scenarios.clean_every_5_days import gdc, icwc_long, risp6, bake
-from .benchmark import icwc
+from iter_scenarios.benchmark import gdc, bake, icwc
+from iter_scenarios.do_nothing import fp
+from iter_scenarios.clean_every_5_days import risp6, icwc_long
 
-fp = Pulse(
-    pulse_type="FP",
-    nb_pulses=2,
-    ramp_up=429,
-    steady_state=650,
-    ramp_down=455,
-    waiting=84866,
-    tritium_fraction=0.5,
-)
+# fp = Pulse(
+#     pulse_type="FP",
+#     nb_pulses=2,
+#     ramp_up=429,
+#     steady_state=650,
+#     ramp_down=455,
+#     waiting=84866,
+#     tritium_fraction=0.5,
+# )
 risp3 = Pulse(
     pulse_type="RISP",
     nb_pulses=3,

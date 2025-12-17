@@ -1,8 +1,18 @@
 from hisp.scenario import Scenario, Pulse
 
-from .benchmark import fp, icwc, risp5, risp1, bake
+from iter_scenarios.benchmark import icwc, risp5, risp1, bake
 
 ############## BENCHMARK NO GLOW SCENARIO ##############
+fp = Pulse(
+    pulse_type="FP",
+    nb_pulses=10,
+    ramp_up=429,
+    steady_state=650,
+    ramp_down=455,
+    waiting=3600,
+    tritium_fraction=0.5,
+)
+
 risp1_longer_wait = Pulse(
     pulse_type="RISP",
     nb_pulses=1,
