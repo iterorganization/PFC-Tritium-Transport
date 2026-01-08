@@ -1,4 +1,4 @@
-name: PFC-T-T
+name: PFC-TT
 channels:
   - defaults
   - conda-forge

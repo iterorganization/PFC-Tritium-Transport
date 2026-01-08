@@ -3,8 +3,9 @@ CSV-driven bin classes for HISP reactor modeling.
 Each bin represents one row from the CSV configuration table.
 """
 
-from typing import Optional
+from typing import Optional, Any
 from dataclasses import dataclass
+from materials import Material
 
 
 @dataclass
@@ -42,7 +43,7 @@ class Bin:
         r_start: float, 
         z_end: float,
         r_end: float,
-        material: str,
+        material: Material,
         thickness: float,
         cu_thickness: float,
         mode: str,
@@ -52,7 +53,7 @@ class Bin:
         location: str,
         coolant_temp: float = 343.0,
         bin_configuration: Optional[BinConfiguration] = None,
-        bin_id: Optional[int] = None
+        bin_id: Optional[int] = None,
     ):
         """
         Initialize a CSV-based bin.
@@ -86,6 +87,15 @@ class Bin:
         self.r_end = r_end
         
         # Material properties
+        # `material` must be a `Material` object (enforced). Passing a
+        # plain string is no longer supported — CSV loader must provide
+        # a `Material` instance that matches an entry in
+        # `input_files/materials.csv`.
+        if not isinstance(material, Material):
+            raise TypeError(
+                "Bin.material must be a Material instance. "
+                "Ensure CSVBinLoader matches material names to materials.csv"
+            )
         self.material = material
         self.thickness = thickness
         self.cu_thickness = cu_thickness
@@ -100,10 +110,9 @@ class Bin:
         
         # CSV row identifier
         self.bin_id = bin_id if bin_id is not None else bin_number
-        
-        # Calculate ion scaling factor
+        # Calculated properties
         self.ion_scaling_factor = self.f_ion_flux_fraction * self.parent_bin_surf_area / self.surface_area
-        
+
         # Simulation configuration (use provided or create default)
         self.bin_configuration = bin_configuration if bin_configuration is not None else BinConfiguration(
             rtol=1e-10,
@@ -113,6 +122,11 @@ class Bin:
             bc_plasma_facing_surface="Robin - Surf. Rec. + Implantation",
             bc_rear_surface="Neumann - no flux"
         )
+
+    @property
+    def material_name(self) -> str:
+        """Return the material name string (for legacy code expecting a string)."""
+        return getattr(self.material, 'name', str(self.material))
     
     @property
     def copper_thickness(self) -> float:
@@ -161,7 +175,7 @@ class Bin:
         """String representation of the bin."""
         return (
             f"Bin(id={self.bin_id}, bin_num={self.bin_number}, "
-            f"material={self.material}, mode={self.mode}, "
+            f"material={self.material_name}, mode={self.mode}, "
             f"location={self.location}, thickness={self.thickness*1000:.1f}mm)"
         )
     
@@ -197,7 +211,7 @@ class BinCollection:
     
     def get_bins_by_material(self, material: str) -> list[Bin]:
         """Get all bins with specified material."""
-        return [bin for bin in self.bins if bin.material.upper() == material.upper()]
+        return [bin for bin in self.bins if bin.material_name.upper() == material.upper()]
     
     def get_bins_by_location(self, location: str) -> list[Bin]:
         """Get all bins at specified location (FW, DIV, etc.)."""
@@ -264,8 +278,8 @@ class Reactor(BinCollection):
         from csv_bin_loader import CSVBinLoader
         
         loader = CSVBinLoader(csv_path)
-        bins = loader.load_all_bins()
-        return cls(bins=bins, csv_path=csv_path)
+        bin_collection = loader.load_all_bins()
+        return cls(bins=bin_collection.bins, csv_path=csv_path)
     
     @property
     def total_bins(self) -> int:
@@ -277,7 +291,7 @@ class Reactor(BinCollection):
         """Get summary of materials used in the reactor."""
         materials = {}
         for bin in self.bins:
-            material = bin.material.upper()
+            material = bin.material_name.upper()
             materials[material] = materials.get(material, 0) + 1
         return materials
     

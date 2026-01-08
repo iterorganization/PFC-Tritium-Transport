@@ -1,23 +1,23 @@
 #!/bin/bash
-#SBATCH --job-name=csv_bin_job
-#SBATCH --output=logs/csv_bin_%j.out  # Log file for each job
-#SBATCH --error=logs/csv_bin_%j.err   # Error log
+#SBATCH --job-name=new_csv_bin_job
+#SBATCH --output=logs/new_csv_bin_%j.out  # Log file for each job
+#SBATCH --error=logs/new_csv_bin_%j.err   # Error log
 #SBATCH --time=1:00:00           # Adjust time limit
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1         # Adjust CPU usage
 #SBATCH --mem=1gb                 # Adjust memory
 #SBATCH --partition=rigel        # Adjust partition name
 
-# CSV Bin SLURM Job Submitter (using festim-fenicsx-clean environment)
+# New CSV Bin SLURM Job Submitter (using new_mb_model)
 # Usage: 
-#   ./slurm_csv_jobs_clean.sh                                    # Use default configuration
-#   ./slurm_csv_jobs_clean.sh scenario_name                      # Run all bins with custom scenario
-#   ./slurm_csv_jobs_clean.sh scenario_name "bin_id1 bin_id2"    # Run specific bin IDs with custom scenario
+#   ./slurm_new_csv_jobs.sh                                    # Use default configuration
+#   ./slurm_new_csv_jobs.sh scenario_name                      # Run all bins with custom scenario
+#   ./slurm_new_csv_jobs.sh scenario_name "bin_id1 bin_id2"    # Run specific bin IDs with custom scenario
 #
 # Examples:
-#   ./slurm_csv_jobs_clean.sh                                    # Default: just_glow_K scenario, all bins
-#   ./slurm_csv_jobs_clean.sh capability_test_K                  # Run all bins with capability_test_K scenario
-#   ./slurm_csv_jobs_clean.sh just_glow_K "0 1 5 10"             # Run bin IDs 0,1,5,10 with just_glow_K scenario
+#   ./slurm_new_csv_jobs.sh                                    # Default: do_nothing_K scenario, all bins
+#   ./slurm_new_csv_jobs.sh capability_test_K                  # Run all bins with capability_test_K scenario
+#   ./slurm_new_csv_jobs.sh do_nothing_K "1 2 5 10"             # Run bin IDs 1,2,5,10 with do_nothing_K scenario
 
 # Load modules (if required)
 
@@ -42,7 +42,7 @@ module unload scifem              2>/dev/null
 
 # Default configuration
 DEFAULT_SCENARIO_FOLDER="scenarios"
-DEFAULT_SCENARIO_NAME="just_glow_K"
+DEFAULT_SCENARIO_NAME="do_nothing_K"
 DEFAULT_CSV_FILE="input_files/input_table.csv"
 
 # Parse command line arguments
@@ -71,9 +71,9 @@ else
     echo "Usage: $0 [scenario_name] [\"bin_id1 bin_id2 ...\"]"
     echo ""
     echo "Examples:"
-    echo "  $0                                    # Default: just_glow_K scenario, all bins"
+    echo "  $0                                    # Default: do_nothing_K scenario, all bins"
     echo "  $0 capability_test_K                  # All bins with capability_test_K scenario"
-    echo "  $0 just_glow_K \"0 1 5 10\"             # Bin IDs 0,1,5,10 with just_glow_K scenario"
+    echo "  $0 do_nothing_K \"1 2 5 10\"            # Bin IDs 1,2,5,10 with do_nothing_K scenario"
     exit 1
 fi
 
@@ -107,7 +107,7 @@ fi
 mkdir -p logs
 
 echo ""
-echo "Submitting jobs to SLURM cluster (festim-fenicsx-clean env)..."
+echo "Submitting jobs to SLURM cluster (using new_mb_model)..."
 echo "=========================================="
 
 # Loop over specified bin IDs
@@ -115,9 +115,9 @@ for bin_id in "${BIN_IDS_ARRAY[@]}"; do
     # Submit a new job for each bin ID
     sbatch <<EOF
 #!/bin/bash
-#SBATCH --job-name=csv_bin_${bin_id}
-#SBATCH --output=logs/csv_bin_${bin_id}_%j.out
-#SBATCH --error=logs/csv_bin_${bin_id}_%j.err
+#SBATCH --job-name=new_csv_${bin_id}
+#SBATCH --output=logs/new_csv_bin_${bin_id}_%j.out
+#SBATCH --error=logs/new_csv_bin_${bin_id}_%j.err
 #SBATCH --time=300:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
@@ -143,10 +143,10 @@ module unload scifem              2>/dev/null
 
 
 
-# Run the Python script
+# Run the Python script with new_mb_model
 
 # Run CSV bin script with user-site disabled
-PYTHONNOUSERSITE=1 python -s run_on_cluster/run_csv_bin.py $bin_id $SCENARIO_FOLDER $SCENARIO_NAME $CSV_FILE
+PYTHONNOUSERSITE=1 python -s run_on_cluster/run_new_csv_bin.py $bin_id $SCENARIO_FOLDER $SCENARIO_NAME $CSV_FILE
 
 
 EOF
@@ -155,7 +155,7 @@ done
 
 echo ""
 echo "=========================================="
-echo "All CSV bin jobs submitted!"
+echo "All new CSV bin jobs submitted!"
 # Print the active conda environment if available, otherwise provide Python executable and prefix
 if [ -n "$CONDA_DEFAULT_ENV" ]; then
     echo "  Conda environment: $CONDA_DEFAULT_ENV"
@@ -168,7 +168,8 @@ else
 fi
 echo "  Scenario: $SCENARIO_NAME"
 echo "  Jobs submitted: ${#BIN_IDS_ARRAY[@]}"
+echo "  Using: new_mb_model (dynamic FESTIM model builder)"
 echo ""
 echo "Monitor jobs with: squeue -u \$USER"
-echo "Check logs in: logs/csv_bin_*"
+echo "Check logs in: logs/new_csv_bin_*"
 echo "Cancel all jobs: scancel -u \$USER"

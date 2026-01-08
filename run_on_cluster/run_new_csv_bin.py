@@ -5,15 +5,11 @@ import pandas as pd
 import numpy as np
 
 # Ensure HISP can locate PFC-Tritium-Transport's csv_bin.py without user setup
-# If not set, derive PFC_TT_PATH as the repo root (parent of this script's folder)
 if "PFC_TT_PATH" not in os.environ and "HISP_PFC_TT_PATH" not in os.environ:
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     os.environ["PFC_TT_PATH"] = repo_root
 
 from hisp.plasma_data_handling import PlasmaDataHandling
-from hisp.model import Model
-from scenario import Scenario
-from hisp.festim_models import make_temperature_function
 
 # Get the parent directory of the current script
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -21,10 +17,18 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # Add the parent directory to sys.path
 sys.path.insert(0, parent_dir)
 
+# Add hisp src to path
+hisp_src = os.path.abspath(os.path.join(parent_dir, "hisp", "src"))
+if hisp_src not in sys.path:
+    sys.path.insert(0, hisp_src)
+
 # Import CSV bin system
 from csv_bin_loader import CSVBinLoader
 from csv_bin import Reactor
 from run_bin_functions import load_scenario_variable
+
+# Import NewModel class from hisp
+from hisp.new_model import NewModel
 
 # Load command-line arguments
 bin_id = int(sys.argv[1])  # CSV bin ID (row index in input table)
@@ -33,10 +37,10 @@ scenario_name = sys.argv[3]
 csv_file_path = sys.argv[4] if len(sys.argv) > 4 else "input_files/input_table.csv"
 
 # Uncomment for testing
-# bin_id = 0  # First bin (row index 0)
+# bin_id = 1  # First bin (row index 1)
 # scenario_folder = "scenarios"
-# scenario_name = "testcase"
-# csv_file_path = "input_table.csv"
+# scenario_name = "do_nothing_K"
+# csv_file_path = "input_files/input_table.csv"
 
 print(f"Loading scenario: {scenario_name} from {scenario_folder}")
 scenario = load_scenario_variable(scenario_folder, scenario_name)
@@ -62,32 +66,55 @@ plasma_data_handling = PlasmaDataHandling(
     path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
 )
 
-def run_csv_bin_scenario(scenario: Scenario, bin_id: int):
-    """Run scenario for a specific CSV bin ID (row index in input table)."""
+
+def run_new_csv_bin_scenario(scenario, bin_id: int):
+    """Run scenario for a specific CSV bin ID using NewModel class."""
     
-    # Make a HISP model object with CSV reactor
-    my_hisp_model = Model(
+    coolant_temp = 343.0
+
+    # Create NewModel instance (similar to how old script creates Model)
+    my_new_model = NewModel(
         reactor=csv_reactor,
         scenario=scenario,
         plasma_data_handling=plasma_data_handling,
-        coolant_temp=343.0,
+        coolant_temp=coolant_temp,
     )
 
     # Find the specific bin by bin_id
     try:
-        target_bin = csv_reactor.get_bin_by_id(bin_id)
+        # csv_reactor.bins is now a list, so search through it
+        target_bin = None
+        for bin in csv_reactor.bins:
+            if bin.bin_id == bin_id:
+                target_bin = bin
+                break
+        
+        if target_bin is None:
+            raise ValueError(f"No bin found with ID {bin_id}")
+        
         print(f"Found target bin: {target_bin}")
+        print(f"DEBUG: target_bin.material type = {type(target_bin.material)}")
+        print(f"DEBUG: target_bin.material = {target_bin.material}")
+        print(f"DEBUG: has 'name' attr = {hasattr(target_bin.material, 'name')}")
     except ValueError as e:
         print(f"Error: {e}")
         print(f"Available bin IDs: {[bin.bin_id for bin in csv_reactor.bins]}")
         return
 
     try:
-        print(f"Running CSV bin ID {bin_id} (bin_number={target_bin.bin_number}, {target_bin.material}, {target_bin.mode}, {target_bin.location})")
+        print(f"\n{'='*60}")
+        print(f"Running CSV bin ID {bin_id}")
+        print(f"  Bin number: {target_bin.bin_number}")
+        print(f"  Material: {target_bin.material.name}")
+        print(f"  Mode: {target_bin.mode}")
+        print(f"  Location: {target_bin.location}")
+        print(f"  Thickness: {target_bin.thickness*1e3:.2f} mm")
+        print(f"  Surface area: {target_bin.surface_area:.4f} m²")
+        print(f"{'='*60}\n")
         
         # Debug: Print flux values during flat-top
-        print("\n=== Flux Debug (before running simulation) ===")
-        from hisp.festim_models import make_particle_flux_function
+        print("=== Flux Debug (before running simulation) ===")
+        from hisp.festim_models.mb_model import make_particle_flux_function
         
         # Get a time during flat-top of first FP pulse
         first_fp_pulse = None
@@ -116,30 +143,32 @@ def run_csv_bin_scenario(scenario: Scenario, bin_id: int):
             print(f"  ion_scaling_factor: {target_bin.ion_scaling_factor:.6f}")
         print("===========================================\n")
         
-        # Run the bin
-        model, quantities = my_hisp_model.run_bin(target_bin)
-
-        # Get temperature function
+        # Run the bin using NewModel.run_bin() method
+        print("Running bin using NewModel.run_bin()...")
+        model, quantities = my_new_model.run_bin(target_bin, exports=False)
+        
+        # Get temperature function for recording
+        from hisp.festim_models.mb_model import make_temperature_function
         temperature_function = make_temperature_function(
             scenario=scenario,
             plasma_data_handling=plasma_data_handling,
             bin=target_bin,
-            coolant_temp=343.0,
+            coolant_temp=coolant_temp,
         )
         
         # Format the data (same as original script)
         t_sampled = next(iter(quantities.values())).t[::1]
         csv_bin_data = {
-            key: {"data": value.data[::1]}
+            key: {"data": value.data[::1].tolist() if hasattr(value.data, 'tolist') else value.data[::1]}
             for key, value in quantities.items()
         }
-        csv_bin_data["t"] = t_sampled
+        csv_bin_data["t"] = t_sampled.tolist() if hasattr(t_sampled, 'tolist') else list(t_sampled)
         
         # Add CSV bin specific information
         csv_bin_data["bin_id"] = target_bin.bin_id
         csv_bin_data["bin_number"] = target_bin.bin_number
         csv_bin_data["mode"] = target_bin.mode
-        csv_bin_data["material"] = target_bin.material
+        csv_bin_data["material"] = target_bin.material.name
         csv_bin_data["location"] = target_bin.location
         csv_bin_data["thickness"] = target_bin.thickness
         csv_bin_data["cu_thickness"] = target_bin.cu_thickness
@@ -164,17 +193,19 @@ def run_csv_bin_scenario(scenario: Scenario, bin_id: int):
         csv_bin_data["temperature_at_x0"] = temperature_values
 
         # Save results to JSON
-        output_file = f"results_{scenario_name}/csv_bin_id_{bin_id}_num_{target_bin.bin_number}_{target_bin.material}_{target_bin.mode}.json"
+        material_name = target_bin.material.name.lower()
+        mode_name = target_bin.mode.lower().replace("_", "")
+        output_file = f"results_{scenario_name}/csv_bin_id_{bin_id}_num_{target_bin.bin_number}_{material_name}_{mode_name}.json"
         
         os.makedirs("results_"+str(scenario_name), exist_ok=True)
         with open(output_file, "w") as f:
             json.dump(csv_bin_data, f, indent=4)
 
-        print(f"Completed CSV bin ID {bin_id} (bin_number={target_bin.bin_number}, {target_bin.material}, {target_bin.mode})")
-        print(f"Results saved to: {output_file}")
-        
-        print(f"Bin Configuration:")
-        print(f"  - Material: {target_bin.material}")
+        print(f"\n{'='*60}")
+        print(f"✓ Simulation complete!")
+        print(f"  Results saved to: {output_file}")
+        print(f"\nBin Configuration:")
+        print(f"  - Material: {target_bin.material.name}")
         print(f"  - Thickness: {target_bin.thickness*1000:.1f} mm")
         print(f"  - Cu thickness: {target_bin.cu_thickness*1000:.1f} mm")
         print(f"  - Mode: {target_bin.mode}")
@@ -185,11 +216,40 @@ def run_csv_bin_scenario(scenario: Scenario, bin_id: int):
         print(f"  - Tolerances: rtol={bin_config.rtol:.0e}, atol={bin_config.atol:.0e}")
         print(f"  - Max stepsize FP: {bin_config.fp_max_stepsize:.1f} s")
         print(f"  - Max stepsize no FP: {bin_config.max_stepsize_no_fp:.1f} s")
+        print(f"{'='*60}\n")
 
     except Exception as e:
         print(f"Failed to process CSV bin ID {bin_id}: {e}")
         import traceback
         traceback.print_exc()
 
+
+def make_milestones(scenario, bin_config):
+    """
+    Create milestone times for adaptive timestepping based on scenario pulses.
+    
+    Args:
+        scenario: Scenario object with pulse_schedule
+        bin_config: BinConfiguration with stepsize limits
+        
+    Returns:
+        List of milestone times
+    """
+    milestones = []
+    current_time = 0.0
+    
+    for pulse in scenario.pulse_schedule:
+        pulse_start = current_time
+        pulse_end = current_time + pulse.duration
+        
+        # Add milestone at pulse start
+        if pulse_start > 0:
+            milestones.append(pulse_start)
+        
+        print(f"Failed to process CSV bin ID {bin_id}: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 if __name__ == "__main__":
-    run_csv_bin_scenario(scenario, bin_id)
+    run_new_csv_bin_scenario(scenario, bin_id)
