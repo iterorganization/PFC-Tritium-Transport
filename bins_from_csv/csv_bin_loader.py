@@ -3,14 +3,16 @@ CSV loader for creating Bin objects from CSV configuration files.
 """
 
 import pandas as pd
-from typing import List, Dict, Any
-from csv_bin import Bin, BinCollection, Reactor, BinConfiguration
+from typing import List, Dict, Any, Optional
+from pathlib import Path
+from bins_from_csv.csv_bin import Bin, BinCollection, Reactor, BinConfiguration
+from materials.materials_loader import load_materials
 
 
 class CSVBinLoader:
     """Loads Bin objects from CSV configuration files."""
     
-    def __init__(self, csv_path: str):
+    def __init__(self, csv_path: str, materials_csv_path: Optional[str] = None):
         """
         Initialize loader with CSV file path.
         
@@ -18,15 +20,34 @@ class CSVBinLoader:
             csv_path: Path to the CSV configuration file
         """
         self.csv_path = csv_path
-        self.df = pd.read_csv(csv_path)
+        # Allow caller to pass either the direct path or the filename located in input_files/
+        try:
+            self.df = pd.read_csv(csv_path)
+        except FileNotFoundError:
+            # try under input_files/ for convenience
+            alt = Path("input_files") / csv_path
+            try:
+                self.df = pd.read_csv(alt)
+                self.csv_path = str(alt)
+            except FileNotFoundError:
+                # re-raise original error with more context
+                raise FileNotFoundError(f"CSV file not found at '{csv_path}' or '{alt}'")
         self._validate_csv()
+        # Load materials CSV if available (default: input_files/materials.csv)
+        if materials_csv_path is None:
+            materials_csv_path = Path("input_files/materials.csv")
+        try:
+            self.materials = load_materials(materials_csv_path)
+            print(f"✓ Loaded {len(self.materials)} materials from {materials_csv_path}")
+        except Exception as e:
+            raise RuntimeError(f"Failed to load materials from {materials_csv_path}: {e}")
     
     def _validate_csv(self):
         """Validate that CSV has required columns."""
         required_columns = [
             'Bin number', 'Z_start (m)', 'R_start (m)', 'Z_end (m)', 'R_end (m)',
             'Material', 'Thickness (m)', 'Cu thickness (m)', 'mode',
-            'S. Area parent bin (m^2)', 'Surface area (m^2)', 'f (ion flux fraction)', 'location'
+            'S. Area parent bin (m^2)', 'Surface area (m^2)', 'f (ion flux scaling factor)', 'location'
         ]
         
         missing_columns = [col for col in required_columns if col not in self.df.columns]
@@ -67,12 +88,30 @@ class CSVBinLoader:
         material = str(row['Material'])
         thickness = float(row['Thickness (m)'])
         cu_thickness = float(row['Cu thickness (m)'])
+
+        # find matching Material object (case-insensitive). If no match,
+        # raise an error — CSV values must match `materials.csv`.
+        mat_obj = None
+        mat_name = material.strip()
+        if hasattr(self, 'materials') and self.materials:
+            mat_obj = self.materials.get(mat_name)
+            if mat_obj is None:
+                for k, v in self.materials.items():
+                    if k.lower() == mat_name.lower():
+                        mat_obj = v
+                        break
+        if mat_obj is None:
+            available = ', '.join(sorted(self.materials.keys()))
+            raise ValueError(
+                f"Unknown material '{material}' in CSV row {row_index + 1}. "
+                f"Available materials: {available}"
+            )
         
         # Required operating properties
         mode = str(row['mode'])
         parent_bin_surf_area = float(row['S. Area parent bin (m^2)'])
         surface_area = float(row['Surface area (m^2)'])
-        f_ion_flux_fraction = float(row['f (ion flux fraction)'])
+        f_ion_flux_fraction = float(row['f (ion flux scaling factor)'])
         location = str(row['location'])
         
         # Optional properties with defaults
@@ -102,14 +141,14 @@ class CSVBinLoader:
             bc_rear_surface=bc_rear
         )
         
-        # Create and return Bin
-        return Bin(
+        # Create Bin instance; `mat_obj` is guaranteed non-None here.
+        bin_obj = Bin(
             bin_number=bin_number,
             z_start=z_start,
             r_start=r_start,
             z_end=z_end,
             r_end=r_end,
-            material=material,
+            material=mat_obj,
             thickness=thickness,
             cu_thickness=cu_thickness,
             mode=mode,
@@ -119,8 +158,11 @@ class CSVBinLoader:
             location=location,
             coolant_temp=coolant_temp,
             bin_configuration=bin_config,
-            bin_id=row_index + 1  # 1-based row numbering
+            bin_id=row_index + 1,  # 1-based row numbering
         )
+        # material already stored on the bin by its constructor; nothing more to do
+
+        return bin_obj
     
     def load_all_bins(self) -> BinCollection:
         """
@@ -132,13 +174,8 @@ class CSVBinLoader:
         bins = []
         
         for row_index, row in self.df.iterrows():
-            try:
-                bin_obj = self.load_bin_from_row(row, row_index)
-                bins.append(bin_obj)
-            except Exception as e:
-                print(f"Warning: Failed to load row {row_index + 1}: {e}")
-                continue
-        
+            bin_obj = self.load_bin_from_row(row, row_index)
+            bins.append(bin_obj)
         print(f"✓ Successfully loaded {len(bins)} bins from CSV")
         return BinCollection(bins)
     
@@ -209,7 +246,7 @@ def example_usage():
     """Example of how to use the CSV bin loader."""
     
     # Load reactor from CSV
-    csv_path = "input_table.csv"
+    csv_path = "input_files/input_table.csv"
     
     try:
         # Create loader and load reactor

@@ -28,10 +28,9 @@ Assumptions:
 from pathlib import Path
 
 # Input/output paths
-RESULTS_DIR = Path("../results_test_adri")  # Directory with JSON files
-CSV_FILE = Path("/home/ITER/llealsa/AdriaLlealS/PFC-Tritium-Transport/iter_bins/Wetted_Frac_Bin_Data.csv")         # CSV file with bin surface data
-DIVERTOR_BIN_FILE = Path("/home/ITER/llealsa/AdriaLlealS/PFC-Tritium-Transport/iter_bins/iter_bins.dat")  # Divertor bin geometry data
-PLOTS_DIR = Path("./plots_test_adri")
+RESULTS_DIR = Path("../results_do_nothing_K")  # Directory with JSON files
+INPUT_TABLE_CSV = Path("../input_files/input_table.csv")  # Input table with bin configuration
+PLOTS_DIR = Path("./plots_do_nothing_K")
 
 # Time settings
 TARGET_INTERVAL = 100.0                     # seconds (build common time grid every ~100s)
@@ -58,15 +57,36 @@ import matplotlib.pyplot as plt
 # -----------------------
 
 def parse_filename(stem: str):
-    """Infer component and bin id from a filename stem.
-
-    component = 'wall' if 'wall' in the stem else 'divertor'
-    bin_id extracted from 'bin<id>' patterns (e.g., 'bin_12', 'bin-12', 'bin12').
+    """Parse CSV bin filename to extract bin number, component, and mode.
+    
+    Expected format: csv_bin_id_{id}_num_{bin_number}_{material}_{mode}.json
+    where bin_number determines if it's wall (1-18) or divertor (19+)
+    
+    Returns: (component, bin_number, mode)
     """
-    component = "wall" if "wall" in stem.lower() else "divertor"
-    bin_match = re.search(r"bin[_\-\s]?(\d+)", stem, flags=re.IGNORECASE)
-    bin_id = int(bin_match.group(1)) if bin_match else None
-    return component, bin_id
+    # Extract bin_number (the actual ITER bin number, not the CSV row id)
+    num_match = re.search(r"_num_(\d+)", stem)
+    if not num_match:
+        return None, None, None
+    
+    bin_number = int(num_match.group(1))
+    
+    # Determine component based on bin number
+    # Bins 1-18 are first wall, 19+ are divertor
+    component = "wall" if bin_number <= 18 else "divertor"
+    
+    # Extract mode from filename
+    mode = None
+    if "high_wetted" in stem:
+        mode = "high"
+    elif "low_wetted" in stem:
+        mode = "low"
+    elif "shadowed" in stem or "shadow" in stem:
+        mode = "shadow"
+    elif "wetted" in stem:
+        mode = "high"  # default wetted to high
+    
+    return component, bin_number, mode
 
 
 def get_material(data: dict):
@@ -75,35 +95,68 @@ def get_material(data: dict):
     return "Tungsten" if len(traps) == 4 else "Boron"
 
 
-def load_surface_data(csv_path: Path):
-    """Load wall surface areas per bin index (expects columns: Slow, Stot, Shigh)."""
+def load_surface_data_from_input_table(csv_path: Path):
+    """Load surface area data from input_table.csv
+    
+    Returns a dict mapping bin_number to a dict with:
+        - Stot: total surface area
+        - Shigh: high wetted surface area
+        - Slow: low wetted surface area
+        - Sshadow: shadowed surface area
+    """
     surface_data = {}
+    
     with open(csv_path, "r", newline="") as f:
         reader = csv.DictReader(f)
-        for idx, row in enumerate(reader):
-            surface_data[idx] = {
-                "Slow": float(row["Slow"]),
-                "Stot": float(row["Stot"]),
-                "Shigh": float(row["Shigh"]),
-            }
+        for row in reader:
+            bin_num = int(row["Bin number"])
+            mode = row["mode"]
+            surface_area = float(row["Surface area (m^2)"])
+            location = row["location"]
+            
+            # Skip divertor bins
+            if location.upper() in ["DIV", "DIVERTOR"]:
+                continue
+            
+            # Initialize bin data if not present
+            if bin_num not in surface_data:
+                parent_area = float(row["S. Area parent bin (m^2)"])
+                surface_data[bin_num] = {
+                    "Stot": parent_area,
+                    "Shigh": 0.0,
+                    "Slow": 0.0,
+                    "Sshadow": 0.0
+                }
+            
+            # Assign area based on mode
+            if "high" in mode.lower():
+                surface_data[bin_num]["Shigh"] = surface_area
+            elif "low" in mode.lower():
+                surface_data[bin_num]["Slow"] = surface_area
+            elif "shadow" in mode.lower():
+                surface_data[bin_num]["Sshadow"] = surface_area
+            elif mode.lower() == "wetted":
+                # For simple "wetted" mode, treat as high wetted
+                surface_data[bin_num]["Shigh"] = surface_area
+    
     return surface_data
 
 
-def load_divertor_bin_data(dat_path: Path):
-    """Load divertor bin geometry and compute areas.
-       A = pi * abs(R_start + R_End) * abs(Z_End - Z_Start)
-       Returned dict keys start at index 18 (divertor bins offset).
-    """
+def load_divertor_areas_from_input_table(csv_path: Path):
+    """Load divertor bin areas from input_table.csv"""
     divertor_areas = {}
-    with open(dat_path, "r", newline="") as f:
+    
+    with open(csv_path, "r", newline="") as f:
         reader = csv.DictReader(f)
-        for idx, row in enumerate(reader):
-            r_start = float(row["R_Start"])
-            r_end = float(row["R_End"])
-            z_start = float(row["Z_Start"])
-            z_end = float(row["Z_End"])
-            area = np.pi * abs(r_start + r_end) * abs(z_end - z_start)
-            divertor_areas[idx + 18] = area  # Divertor bins start at index 18
+        for row in reader:
+            bin_num = int(row["Bin number"])
+            location = row["location"]
+            surface_area = float(row["Surface area (m^2)"])
+            
+            # Only process divertor bins
+            if location.upper() in ["DIV", "DIVERTOR"]:
+                divertor_areas[bin_num] = surface_area
+    
     return divertor_areas
 
 
@@ -136,9 +189,9 @@ def moving_average(data: np.ndarray, window_size: int) -> np.ndarray:
 def main():
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Load area data
-    surface_data = load_surface_data(CSV_FILE)
-    divertor_areas = load_divertor_bin_data(DIVERTOR_BIN_FILE)
+    # Load area data from input_table.csv
+    surface_data = load_surface_data_from_input_table(INPUT_TABLE_CSV)
+    divertor_areas = load_divertor_areas_from_input_table(INPUT_TABLE_CSV)
 
     # Collect JSON result files
     json_files = sorted(RESULTS_DIR.glob("*.json"))
@@ -178,7 +231,7 @@ def main():
             continue
 
         t_array = np.array(data["t"], dtype=float)
-        component, bin_id = parse_filename(jf.stem)
+        component, bin_id, mode = parse_filename(jf.stem)
         if bin_id is None:
             # skip files that don't encode a bin id
             continue
@@ -191,9 +244,15 @@ def main():
                 # unknown wall bin id in surface table
                 continue
 
-            slow_area = surf["Slow"]
-            shigh_area = surf["Shigh"]
-            shadow_area = surf["Stot"] - shigh_area - slow_area
+            # Determine area from mode (each JSON file represents one mode)
+            if mode == "high":
+                area = surf["Shigh"]
+            elif mode == "low":
+                area = surf["Slow"]
+            elif mode == "shadow":
+                area = surf["Sshadow"]
+            else:
+                area = surf["Stot"]  # fallback
 
             # Sum inventory for Tritium keys
             for key, values in data.items():
@@ -202,17 +261,6 @@ def main():
                 if isinstance(values, dict) and "data" in values:
                     arr = np.array(values["data"], dtype=float)
                     if "T" in key:  # Tritium inventory
-                        key_l = key.lower()
-                        # Choose area by sub-bin name
-                        if "shadow" in key_l:
-                            area = shadow_area
-                        elif "low" in key_l:
-                            area = slow_area
-                        elif "high" in key_l:
-                            area = shigh_area
-                        else:
-                            area = surf["Stot"]  # fallback (whole bin)
-
                         for i, target_t in enumerate(target_times):
                             idx = find_nearest_index(t_array, target_t)
                             inv_val = arr[idx]  # inventory at nearest time
@@ -278,13 +326,10 @@ def main():
     # Determine all possible bin IDs from surface data and divertor data
     wall_bin_ids = set(surface_data.keys())
     divertor_bin_ids = set(divertor_areas.keys())
-    all_possible_bins_raw = sorted(wall_bin_ids | divertor_bin_ids)
-    
-    # Limit to bins 0-61 (which will be displayed as 1-62)
-    all_possible_bins = [b for b in all_possible_bins_raw if 0 <= b <= 61]
+    all_possible_bins = sorted(wall_bin_ids | divertor_bin_ids)
     
     if not all_possible_bins:
-        print("[WARN] No valid bin data found (bins should be 0-61).")
+        print("[WARN] No valid bin data found.")
         return
 
     # Gather bins and compute W, B, total in grams at snapshot
@@ -355,9 +400,9 @@ def main():
         ax.set_title("Tritium retained at the end of the scenario per bin and material")
         out_name = PLOTS_DIR / "tritium_inventory_per_bin_total.png"
     
-    # Use actual bin numbers for x-axis labels (bin numbers should be 1-based, not 0-based)
+    # Use actual bin numbers for x-axis labels (already 1-based from input_table.csv)
     tick_idx = x[::2]                 # every 2 bins
-    tick_labels = [str(all_possible_bins[i] + 1) for i in range(0, len(all_possible_bins), 2)]  # Add 1 to convert from 0-based to 1-based numbering
+    tick_labels = [str(all_possible_bins[i]) for i in range(0, len(all_possible_bins), 2)]
     
     ax.set_xticks(tick_idx)
     ax.set_xticklabels(tick_labels, rotation=0)
