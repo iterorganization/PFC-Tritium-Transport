@@ -8,7 +8,7 @@ The purpose of this repository is to obtain Hydrogen inventory estimations in th
 
 ### 1. Clone this repository
 ```bash
-git clone --branch alleal https://github.com/AdriaLlealS/PFC-Tritium-Transport.git
+git clone --branch alleal https://github.com/iterorganization/PFC-Tritium-Transport.git
 ```
 
 ### 2. Recreate the Python environment
