@@ -1,7 +1,7 @@
-Bin number,Z_start (m),R_start (m),Z_end (m),R_end (m),Material,Thickness (m),Cu thickness (m),mode,S. Area parent bin (m^2),Surface area (m^2),f (ion flux fraction),location,rtol,atol,FP max. stepsize (s),Max. stepsize no FP (s),BC Plasma Facing Surface,BC rear surface
-1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,high_wetted,26,0.886,0.919,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Neumann - no flux
-1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,low_wetted,26,0.0999,0.0808,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
-1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,shadowed,26,25.1,0,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+Bin number,Z_start (m),R_start (m),Z_end (m),R_end (m),Material,Thickness (m),Cu thickness (m),mode,S. Area parent bin (m^2),Surface area (m^2),f (ion flux scaling factor),location,rtol,atol,FP max. stepsize (s),Max. stepsize no FP (s),BC Plasma Facing Surface,BC rear surface
+1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,high_wetted,26,0.886,0.919,FW,1E-09,100000000000,10,100,Robin - Surf. Rec. + Implantation,Neumann - no flux
+1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,low_wetted,26,0.0999,0.0808,FW,1E-09,100000000000,10,100,Dirichlet - 0 concentration + Implantation,Neumann - no flux
+1,-2.51,4.1,-1.5,4.1,W,0.006,0.002,shadowed,26,25.1,0,FW,1E-09,100000000000,10,100,Dirichlet - Analyttical implantation approximation,Neumann - no flux
 2,-1.5,4.1,-0.487,4.1,W,0.006,0.002,high_wetted,26.1,3.3,0.978,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 2,-1.5,4.1,-0.487,4.1,W,0.006,0.002,low_wetted,26.1,0.137,0.0223,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 2,-1.5,4.1,-0.487,4.1,W,0.006,0.002,shadowed,26.1,22.7,0,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
@@ -30,7 +30,7 @@ Bin number,Z_start (m),R_start (m),Z_end (m),R_end (m),Material,Thickness (m),Cu
 10,4.52,5.75,3.94,6.51,W,0.012,0.002,low_wetted,24.5,0.311,0.0265,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 10,4.52,5.75,3.94,6.51,W,0.012,0.002,shadowed,24.5,19.3,0,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 11,3.94,6.51,3.16,7.4,W,0.012,0.002,high_wetted,51.6,4.86,0.973,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
-11,3.94,6.51,3.16,7.4,B,1E-07,0,low_wetted,51.6,0.311,0.0265,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+11,3.94,6.51,3.16,7.4,B,1E-07,0,low_wetted,51.6,0.311,0.0265,FW,1E-09,100000000000,5,100,Dirichlet - Analyttical implantation approximation,Neumann - no flux
 11,3.94,6.51,3.16,7.4,B,1E-06,0,shadowed,51.6,46.4,0,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 12,3.16,7.4,2.44,7.9,W,0.012,0.002,high_wetted,42,0.00359,0.00522,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 12,3.16,7.4,2.44,7.9,B,1E-07,0,low_wetted,42,5.2,0.995,FW,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
@@ -55,7 +55,7 @@ Bin number,Z_start (m),R_start (m),Z_end (m),R_end (m),Material,Thickness (m),Cu
 22,-3.77,5.57,-3.93,5.56,B,1E-06,0,,5.61,5.61,1,Div,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 23,-3.93,5.56,-4.01,5.56,W,0.006,0,,2.79,2.79,1,Div,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 24,-4.01,5.56,-4.08,5.56,W,0.006,0,,2.45,2.45,1,Div,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
-25,-4.08,5.56,-4.14,5.56,W,0.006,0,,2.1,2.1,1,Div,1.00E-08,1.00E+12,5,30,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
+25,-4.08,5.56,-4.14,5.56,W,0.006,0,,2.1,2.1,1,Div,1E-08,1000000000000,5,30,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 26,-4.14,5.56,-4.2,5.56,W,0.006,0,,2.1,2.1,1,Div,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 27,-4.2,5.56,-4.26,5.56,W,0.006,0,,2.1,2.1,1,Div,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration
 28,-4.26,5.56,-4.32,5.56,W,0.006,0,,2.1,2.1,1,Div,1E-09,100000000000,5,100,Robin - Surf. Rec. + Implantation,Dirichlet - 0 concentration

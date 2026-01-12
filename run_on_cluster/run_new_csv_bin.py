@@ -23,8 +23,8 @@ if hisp_src not in sys.path:
     sys.path.insert(0, hisp_src)
 
 # Import CSV bin system
-from csv_bin_loader import CSVBinLoader
-from csv_bin import Reactor
+from bins_from_csv.csv_bin_loader import CSVBinLoader
+from bins_from_csv.csv_bin import Reactor
 from run_bin_functions import load_scenario_variable
 
 # Import NewModel class from hisp
@@ -114,7 +114,7 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         
         # Debug: Print flux values during flat-top
         print("=== Flux Debug (before running simulation) ===")
-        from hisp.festim_models.mb_model import make_particle_flux_function
+        from hisp.festim_models.new_mb_model import make_particle_flux_function
         
         # Get a time during flat-top of first FP pulse
         first_fp_pulse = None
@@ -148,7 +148,7 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         model, quantities = my_new_model.run_bin(target_bin, exports=False)
         
         # Get temperature function for recording
-        from hisp.festim_models.mb_model import make_temperature_function
+        from hisp.festim_models.new_mb_model import make_temperature_function
         temperature_function = make_temperature_function(
             scenario=scenario,
             plasma_data_handling=plasma_data_handling,
@@ -195,7 +195,7 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         # Save results to JSON
         material_name = target_bin.material.name.lower()
         mode_name = target_bin.mode.lower().replace("_", "")
-        output_file = f"results_{scenario_name}/csv_bin_id_{bin_id}_num_{target_bin.bin_number}_{material_name}_{mode_name}.json"
+        output_file = f"results_{scenario_name}/id_{bin_id}_bin_num_{target_bin.bin_number}_{material_name}_{mode_name}.json"
         
         os.makedirs("results_"+str(scenario_name), exist_ok=True)
         with open(output_file, "w") as f:

@@ -9,7 +9,7 @@ from typing import Dict
 
 import pandas as pd
 
-from materials import Material
+from materials.materials import Material
 
 
 def _is_nan(x):

@@ -5,8 +5,8 @@ CSV loader for creating Bin objects from CSV configuration files.
 import pandas as pd
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-from csv_bin import Bin, BinCollection, Reactor, BinConfiguration
-from materials_loader import load_materials
+from bins_from_csv.csv_bin import Bin, BinCollection, Reactor, BinConfiguration
+from materials.materials_loader import load_materials
 
 
 class CSVBinLoader:
@@ -47,7 +47,7 @@ class CSVBinLoader:
         required_columns = [
             'Bin number', 'Z_start (m)', 'R_start (m)', 'Z_end (m)', 'R_end (m)',
             'Material', 'Thickness (m)', 'Cu thickness (m)', 'mode',
-            'S. Area parent bin (m^2)', 'Surface area (m^2)', 'f (ion flux fraction)', 'location'
+            'S. Area parent bin (m^2)', 'Surface area (m^2)', 'f (ion flux scaling factor)', 'location'
         ]
         
         missing_columns = [col for col in required_columns if col not in self.df.columns]
@@ -111,7 +111,7 @@ class CSVBinLoader:
         mode = str(row['mode'])
         parent_bin_surf_area = float(row['S. Area parent bin (m^2)'])
         surface_area = float(row['Surface area (m^2)'])
-        f_ion_flux_fraction = float(row['f (ion flux fraction)'])
+        f_ion_flux_fraction = float(row['f (ion flux scaling factor)'])
         location = str(row['location'])
         
         # Optional properties with defaults

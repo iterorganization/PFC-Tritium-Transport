@@ -5,7 +5,7 @@ Each bin represents one row from the CSV configuration table.
 
 from typing import Optional, Any
 from dataclasses import dataclass
-from materials import Material
+from materials.materials import Material
 
 
 @dataclass
@@ -275,7 +275,7 @@ class Reactor(BinCollection):
             Reactor: Complete reactor with all bins from the CSV table
         """
         # Import here to avoid circular imports
-        from csv_bin_loader import CSVBinLoader
+        from bins_from_csv.csv_bin_loader import CSVBinLoader
         
         loader = CSVBinLoader(csv_path)
         bin_collection = loader.load_all_bins()
