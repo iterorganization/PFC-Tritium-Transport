@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Python environment
+myenv/
+
 # Distribution / packaging
 .Python
 build/
@@ -110,6 +113,14 @@ venv.bak/
 *.bp
 *.xdmf
 *.h5
+*.out
+*.err
+*.json
+
+# Output folders of hisp-for-iter
+logs/
+results/
+job_data/
 
 
 *.DS_Store

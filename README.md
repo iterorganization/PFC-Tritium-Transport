@@ -77,3 +77,5 @@ Run capabilities
 - Column header names are matched exactly and are case-sensitive. If your table uses different headers, either rename columns or adapt `csv_bin_loader.py`.
 
 - Ensure your binned flux data matches the pulse types used by your scenarios and that file paths are correct.
+
+
