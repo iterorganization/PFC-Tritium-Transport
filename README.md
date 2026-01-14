@@ -24,11 +24,8 @@ conda activate PFC-TT
 We use a specific branch of HISP which will remain static until significant improvements are made. 
 To avoid FESTIM version conflicts, we install HISP **without dependencies**:
 ```bash
-# Install FESTIM 2.0 (handles compiled dependencies: dolfinx, FEniCS, MPI, HDF5)
 conda install -c conda-forge 'festim=2.0b1'
-# Install HISP (your fork) without re-installing dependencies
 pip install --no-deps git+https://github.com/AdriaLlealS/hisp.git@main
-# Install h_transport_materials (required by FESTIM, works after FESTIM installation)
 pip install h_transport_materials
 ```
 This will install:
