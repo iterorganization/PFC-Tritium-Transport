@@ -18,11 +18,6 @@ conda env create -f PFC-TT.yml
 conda activate PFC-TT
 ```
 
-This will install:
-- **FESTIM v2.0-beta.1**
-- **dolfinx v0.10.0**
-- All required dependencies
-
 ---
 
 ### 3. Install FESTIM2 and custom HISP version
@@ -36,6 +31,11 @@ pip install --no-deps git+https://github.com/AdriaLlealS/hisp.git@main
 # Install h_transport_materials (required by FESTIM, works after FESTIM installation)
 pip install h_transport_materials
 ```
+This will install:
+- **FESTIM v2.0-beta.1**
+- **dolfinx v0.10.0**
+- **HISP**
+- All required dependencies
 
 ---
 
