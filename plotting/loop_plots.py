@@ -6,8 +6,8 @@ from pathlib import Path
 import re
 
 # ----------- CONFIG -----------
-RESULTS_DIR = Path("../results_test_adri_csv")
-PLOTS_DIR = Path("./plots_test_adri_csv")
+RESULTS_DIR = Path("../results_1FPday")
+PLOTS_DIR = Path("./plots_1FPday")
 FIGSIZE = (5.5, 4.5)
 LEFT_XLIM_HOURS = 0.05
 RIGHT_XLIM_HOURS = 250

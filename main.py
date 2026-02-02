@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 
-from hisp.plasma_data_handling import PlasmaDataHandling
+from plasma_data_handling import PlasmaDataHandling
 
 from iter_bins.make_iter_bins import FW_bins, Div_bins, my_reactor
 from bin_data.bin_data import load_geometry, create_bins, read_dat_file, read_div_solps, bin_fluxes_div, bin_fluxes_wall

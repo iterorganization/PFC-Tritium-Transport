@@ -5,6 +5,7 @@ Each bin represents one row from the CSV configuration table.
 
 from typing import Optional, Any
 from dataclasses import dataclass
+import pandas as pd
 from materials.materials import Material
 
 
@@ -54,6 +55,7 @@ class Bin:
         coolant_temp: float = 343.0,
         bin_configuration: Optional[BinConfiguration] = None,
         bin_id: Optional[int] = None,
+        calculate_implantation_params: bool = True,
     ):
         """
         Initialize a CSV-based bin.
@@ -122,6 +124,15 @@ class Bin:
             bc_plasma_facing_surface="Robin - Surf. Rec. + Implantation",
             bc_rear_surface="Neumann - no flux"
         )
+        
+        # Implantation parameters (computed at runtime from plasma data)
+        # Structure: {'ion': {'implantation_range': float, 'width': float, 'reflection_coefficient': float},
+        #            'atom': {...}}
+        self.implantation_params = None
+        
+        # Control flag for calculating implantation parameters from flux data
+        # If True: calculate params from energy/angle data; if False: use defaults
+        self.calculate_implantation_params = calculate_implantation_params
 
     @property
     def material_name(self) -> str:
@@ -170,6 +181,62 @@ class Bin:
     def is_wetted(self) -> bool:
         """Check if this bin is in any wetted mode."""
         return self.mode.lower() in ["wetted", "wet", "hw", "lw", "high_wetted", "low_wetted"]
+    
+    def get_implantation_data(self, pulse, plasma_data_handling, ion: bool = True):
+        """
+        Extract implantation data (energy, angle) for a specific pulse and particle type.
+        
+        Args:
+            pulse: Pulse object from scenario
+            plasma_data_handling: PlasmaDataHandling object with flux data
+            ion: True for ions, False for atoms
+            
+        Returns:
+            Dictionary with 'energy' and 'angle' keys (values may be None if not available)
+        """
+        energy = None
+        angle = None
+        
+        try:
+            # Get the flux data for this pulse type
+            pulse_type = getattr(pulse, 'pulse_type', None)
+            if pulse_type is None:
+                return {'energy': energy, 'angle': angle}
+            
+            # Access the pulse data from plasma_data_handling
+            pulse_data = plasma_data_handling.pulse_type_to_data.get(pulse_type)
+            if pulse_data is None:
+                return {'energy': energy, 'angle': angle}
+            
+            # Find the row for this bin using Bin_Index
+            bin_row = pulse_data[pulse_data['Bin_Index'] == self.bin_number]
+            
+            if bin_row.empty:
+                return {'energy': energy, 'angle': angle}
+            
+            # Extract energy and angle based on particle type
+            if ion:
+                energy = bin_row['E_ion'].values[0]
+                angle = bin_row['alpha_ion'].values[0]
+            else:
+                energy = bin_row['E_atom'].values[0]
+                angle = bin_row['alpha_atom'].values[0]
+            
+            # Handle NaN values
+            if pd.isna(energy):
+                energy = None
+            if pd.isna(angle):
+                angle = None
+                
+        except (KeyError, IndexError, AttributeError):
+            # If any error occurs during extraction, return None values
+            # The calculator will use defaults
+            pass
+        
+        return {
+            'energy': energy,
+            'angle': angle
+        }
     
     def __str__(self) -> str:
         """String representation of the bin."""

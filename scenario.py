@@ -20,6 +20,8 @@ class Pulse:
         ramp_down: float,
         waiting: float,
         tritium_fraction: float,  # tritium fraction = T/D
+        heat_scaling: float = 1.0,  # scaling factor for heat loads
+        flux_scaling: float = 1.0,  # scaling factor for particle fluxes
     ):
         self.pulse_type = pulse_type
         self.nb_pulses = nb_pulses
@@ -28,6 +30,8 @@ class Pulse:
         self.ramp_down = ramp_down
         self.waiting = waiting
         self.tritium_fraction = tritium_fraction
+        self.heat_scaling = heat_scaling
+        self.flux_scaling = flux_scaling
 
     @property
     def total_duration(self) -> float:
@@ -78,6 +82,8 @@ class Scenario:
                     "ramp_down": pulse.ramp_down,
                     "waiting": pulse.waiting,
                     "tritium_fraction": pulse.tritium_fraction,
+                    "heat_scaling": pulse.heat_scaling,
+                    "flux_scaling": pulse.flux_scaling,
                 }
                 for pulse in self.pulses
             ]
@@ -123,6 +129,8 @@ class Scenario:
                 ramp_down=float(row["ramp_down"]),
                 waiting=float(row["waiting"]),
                 tritium_fraction=float(row["tritium_fraction"]),
+                heat_scaling=float(row.get("heat_scaling", 1.0)),
+                flux_scaling=float(row.get("flux_scaling", 1.0)),
             )
             for _, row in df.iterrows()
         ]

@@ -6,18 +6,17 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1         # Adjust CPU usage
 #SBATCH --mem=1gb                 # Adjust memory
-#SBATCH --partition=rigel        # Adjust partition name
+#SBATCH --partition=sirius        # Adjust partition name
 
 # New CSV Bin SLURM Job Submitter (using new_mb_model)
 # Usage: 
-#   ./slurm_new_csv_jobs.sh                                    # Use default configuration
 #   ./slurm_new_csv_jobs.sh scenario_name                      # Run all bins with custom scenario
-#   ./slurm_new_csv_jobs.sh scenario_name "bin_id1 bin_id2"    # Run specific bin IDs with custom scenario
+#   ./slurm_new_csv_jobs.sh scenario_name "n-m, p-q, r-s..."   # Run specific bin ranges with custom scenario
 #
 # Examples:
-#   ./slurm_new_csv_jobs.sh                                    # Default: do_nothing_K scenario, all bins
-#   ./slurm_new_csv_jobs.sh capability_test_K                  # Run all bins with capability_test_K scenario
-#   ./slurm_new_csv_jobs.sh do_nothing_K "1 2 5 10"             # Run bin IDs 1,2,5,10 with do_nothing_K scenario
+#   ./slurm_new_csv_jobs.sh just_glow                          # Run all bins with just_glow scenario
+#   ./slurm_new_csv_jobs.sh just_glow "1-5"                    # Run bins 1 to 5 with just_glow scenario
+#   ./slurm_new_csv_jobs.sh just_glow "1-5, 10-15, 20-22"      # Run bins 1-5, 10-15, 20-22 with just_glow scenario
 
 # Load modules (if required)
 
@@ -47,35 +46,22 @@ DEFAULT_CSV_FILE="input_files/input_table.csv"
 
 # Parse command line arguments
 if [ $# -eq 0 ]; then
-    # No arguments: use defaults
-    SCENARIO_FOLDER="$DEFAULT_SCENARIO_FOLDER"
-    SCENARIO_NAME="$DEFAULT_SCENARIO_NAME"
-    CSV_FILE="$DEFAULT_CSV_FILE"
-    BIN_IDS=""
-    echo "Using default configuration:"
-elif [ $# -eq 1 ]; then
-    # One argument: custom scenario, all bins
-    SCENARIO_FOLDER="$DEFAULT_SCENARIO_FOLDER"
-    SCENARIO_NAME="$1"
-    CSV_FILE="$DEFAULT_CSV_FILE"
-    BIN_IDS=""
-    echo "Using custom scenario with all bins:"
-elif [ $# -eq 2 ]; then
-    # Two arguments: custom scenario and specific bin IDs
-    SCENARIO_FOLDER="$DEFAULT_SCENARIO_FOLDER"
-    SCENARIO_NAME="$1"
-    CSV_FILE="$DEFAULT_CSV_FILE"
-    BIN_IDS="$2"
-    echo "Using custom scenario with specific bin IDs:"
-else
-    echo "Usage: $0 [scenario_name] [\"bin_id1 bin_id2 ...\"]"
+    echo "Usage: $0 scenario_name [\"n-m, p-q, r-s...\"] or [\"n p r ...\"]"
     echo ""
     echo "Examples:"
-    echo "  $0                                    # Default: do_nothing_K scenario, all bins"
-    echo "  $0 capability_test_K                  # All bins with capability_test_K scenario"
-    echo "  $0 do_nothing_K \"1 2 5 10\"            # Bin IDs 1,2,5,10 with do_nothing_K scenario"
+    echo "  $0 just_glow                          # Run all bins with just_glow scenario"
+    echo "  $0 just_glow \"1-5\"                   # Run bins 1 to 5 with just_glow scenario"
+    echo "  $0 just_glow \"1-5, 10-15, 20-22\"    # Run bins 1-5, 10-15, 20-22 with just_glow scenario"
+    echo "  $0 just_glow \"1 5 9\"                # Run individual bins 1, 5, 9"
+    echo "  $0 just_glow \"1-3, 5, 10-12, 20\"    # Mix of ranges and individual bins"
     exit 1
 fi
+
+# First argument is scenario name (required)
+SCENARIO_FOLDER="$DEFAULT_SCENARIO_FOLDER"
+SCENARIO_NAME="$1"
+CSV_FILE="$DEFAULT_CSV_FILE"
+BIN_SPEC="$2"  # Optional: ranges like "1-5, 10-15" or individual bins "1 5 9" or empty for all bins
 
 # Check if CSV file exists
 if [ ! -f "$CSV_FILE" ]; then
@@ -83,22 +69,58 @@ if [ ! -f "$CSV_FILE" ]; then
     exit 1
 fi
 
+echo "Using custom scenario:"
 echo "  Scenario folder: $SCENARIO_FOLDER"
 echo "  Scenario name: $SCENARIO_NAME"
 echo "  CSV file: $CSV_FILE"
 
+# Function to expand bin specifications into individual bin IDs
+expand_bin_spec() {
+    local spec="$1"
+    local bins=()
+    
+    # Handle comma-separated ranges and individual numbers
+    # Replace commas with spaces and process each token
+    spec=$(echo "$spec" | tr ',' ' ')
+    
+    for token in $spec; do
+        # Remove whitespace
+        token=$(echo "$token" | xargs)
+        
+        if [[ $token =~ ^([0-9]+)-([0-9]+)$ ]]; then
+            # Range format: "n-m"
+            start=${BASH_REMATCH[1]}
+            end=${BASH_REMATCH[2]}
+            for ((i=start; i<=end; i++)); do
+                bins+=($i)
+            done
+        elif [[ $token =~ ^[0-9]+$ ]]; then
+            # Individual number
+            bins+=($token)
+        else
+            echo "Error: Invalid bin specification '$token'. Use format like '1-5', '10', or '1-5, 10, 15-20'"
+            exit 1
+        fi
+    done
+    
+    # Remove duplicates and sort
+    printf '%s\n' "${bins[@]}" | sort -n | uniq
+}
+
 # Determine which bin IDs to run
-if [ -z "$BIN_IDS" ]; then
+if [ -z "$BIN_SPEC" ]; then
     # No specific bin IDs provided, run all bins
     # Count data rows (excluding header)
     NUM_ROWS=$(tail -n +2 "$CSV_FILE" | wc -l)
     # Start from bin_id=1 (row index 1, which is the first data row after header)
     BIN_IDS_ARRAY=($(seq 1 $NUM_ROWS))
-    echo "  Bin IDs: ALL (${BIN_IDS_ARRAY[@]})"
+    echo "  Bin IDs: ALL (1 to $NUM_ROWS)"
     echo "  Total bins: $NUM_ROWS"
 else
-    # Specific bin IDs provided
-    BIN_IDS_ARRAY=($BIN_IDS)
+    # Parse bin specifications and expand ranges
+    BIN_IDS_OUTPUT=$(expand_bin_spec "$BIN_SPEC")
+    BIN_IDS_ARRAY=($BIN_IDS_OUTPUT)
+    echo "  Bin specification: $BIN_SPEC"
     echo "  Bin IDs: ${BIN_IDS_ARRAY[@]}"
     echo "  Total bins: ${#BIN_IDS_ARRAY[@]}"
 fi

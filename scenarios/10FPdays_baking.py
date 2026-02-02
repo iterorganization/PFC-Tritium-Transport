@@ -2,7 +2,7 @@ from scenario import Scenario, Pulse
 
 fp = Pulse(
     pulse_type="FP",
-    nb_pulses=9,
+    nb_pulses=10,
     ramp_up=429,
     steady_state=650,
     ramp_down=455,
@@ -27,4 +27,4 @@ bake = Pulse(
     waiting=11,  # HISP expects at least 10 s of waiting...
     tritium_fraction=0.0,
 )
-scenario = Scenario(pulses=[fp, fp_do_nothing])
+scenario = Scenario(pulses=[fp, bake])

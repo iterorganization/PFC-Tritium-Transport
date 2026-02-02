@@ -131,6 +131,10 @@ class CSVBinLoader:
         bc_plasma_facing = self._get_column_value(row, 'BC Plasma Facing Surface', 'Robin - Surf. Rec. + Implantation')
         bc_rear = self._get_column_value(row, 'BC rear surface', 'Neumann - no flux')
         
+        # Implantation parameters calculation flag (default: True to calculate from flux data)
+        calc_implant_str = self._get_column_value(row, 'Calculate Implantation Parameters', 'Yes')
+        calculate_implantation_params = str(calc_implant_str).lower().strip() != 'no'
+        
         # Create bin configuration
         bin_config = BinConfiguration(
             rtol=rtol,
@@ -159,6 +163,7 @@ class CSVBinLoader:
             coolant_temp=coolant_temp,
             bin_configuration=bin_config,
             bin_id=row_index + 1,  # 1-based row numbering
+            calculate_implantation_params=calculate_implantation_params,
         )
         # material already stored on the bin by its constructor; nothing more to do
 

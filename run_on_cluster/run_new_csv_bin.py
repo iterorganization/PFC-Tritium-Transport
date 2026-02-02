@@ -9,13 +9,14 @@ if "PFC_TT_PATH" not in os.environ and "HISP_PFC_TT_PATH" not in os.environ:
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     os.environ["PFC_TT_PATH"] = repo_root
 
-from hisp.plasma_data_handling import PlasmaDataHandling
 
 # Get the parent directory of the current script
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Add the parent directory to sys.path
 sys.path.insert(0, parent_dir)
+
+from plasma_data_handling import PlasmaDataHandling
 
 # Add hisp src to path
 hisp_src = os.path.abspath(os.path.join(parent_dir, "hisp", "src"))
@@ -26,6 +27,9 @@ if hisp_src not in sys.path:
 from bins_from_csv.csv_bin_loader import CSVBinLoader
 from bins_from_csv.csv_bin import Reactor
 from run_bin_functions import load_scenario_variable
+
+# Import implantation calculator
+from implantation_calculator import ImplantationCalculator
 
 # Import NewModel class from hisp
 from hisp.new_model import NewModel
@@ -67,6 +71,85 @@ plasma_data_handling = PlasmaDataHandling(
 )
 
 
+def compute_and_attach_implantation_params(bin, scenario, plasma_data_handling, use_physics_model=False):
+    """
+    Compute implantation parameters for a bin and attach them to bin.implantation_params.
+    
+    Args:
+        bin: Bin object
+        scenario: Scenario object
+        plasma_data_handling: PlasmaDataHandling object with flux data
+        use_physics_model: Whether to use physics-based calculations
+    """
+    calculator = ImplantationCalculator(use_physics_model=use_physics_model)
+    material_name = bin.material.name if hasattr(bin.material, 'name') else str(bin.material)
+    
+    # Check if we should calculate parameters from flux data
+    should_calculate = getattr(bin, 'calculate_implantation_params', True)
+    
+    # Try to extract energy and angle from the first FP pulse
+    energy_ion = None
+    angle_ion = None
+    energy_atom = None
+    angle_atom = None
+    
+    if should_calculate:
+        # Look for FP pulse to get energy/angle data
+        for pulse in scenario.pulses:
+            if pulse.pulse_type == "FP":
+                # Get ion data using bin's method
+                implant_data_ion = bin.get_implantation_data(pulse, plasma_data_handling, ion=True)
+                energy_ion = implant_data_ion.get('energy')
+                angle_ion = implant_data_ion.get('angle')
+                
+                # Get atom data using bin's method
+                implant_data_atom = bin.get_implantation_data(pulse, plasma_data_handling, ion=False)
+                energy_atom = implant_data_atom.get('energy')
+                angle_atom = implant_data_atom.get('angle')
+                break
+    
+    # Compute parameters for ions and atoms
+    params_ion = calculator.compute_implantation_params(
+        energy=energy_ion,
+        angle=angle_ion,
+        material=material_name,
+        particle_type='ion'
+    )
+    
+    params_atom = calculator.compute_implantation_params(
+        energy=energy_atom,
+        angle=angle_atom,
+        material=material_name,
+        particle_type='atom'
+    )
+    
+    # Attach to bin
+    bin.implantation_params = {
+        'ion': params_ion,
+        'atom': params_atom
+    }
+    
+    # Print debug info
+    if should_calculate:
+        if energy_ion is not None and angle_ion is not None:
+            print(f"  Calculated implantation params for ions: E={energy_ion:.2f} eV, α={angle_ion:.2f}°")
+            print(f"    Range: {params_ion['implantation_range']*1e9:.3f} nm, Width: {params_ion['width']*1e9:.3f} nm, Reflection: {params_ion['reflection_coefficient']:.3f}")
+        else:
+            print(f"  No energy/angle data found for ions, using defaults")
+            print(f"    Range: {params_ion['implantation_range']*1e9:.3f} nm, Width: {params_ion['width']*1e9:.3f} nm, Reflection: {params_ion['reflection_coefficient']:.3f}")
+        
+        if energy_atom is not None and angle_atom is not None:
+            print(f"  Calculated implantation params for atoms: E={energy_atom:.2f} eV, α={angle_atom:.2f}°")
+            print(f"    Range: {params_atom['implantation_range']*1e9:.3f} nm, Width: {params_atom['width']*1e9:.3f} nm, Reflection: {params_atom['reflection_coefficient']:.3f}")
+        else:
+            print(f"  No energy/angle data found for atoms, using defaults")
+            print(f"    Range: {params_atom['implantation_range']*1e9:.3f} nm, Width: {params_atom['width']*1e9:.3f} nm, Reflection: {params_atom['reflection_coefficient']:.3f}")
+    else:
+        print(f"  Using default implantation parameters (Calculate Implantation Parameters = No)")
+        print(f"    Ions   - Range: {params_ion['implantation_range']*1e9:.3f} nm, Width: {params_ion['width']*1e9:.3f} nm, Reflection: {params_ion['reflection_coefficient']:.3f}")
+        print(f"    Atoms  - Range: {params_atom['implantation_range']*1e9:.3f} nm, Width: {params_atom['width']*1e9:.3f} nm, Reflection: {params_atom['reflection_coefficient']:.3f}")
+
+
 def run_new_csv_bin_scenario(scenario, bin_id: int):
     """Run scenario for a specific CSV bin ID using NewModel class."""
     
@@ -92,16 +175,19 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         if target_bin is None:
             raise ValueError(f"No bin found with ID {bin_id}")
         
-        print(f"Found target bin: {target_bin}")
-        print(f"DEBUG: target_bin.material type = {type(target_bin.material)}")
-        print(f"DEBUG: target_bin.material = {target_bin.material}")
-        print(f"DEBUG: has 'name' attr = {hasattr(target_bin.material, 'name')}")
+        # Compute and attach implantation parameters
+        print(f"\n=== Computing implantation parameters for bin {bin_id} ===")
+        compute_and_attach_implantation_params(target_bin, scenario, plasma_data_handling, use_physics_model=True)
+        print()
     except ValueError as e:
         print(f"Error: {e}")
         print(f"Available bin IDs: {[bin.bin_id for bin in csv_reactor.bins]}")
         return
 
     try:
+        # Get bin configuration early
+        bin_config = target_bin.bin_configuration
+        
         print(f"\n{'='*60}")
         print(f"Running CSV bin ID {bin_id}")
         print(f"  Bin number: {target_bin.bin_number}")
@@ -110,6 +196,13 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         print(f"  Location: {target_bin.location}")
         print(f"  Thickness: {target_bin.thickness*1e3:.2f} mm")
         print(f"  Surface area: {target_bin.surface_area:.4f} m²")
+        print(f"  Cu thickness: {target_bin.cu_thickness*1e3:.2f} mm")
+        print(f"  Ion scaling factor: {target_bin.ion_scaling_factor:.3f}")
+        print(f"  BC plasma facing: {bin_config.bc_plasma_facing_surface}")
+        print(f"  BC rear surface: {bin_config.bc_rear_surface}")
+        print(f"  Tolerances: rtol={bin_config.rtol:.0e}, atol={bin_config.atol:.0e}")
+        print(f"  Max stepsize FP: {bin_config.fp_max_stepsize:.1f} s")
+        print(f"  Max stepsize no FP: {bin_config.max_stepsize_no_fp:.1f} s")
         print(f"{'='*60}\n")
         
         # Debug: Print flux values during flat-top
@@ -156,12 +249,34 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
             coolant_temp=coolant_temp,
         )
         
-        # Format the data (same as original script)
-        t_sampled = next(iter(quantities.values())).t[::1]
-        csv_bin_data = {
-            key: {"data": value.data[::1].tolist() if hasattr(value.data, 'tolist') else value.data[::1]}
-            for key, value in quantities.items()
-        }
+        # Separate profile data from scalar quantities
+        profile_data = {}
+        scalar_data = {}
+        
+        # Get time array first from any non-profile quantity
+        t_sampled = None
+        for key, value in quantities.items():
+            if not key.endswith('_profile'):
+                t_sampled = value.t[::1]
+                break
+        
+        for key, value in quantities.items():
+            if key.endswith('_profile'):
+                # This is a Profile1DExport - save to separate file
+                # Profile1DExport has attributes: x, t, data (list of arrays)
+                profile_data[key] = {
+                    'x': value.x.tolist() if hasattr(value.x, 'tolist') else list(value.x),
+                    't': value.t.tolist() if hasattr(value.t, 'tolist') else list(value.t),
+                    'data': [arr.tolist() if hasattr(arr, 'tolist') else list(arr) for arr in value.data]
+                }
+            else:
+                # Scalar quantity (TotalVolume, SurfaceFlux, etc.)
+                scalar_data[key] = {
+                    "data": value.data[::1].tolist() if hasattr(value.data, 'tolist') else value.data[::1]
+                }
+        
+        # Build final output dict
+        csv_bin_data = scalar_data
         csv_bin_data["t"] = t_sampled.tolist() if hasattr(t_sampled, 'tolist') else list(t_sampled)
         
         # Add CSV bin specific information
@@ -177,7 +292,6 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         csv_bin_data["parent_bin_surf_area"] = target_bin.parent_bin_surf_area
         
         # Add bin configuration parameters
-        bin_config = target_bin.bin_configuration
         csv_bin_data["bin_configuration"] = {
             "rtol": bin_config.rtol,
             "atol": bin_config.atol,
@@ -192,30 +306,30 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         temperature_values = [float(temperature_function(x_eval, float(t))[0]) for t in t_sampled]
         csv_bin_data["temperature_at_x0"] = temperature_values
 
-        # Save results to JSON
+        # Save results to JSON files
         material_name = target_bin.material.name.lower()
         mode_name = target_bin.mode.lower().replace("_", "")
-        output_file = f"results_{scenario_name}/id_{bin_id}_bin_num_{target_bin.bin_number}_{material_name}_{mode_name}.json"
+        base_filename = f"results_{scenario_name}/id_{bin_id}_bin_num_{target_bin.bin_number}_{material_name}_{mode_name}"
+        output_file = f"{base_filename}.json"
+        profiles_file = f"{base_filename}_profiles.json"
         
         os.makedirs("results_"+str(scenario_name), exist_ok=True)
+        
+        # Save scalar quantities
         with open(output_file, "w") as f:
             json.dump(csv_bin_data, f, indent=4)
+        
+        # Save profile data to separate file
+        if profile_data:
+            with open(profiles_file, "w") as f:
+                json.dump(profile_data, f, indent=4)
 
         print(f"\n{'='*60}")
         print(f"✓ Simulation complete!")
-        print(f"  Results saved to: {output_file}")
-        print(f"\nBin Configuration:")
-        print(f"  - Material: {target_bin.material.name}")
-        print(f"  - Thickness: {target_bin.thickness*1000:.1f} mm")
-        print(f"  - Cu thickness: {target_bin.cu_thickness*1000:.1f} mm")
-        print(f"  - Mode: {target_bin.mode}")
-        print(f"  - Location: {target_bin.location}")
-        print(f"  - Ion scaling factor: {target_bin.ion_scaling_factor:.3f}")
-        print(f"  - BC plasma facing: {bin_config.bc_plasma_facing_surface}")
-        print(f"  - BC rear surface: {bin_config.bc_rear_surface}")
-        print(f"  - Tolerances: rtol={bin_config.rtol:.0e}, atol={bin_config.atol:.0e}")
-        print(f"  - Max stepsize FP: {bin_config.fp_max_stepsize:.1f} s")
-        print(f"  - Max stepsize no FP: {bin_config.max_stepsize_no_fp:.1f} s")
+        print(f"  Quantities saved to: {output_file}")
+        if profile_data:
+            print(f"  Profiles saved to: {profiles_file}")
+            print(f"  Profile export times: {len(profile_data[list(profile_data.keys())[0]]['t'])} timesteps")
         print(f"{'='*60}\n")
 
     except Exception as e:

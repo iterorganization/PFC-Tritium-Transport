@@ -7,9 +7,9 @@ from pathlib import Path
 import re
 
 # -------- CONFIG --------
-RESULTS_DIR = Path("../results_do_nothing_K")  # Directory with JSON files
+RESULTS_DIR = Path("../Results_do_nothing_complete")  # Directory with JSON files
 INPUT_TABLE_CSV = Path("../input_files/input_table.csv")  # Input table with bin configuration
-PLOTS_DIR = Path("./plots_do_nothing_K")
+PLOTS_DIR = Path("./plots_do_nothing_complete")
 FIGSIZE = (6, 8)  # Taller figure for two subplots
 LEFT_XLIM_HOURS = 0.001
 RIGHT_XLIM_HOURS = 250
@@ -17,34 +17,59 @@ TARGET_INTERVAL = 100  # seconds
 # -------------------------.
 
 def parse_filename(stem: str):
-    """Parse CSV bin filename to extract bin number, component, and mode.
+    """Parse bin filename to extract bin number, component, and mode.
     
-    Expected format: csv_bin_id_{id}_num_{bin_number}_{material}_{mode}.json
-    where bin_number determines if it's wall (1-18) or divertor (19+)
+    Supports two formats:
+    1. New format: id_{id}_bin_num_{bin_number}_{material}_{mode}.json
+    2. Old format: wall_bin_{bin_number}_sub_bin_{mode}.json or div_bin_{bin_number}.json
     
     Returns: (component, bin_number, mode)
     """
-    # Extract bin_number (the actual ITER bin number, not the CSV row id)
+    # Try new format first: _num_(\d+)
     num_match = re.search(r"_num_(\d+)", stem)
+    
+    # If not found, try old format: wall_bin_(\d+) or div_bin_(\d+)
     if not num_match:
-        return None, None, None
-    
-    bin_number = int(num_match.group(1))
-    
-    # Determine component based on bin number
-    # Bins 1-18 are first wall, 19+ are divertor
-    component = "wall" if bin_number <= 18 else "divertor"
+        wall_match = re.search(r"wall_bin_(\d+)", stem)
+        div_match = re.search(r"div_bin_(\d+)", stem)
+        
+        if wall_match:
+            bin_number = int(wall_match.group(1))
+            component = "wall"
+        elif div_match:
+            bin_number = int(div_match.group(1))
+            component = "divertor"
+        else:
+            return None, None, None
+    else:
+        bin_number = int(num_match.group(1))
+        # Determine component based on bin number
+        # Bins 1-18 are first wall, 19+ are divertor
+        component = "wall" if bin_number <= 18 else "divertor"
     
     # Extract mode from filename
     mode = None
-    if "high_wetted" in stem:
+    if "high_wetted" in stem or "highwetted" in stem:
         mode = "high"
-    elif "low_wetted" in stem:
+    elif "low_wetted" in stem or "lowwetted" in stem:
         mode = "low"
     elif "shadowed" in stem or "shadow" in stem:
         mode = "shadow"
     elif "wetted" in stem:
         mode = "high"  # default wetted to high
+    elif "sub_bin" in stem and component == "wall":
+        # Old format: wall_bin_{N}_sub_bin_{mode}
+        sub_match = re.search(r"sub_bin_(\w+)", stem)
+        if sub_match:
+            mode_str = sub_match.group(1)
+            if "shadow" in mode_str:
+                mode = "shadow"
+            elif "low" in mode_str:
+                mode = "low"
+            else:
+                mode = "high"
+    
+    # For divertor bins in old format, mode defaults to None (no sub-bins)
     
     return component, bin_number, mode
 
@@ -149,6 +174,13 @@ def main():
         print(f"[WARN] No JSON files found in {RESULTS_DIR.resolve()}")
         return
 
+    # Track which bins are being processed
+    processed_bins = set()
+    skipped_files = []
+    processed_files = []
+    
+    print(f"\n[INFO] Found {len(json_files)} total JSON files (including sub-bins)")
+    
     # Build a common time grid (every ~100s)
     max_time = 0
     for jf in json_files:
@@ -167,6 +199,8 @@ def main():
     W_totals_div = np.zeros_like(target_times, dtype=float)
     B_totals_div = np.zeros_like(target_times, dtype=float)
 
+    files_processed_count = 0
+    
     for jf in json_files:
         with open(jf, "r") as f:
             data = json.load(f)
@@ -177,17 +211,20 @@ def main():
         t_array = np.array(data["t"], dtype=float)
         component, bin_id, mode = parse_filename(jf.stem)
         if bin_id is None:
+            skipped_files.append((jf.name, "Failed to parse filename"))
             continue
 
         material = get_material(data)
+        processed_bins.add(bin_id)
 
         if component == "wall":
             # Wall bin processing - each JSON file is one mode of one bin
             surf = surface_data.get(bin_id)
             if not surf or mode is None:
+                skipped_files.append((jf.name, f"Missing surface data or mode (bin {bin_id}, mode {mode})"))
                 continue
 
-            # Get area based on mode from filename
+            files_processed_count += 1
             if mode == "shadow":
                 area = surf["Sshadow"]
             elif mode == "low":
@@ -219,7 +256,7 @@ def main():
             if not area:
                 continue
 
-            # Sum inventory for Tritium keys (no sub-bins for divertor)
+            files_processed_count += 1
             for key, values in data.items():
                 if key == "t" or "flux" in key.lower():
                     continue
@@ -240,12 +277,132 @@ def main():
     avogadro = 6.02214076e23  # atoms/mol
     tritium_mass = 3.0160492  # g/mol
 
+    # Print diagnostic information
+    print("\n" + "="*80)
+    print("BIN PROCESSING DIAGNOSTIC")
+    print("="*80)
+    print(f"Total JSON files found: {len(json_files)}")
+    print(f"Files successfully processed: {files_processed_count}")
+    print(f"Unique bins (parent) involved: {len(processed_bins)}")
+    print(f"Bins: {sorted(processed_bins)}")
+    
+    if skipped_files:
+        print(f"\nSkipped {len(skipped_files)} files:")
+        for fname, reason in skipped_files[:10]:  # Show first 10
+            print(f"  - {fname}: {reason}")
+        if len(skipped_files) > 10:
+            print(f"  ... and {len(skipped_files) - 10} more")
+    
+    # Check for missing bins (should be 1-62)
+    all_expected_bins = set(range(1, 63))
+    missing_bins = all_expected_bins - processed_bins
+    if missing_bins:
+        print(f"\n[WARNING] Missing bins: {sorted(missing_bins)}")
+    else:
+        print(f"\n[OK] All 62 bins (1-62) were processed!")
+    print("="*80 + "\n")
+
     # Apply moving average for smoothing
  
 
     # Calculate total inventories (W + B) for analysis
     total_wall_inventory = W_totals_wall + B_totals_wall
     total_div_inventory = W_totals_div + B_totals_div
+    
+    # Print tritium mass in each bin at the final time point
+    print("\n" + "="*80)
+    print("TRITIUM MASS STORED IN EACH BIN (at final time)")
+    print("="*80)
+    final_time_idx = -1  # Last time point
+    
+    for jf in json_files:
+        with open(jf, "r") as f:
+            data = json.load(f)
+        
+        if "t" not in data:
+            continue
+        
+        component, bin_id, mode = parse_filename(jf.stem)
+        if bin_id is None:
+            continue
+        
+        material = get_material(data)
+        
+        if component == "wall":
+            surf = surface_data.get(bin_id)
+            if not surf or mode is None:
+                continue
+            
+            # Get area based on mode
+            if mode == "shadow":
+                area = surf["Sshadow"]
+            elif mode == "low":
+                area = surf["Slow"]
+            elif mode == "high":
+                area = surf["Shigh"]
+            else:
+                area = surf["Stot"]
+            
+            # Sum tritium inventory for final time
+            final_inventory_atoms = 0.0
+            for key, values in data.items():
+                if key == "t" or "flux" in key.lower():
+                    continue
+                if isinstance(values, dict) and "data" in values:
+                    arr = np.array(values["data"], dtype=float)
+                    if "T" in key:
+                        final_inventory_atoms += arr[final_time_idx]
+            
+            # Convert to mass
+            final_mass_grams = (final_inventory_atoms * area * tritium_mass) / avogadro
+            
+            print(f"Wall Bin {bin_id:2d} ({material:8s}, {mode:6s}): "
+                  f"Inventory = {final_inventory_atoms:.6e} atoms, "
+                  f"Area = {area:.6e} m², "
+                  f"Total T mass = {final_mass_grams:.6e} g")
+        
+        elif component == "divertor":
+            area = divertor_areas.get(bin_id)
+            if not area:
+                continue
+            
+            # Sum tritium inventory for final time
+            final_inventory_atoms = 0.0
+            for key, values in data.items():
+                if key == "t" or "flux" in key.lower():
+                    continue
+                if isinstance(values, dict) and "data" in values:
+                    arr = np.array(values["data"], dtype=float)
+                    if "T" in key:
+                        final_inventory_atoms += arr[final_time_idx]
+            
+            # Convert to mass
+            final_mass_grams = (final_inventory_atoms * area * tritium_mass) / avogadro
+            
+            print(f"Divertor Bin {bin_id:2d} ({material:8s}): "
+                  f"Inventory = {final_inventory_atoms:.6e} atoms, "
+                  f"Area = {area:.6e} m², "
+                  f"Total T mass = {final_mass_grams:.6e} g")
+    
+    print("="*80 + "\n")
+    
+    # Verification: Total inventory at final time point
+    print("="*80)
+    print("TOTAL INVENTORY VERIFICATION (at final time)")
+    print("="*80)
+    final_W_wall_mass = tritium_mass * W_totals_wall[-1] / avogadro
+    final_B_wall_mass = tritium_mass * B_totals_wall[-1] / avogadro
+    final_W_div_mass = tritium_mass * W_totals_div[-1] / avogadro
+    final_B_div_mass = tritium_mass * B_totals_div[-1] / avogadro
+    
+    print(f"First Wall - Tungsten: {final_W_wall_mass:.6e} g")
+    print(f"First Wall - Boron:    {final_B_wall_mass:.6e} g")
+    print(f"First Wall - TOTAL:    {final_W_wall_mass + final_B_wall_mass:.6e} g")
+    print(f"Divertor - Tungsten:   {final_W_div_mass:.6e} g")
+    print(f"Divertor - Boron:      {final_B_div_mass:.6e} g")
+    print(f"Divertor - TOTAL:      {final_W_div_mass + final_B_div_mass:.6e} g")
+    print(f"\nGRAND TOTAL TRITIUM:   {final_W_wall_mass + final_B_wall_mass + final_W_div_mass + final_B_div_mass:.6e} g")
+    print("="*80 + "\n")
 
     # Create subplot layout
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=FIGSIZE, sharex=True)
