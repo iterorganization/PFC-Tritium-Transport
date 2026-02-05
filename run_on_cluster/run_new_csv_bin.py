@@ -154,6 +154,9 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
     """Run scenario for a specific CSV bin ID using NewModel class."""
     
     coolant_temp = 343.0
+    
+    # Import meshing module from PFC-TT
+    from meshing import BINS_MESHES
 
     # Create NewModel instance (similar to how old script creates Model)
     my_new_model = NewModel(
@@ -161,6 +164,7 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         scenario=scenario,
         plasma_data_handling=plasma_data_handling,
         coolant_temp=coolant_temp,
+        bins_meshes=BINS_MESHES,
     )
 
     # Find the specific bin by bin_id
