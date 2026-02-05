@@ -1,9 +1,10 @@
 """
 Meshing module for PFC-Tritium-Transport.
 
-This module handles mesh generation for each bin in the reactor.
+This module contains the MeshBin class for mesh management.
+Actual mesh definitions should be in input_files/mesh.py
 """
 
-from meshing.bin_meshing import MeshBin, BINS_MESHES
+from meshing.bin_meshing import MeshBin
 
-__all__ = ["MeshBin", "BINS_MESHES"]
+__all__ = ["MeshBin"]

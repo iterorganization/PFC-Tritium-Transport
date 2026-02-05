@@ -155,8 +155,8 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
     
     coolant_temp = 343.0
     
-    # Import meshing module from PFC-TT
-    from meshing import BINS_MESHES
+    # Import BINS_MESHES from input_files mesh configuration
+    from input_files.mesh import BINS_MESHES
 
     # Create NewModel instance (similar to how old script creates Model)
     my_new_model = NewModel(
