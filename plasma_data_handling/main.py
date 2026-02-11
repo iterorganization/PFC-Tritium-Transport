@@ -57,8 +57,8 @@ class PlasmaDataHandling:
         Returns:
             float: particle flux in part/m2/s
         """
-        # Use bin_number for CSV bins (convert from 1-based to 0-based index)
-        bin_index = bin.bin_number - 1
+        # Use bin_number for CSV bins (now 0-based, matches DataFrame row index)
+        bin_index = bin.bin_number
         
         if ion:
             flux_header = "Flux_Ion"
@@ -128,8 +128,8 @@ class PlasmaDataHandling:
         Returns:
             data: data from correct file as a numpy array
         """
-        # Use zero-based bin index for CSV bins (match get_particle_flux)
-        bin_index = bin.bin_number - 1
+        # Use zero-based bin index for CSV bins (matches bin.bin_number now)
+        bin_index = bin.bin_number
         
         # Determine if it's a divertor based on location
         div = bin.is_divertor
@@ -215,8 +215,8 @@ class PlasmaDataHandling:
         Returns:
             the surface heat flux in W/m2
         """
-        # Use bin_number for CSV bins
-        bin_index = bin.bin_number-1
+        # Use bin_number for CSV bins (now 0-based, matches DataFrame row index)
+        bin_index = bin.bin_number
 
         if pulse.pulse_type == "RISP":
             t_rel_within_a_single_risp = t_rel % pulse.total_duration

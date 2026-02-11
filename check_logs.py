@@ -14,6 +14,30 @@ from pathlib import Path
 from collections import defaultdict
 
 
+def detect_crash_in_err_file(err_file_path):
+    """Check last 10 lines of .err file for crash indicators."""
+    try:
+        with open(err_file_path, 'r', errors='ignore') as f:
+            lines = f.readlines()
+        
+        # Check last 10 lines for crash patterns
+        last_lines = ''.join(lines[-10:])
+        
+        # Check for non-linear solver convergence failure (most common)
+        if "AssertionError: Non-linear solver did not converge" in last_lines:
+            return True, "Non-linear solver failed"
+        # Check for other Python exceptions
+        if "Traceback" in last_lines or "Exception" in last_lines or "Error:" in last_lines:
+            return True, "Python exception"
+        # Check for segmentation faults or killed processes
+        if "Segmentation" in last_lines or "killed" in last_lines.lower():
+            return True, "Segmentation/Killed"
+        
+        return False, None
+    except Exception as e:
+        return False, None
+
+
 def analyze_logs():
     """Analyze all .out files in logs folder and report status."""
     logs_dir = Path("logs")
@@ -52,23 +76,24 @@ def analyze_logs():
             # Check for success patterns
             if "✓ Simulation complete!" in last_content or "Simulation complete for bin" in last_content:
                 completed.append(log_file.name)
-            # Check for error/failure patterns
+            # Check for error/failure patterns in .out file
             elif "Error" in last_content or "error" in last_content or "FAILED" in last_content or "Traceback" in last_content:
                 failed.append(log_file.name)
-                # Extract error type
-                if "Traceback" in last_content:
-                    error_type = "Python Exception"
-                    # Try to get the exception type
-                    for line in lines[-20:]:
-                        if "Error" in line or "Exception" in line:
-                            error_type = line.strip()[:60]
-                            break
-                    error_details[error_type] += 1
-                else:
-                    error_details["Other Error"] += 1
+                error_details["Error in stdout"] += 1
             else:
-                # Still running or incomplete
-                running.append(log_file.name)
+                # Also check the corresponding .err file for crashes
+                err_file = log_file.parent / (log_file.stem + ".err")
+                if err_file.exists():
+                    is_crashed, crash_reason = detect_crash_in_err_file(err_file)
+                    if is_crashed:
+                        failed.append(log_file.name)
+                        error_details[crash_reason] += 1
+                    else:
+                        # Still running or incomplete
+                        running.append(log_file.name)
+                else:
+                    # Still running or incomplete
+                    running.append(log_file.name)
         
         except Exception as e:
             print(f"⚠️  Could not read {log_file.name}: {e}")

@@ -5,10 +5,10 @@ This file defines the user mesh parameters for each bin group.
 The BINS_MESHES dictionary is generated from these parameters.
 """
 
+import os
 import numpy as np
 from typing import Dict
 from meshing import MeshBin
-from bins_from_csv.csv_bin_loader import load_csv_reactor
 
 
 def graded_vertices(L, h0, r):
@@ -34,7 +34,15 @@ def graded_vertices(L, h0, r):
 
 
 # Load reactor to get bin thicknesses
-reactor = load_csv_reactor("input_files/input_table.csv")
+# Use INPUT_DIR_CONTEXT environment variable set by runner, or default to input_files/
+input_dir = os.environ.get("INPUT_DIR_CONTEXT", "input_files")
+csv_path = os.path.join(input_dir, "input_table.csv")
+materials_path = os.path.join(input_dir, "materials.csv")
+
+# Import here to ensure we pass materials_csv_path
+from bins_from_csv.csv_bin_loader import CSVBinLoader
+loader = CSVBinLoader(csv_path, materials_csv_path=materials_path)
+reactor = loader.load_reactor()
 
 # Generate BINS_MESHES - user defines mesh for each bin/group
 BINS_MESHES: Dict[int, MeshBin] = {}
@@ -54,7 +62,7 @@ BINS_MESHES: Dict[int, MeshBin] = {}
 #print(f"✓ Generated meshes for {len(BINS_MESHES)} bins")
 
 for bin in reactor.bins:
-    if 1 <= bin.bin_id <= 94 and bin.material.name == "W":
+    if 1 <= bin.bin_id <= 2 and bin.material.name == "W":
         mesh_array = graded_vertices(L=bin.thickness, h0=5e-10, r=1.03)
         BINS_MESHES[bin.bin_id] = MeshBin(bin_id=bin.bin_id, mesh=mesh_array)
 print(f"✓ Generated meshes for {len(BINS_MESHES)} bins")

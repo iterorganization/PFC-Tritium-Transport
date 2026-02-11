@@ -45,8 +45,8 @@ if [ $# -eq 0 ]; then
     echo ""
     echo "Examples:"
     echo "  $0 input_files                  # Run all bins"
-    echo "  $0 input_files \"1-5\"            # Run bins 1 to 5"
-    echo "  $0 input_files \"1-5, 10-15\"     # Run bins 1-5 and 10-15"
+    echo "  $0 input_files \"0-4\"            # Run bins 0 to 4"
+    echo "  $0 input_files \"0-4, 10-15\"     # Run bins 0-4 and 10-15"
     exit 1
 fi
 
@@ -116,7 +116,7 @@ expand_bin_spec() {
         elif [[ $token =~ ^[0-9]+$ ]]; then
             bins+=($token)
         else
-            echo "Error: Invalid bin specification '$token'. Use format like '1-5', '10', or '1-5, 10, 15-20'"
+            echo "Error: Invalid bin specification '$token'. Use format like '0-5', '10', or '0-5, 10, 15-20'"
             exit 1
         fi
     done
@@ -126,8 +126,11 @@ expand_bin_spec() {
 
 # Determine which bin IDs to run
 if [ -z "$BIN_SPEC" ]; then
-    NUM_ROWS=$(tail -n +2 "$CSV_FILE" | wc -l)
-    BIN_IDS_ARRAY=($(seq 1 $NUM_ROWS))
+    # Count data rows (skip header) using AWK for robustness
+    # AWK's NR counts all records regardless of trailing newlines
+    NUM_ROWS=$(awk 'END{print NR-1}' "$CSV_FILE")
+    # Generate 0-based bin IDs (0 to NUM_ROWS-1)
+    BIN_IDS_ARRAY=($(seq 0 $((NUM_ROWS - 1))))
     echo "  Bin specification: ALL"
     echo "  Total bins: $NUM_ROWS"
 else

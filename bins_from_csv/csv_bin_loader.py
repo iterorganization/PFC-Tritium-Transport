@@ -162,7 +162,7 @@ class CSVBinLoader:
             location=location,
             coolant_temp=coolant_temp,
             bin_configuration=bin_config,
-            bin_id=row_index + 1,  # 1-based row numbering
+            bin_id=bin_number,  # Use CSV Bin number (now 0-based)
             calculate_implantation_params=calculate_implantation_params,
         )
         # material already stored on the bin by its constructor; nothing more to do

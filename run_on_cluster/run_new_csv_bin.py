@@ -91,19 +91,22 @@ csv_reactor = loader.load_reactor()
 print(f"Loaded {len(csv_reactor)} bins from CSV")
 print(csv_reactor.get_reactor_summary())
 
-# Make a plasma data handling object
+# Make a plasma data handling object. Prefer scenario-provided instance if present.
 data_folder = "data"
-plasma_data_handling = PlasmaDataHandling(
-    pulse_type_to_data={
-        "FP": pd.read_csv(data_folder + "/Binned_Flux_Data.dat", delimiter=","),
-        "FP_D": pd.read_csv(data_folder + "/Binned_Flux_Data_just_D_pulse.dat", delimiter=","),
-        "ICWC": pd.read_csv(data_folder + "/ICWC_data.dat", delimiter=","),
-        "GDC": pd.read_csv(data_folder + "/GDC_data.dat", delimiter=","),
-    },
-    path_to_ROSP_data=data_folder + "/ROSP_data",
-    path_to_RISP_data=data_folder + "/RISP_data",
-    path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
-)
+if hasattr(scenario, "plasma_data_handling"):
+    plasma_data_handling = scenario.plasma_data_handling
+else:
+    plasma_data_handling = PlasmaDataHandling(
+        pulse_type_to_data={
+            "FP": pd.read_csv(data_folder + "/Binned_Flux_Data.dat", delimiter=","),
+            "FP_D": pd.read_csv(data_folder + "/Binned_Flux_Data_just_D_pulse.dat", delimiter=",", comment='#'),
+            "ICWC": pd.read_csv(data_folder + "/ICWC_data.dat", delimiter=","),
+            "GDC": pd.read_csv(data_folder + "/GDC_data.dat", delimiter=","),
+        },
+        path_to_ROSP_data=data_folder + "/ROSP_data",
+        path_to_RISP_data=data_folder + "/RISP_data",
+        path_to_RISP_wall_data=data_folder + "/RISP_Wall_data.dat",
+    )
 
 
 def compute_and_attach_implantation_params(bin, scenario, plasma_data_handling, use_physics_model=False):
@@ -198,6 +201,8 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         mesh_file = os.path.join(input_dir, "mesh.py")
         if os.path.exists(mesh_file):
             try:
+                # Set environment variable so mesh.py can find the correct input folder
+                os.environ["INPUT_DIR_CONTEXT"] = input_dir
                 # Dynamically import mesh.py from input_dir
                 spec = importlib.util.spec_from_file_location("mesh_config", mesh_file)
                 mesh_config = importlib.util.module_from_spec(spec)
@@ -404,27 +409,9 @@ def make_milestones(scenario, bin_config):
     """
     Create milestone times for adaptive timestepping based on scenario pulses.
     
-    Args:
-        scenario: Scenario object with pulse_schedule
-        bin_config: BinConfiguration with stepsize limits
-        
-    Returns:
-        List of milestone times
+    Note: This function is not currently used. HISP provides its own milestone generation.
     """
-    milestones = []
-    current_time = 0.0
-    
-    for pulse in scenario.pulse_schedule:
-        pulse_start = current_time
-        pulse_end = current_time + pulse.duration
-        
-        # Add milestone at pulse start
-        if pulse_start > 0:
-            milestones.append(pulse_start)
-        
-        print(f"Failed to process CSV bin ID {bin_id}: {e}")
-        import traceback
-        traceback.print_exc()
+    return []
 
 
 if __name__ == "__main__":

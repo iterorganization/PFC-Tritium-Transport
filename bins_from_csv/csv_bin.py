@@ -209,6 +209,7 @@ class Bin:
                 return {'energy': energy, 'angle': angle}
             
             # Find the row for this bin using Bin_Index
+            # bin_number matches Bin_Index directly (both 0-based)
             bin_row = pulse_data[pulse_data['Bin_Index'] == self.bin_number]
             
             if bin_row.empty:

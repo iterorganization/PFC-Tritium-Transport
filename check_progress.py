@@ -22,7 +22,7 @@ def extract_progress_and_time(content):
     # Look for progress bar format: "14%|█▍        | 3.76M/26.7M [59:01<95:08:44, 67.1it/s]"
     # This pattern extracts: progress%, current/total, [elapsed<remaining, rate]
     # Using [KMGTkmgt]? to match both uppercase and lowercase suffixes
-    progress_bar_pattern = r'(\d+)%\|.*?\|\s*([\d.]+[KMGTkmgt]?)\/([\d.]+[KMGTkmgt]?)\s+\[(\d+):(\d+):?(\d*)'
+    progress_bar_pattern = r'(\d+)%\|.*?\|\s*([\d.]+[KMGTkmgt]?)\/([\d.]+[KMGTkmgt]?)\s+\[(\d+):(\d+)(?::(\d+))?'
     
     def parse_number(s):
         """Convert number with K/M/G/T suffix to float (case-insensitive)."""
@@ -49,11 +49,18 @@ def extract_progress_and_time(content):
             sim_time = current_val
             end_time = total_val
             
-            # Extract elapsed time [HH:MM:SS]
-            elapsed_hours = int(match.group(4))
-            elapsed_minutes = int(match.group(5))
-            elapsed_seconds = int(match.group(6)) if match.group(6) else 0
-            elapsed_time = elapsed_hours * 3600 + elapsed_minutes * 60 + elapsed_seconds
+            # Extract elapsed time [MM:SS] or [HH:MM:SS]
+            first_part = int(match.group(4))
+            second_part = int(match.group(5))
+            third_part = int(match.group(6)) if match.group(6) else None
+            
+            # Determine if format is MM:SS or HH:MM:SS
+            if third_part is not None:
+                # Format is HH:MM:SS
+                elapsed_time = first_part * 3600 + second_part * 60 + third_part
+            else:
+                # Format is MM:SS
+                elapsed_time = first_part * 60 + second_part
             
             return progress, elapsed_time, sim_time, end_time
         
