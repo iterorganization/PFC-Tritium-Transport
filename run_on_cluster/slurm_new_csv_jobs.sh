@@ -10,13 +10,17 @@
 
 # New CSV Bin SLURM Job Submitter (using new_mb_model)
 # Usage: 
-#   ./slurm_new_csv_jobs.sh scenario_name                      # Run all bins with custom scenario
-#   ./slurm_new_csv_jobs.sh scenario_name "n-m, p-q, r-s..."   # Run specific bin ranges with custom scenario
+#   ./slurm_new_csv_jobs.sh scenario_name                                      # Run all bins with custom scenario (default input folder)
+#   ./slurm_new_csv_jobs.sh scenario_name "n-m, p-q, r-s..."                   # Run specific bin ranges with custom scenario
+#   ./slurm_new_csv_jobs.sh --input-dir /path/to/folder scenario_name          # Run all bins with input folder
+#   ./slurm_new_csv_jobs.sh --input-dir /path/to/folder scenario_name "1-5"    # Run specific bins with input folder
 #
 # Examples:
-#   ./slurm_new_csv_jobs.sh just_glow                          # Run all bins with just_glow scenario
+#   ./slurm_new_csv_jobs.sh just_glow                          # Run all bins with just_glow scenario (uses input_files/)
 #   ./slurm_new_csv_jobs.sh just_glow "1-5"                    # Run bins 1 to 5 with just_glow scenario
 #   ./slurm_new_csv_jobs.sh just_glow "1-5, 10-15, 20-22"      # Run bins 1-5, 10-15, 20-22 with just_glow scenario
+#   ./slurm_new_csv_jobs.sh --input-dir my_configs/scenario_v2 my_scenario    # Run all bins using files from my_configs/scenario_v2/
+#   ./slurm_new_csv_jobs.sh --input-dir my_configs/scenario_v2 my_scenario "1-10"  # Run bins 1-10 with input folder
 
 # Load modules (if required)
 
@@ -43,25 +47,63 @@ module unload scifem              2>/dev/null
 DEFAULT_SCENARIO_FOLDER="scenarios"
 DEFAULT_SCENARIO_NAME="do_nothing_K"
 DEFAULT_CSV_FILE="input_files/input_table.csv"
+DEFAULT_INPUT_DIR="input_files"
 
 # Parse command line arguments
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 scenario_name [\"n-m, p-q, r-s...\"] or [\"n p r ...\"]"
+    echo "Usage: $0 scenario_name [\"n-m, p-q, r-s...\"]"
+    echo "   or: $0 --input-dir <folder> scenario_name [\"n-m, p-q, r-s...\"]"
     echo ""
     echo "Examples:"
-    echo "  $0 just_glow                          # Run all bins with just_glow scenario"
-    echo "  $0 just_glow \"1-5\"                   # Run bins 1 to 5 with just_glow scenario"
-    echo "  $0 just_glow \"1-5, 10-15, 20-22\"    # Run bins 1-5, 10-15, 20-22 with just_glow scenario"
-    echo "  $0 just_glow \"1 5 9\"                # Run individual bins 1, 5, 9"
-    echo "  $0 just_glow \"1-3, 5, 10-12, 20\"    # Mix of ranges and individual bins"
+    echo "  $0 just_glow                                      # Run all bins with just_glow scenario (default input_files/ folder)"
+    echo "  $0 just_glow \"1-5\"                               # Run bins 1 to 5 with just_glow scenario"
+    echo "  $0 just_glow \"1-5, 10-15, 20-22\"                # Run bins 1-5, 10-15, 20-22 with just_glow scenario"
+    echo "  $0 just_glow \"1 5 9\"                             # Run individual bins 1, 5, 9"
+    echo "  $0 --input-dir my_configs/v2 my_scenario          # Run all bins using input folder: my_configs/v2/"
+    echo "  $0 --input-dir my_configs/v2 my_scenario \"1-10\"  # Run bins 1-10 using input folder: my_configs/v2/"
     exit 1
 fi
 
-# First argument is scenario name (required)
-SCENARIO_FOLDER="$DEFAULT_SCENARIO_FOLDER"
-SCENARIO_NAME="$1"
-CSV_FILE="$DEFAULT_CSV_FILE"
-BIN_SPEC="$2"  # Optional: ranges like "1-5, 10-15" or individual bins "1 5 9" or empty for all bins
+# Check for --input-dir flag
+INPUT_DIR="$DEFAULT_INPUT_DIR"
+SCENARIO_START_INDEX=1
+
+if [ "$1" = "--input-dir" ] || [ "$1" = "-i" ]; then
+    if [ $# -lt 3 ]; then
+        echo "Error: --input-dir requires a folder path and scenario name"
+        echo "Usage: $0 --input-dir <folder> scenario_name [bin_specification]"
+        exit 1
+    fi
+    INPUT_DIR="$2"
+    SCENARIO_START_INDEX=3
+fi
+
+# Validate input directory
+if [ ! -d "$INPUT_DIR" ]; then
+    echo "Error: Input directory '$INPUT_DIR' not found!"
+    exit 1
+fi
+
+# Find the input files (CSV, materials, mesh, scenario) in the input directory
+CSV_FILE=$(find "$INPUT_DIR" -maxdepth 1 -name "input_table.csv" -o -name "*bin*.csv" 2>/dev/null | head -1)
+if [ -z "$CSV_FILE" ] || [ ! -f "$CSV_FILE" ]; then
+    echo "Error: No input_table.csv or bin CSV file found in '$INPUT_DIR'!"
+    echo "  Please ensure your input folder contains input_table.csv"
+    exit 1
+fi
+
+MATERIALS_FILE=$(find "$INPUT_DIR" -maxdepth 1 -name "materials.csv" 2>/dev/null | head -1)
+MESH_FILE=$(find "$INPUT_DIR" -maxdepth 1 -name "mesh.py" 2>/dev/null | head -1)
+
+# First argument (after --input-dir if present) is scenario name (required)
+SCENARIO_FOLDER="$INPUT_DIR"
+SCENARIO_NAME="${!SCENARIO_START_INDEX}"
+BIN_SPEC="${@:$((SCENARIO_START_INDEX + 1))}"  # Everything after scenario name
+
+if [ -z "$SCENARIO_NAME" ]; then
+    echo "Error: Scenario name is required!"
+    exit 1
+fi
 
 # Check if CSV file exists
 if [ ! -f "$CSV_FILE" ]; then
@@ -69,10 +111,16 @@ if [ ! -f "$CSV_FILE" ]; then
     exit 1
 fi
 
-echo "Using custom scenario:"
-echo "  Scenario folder: $SCENARIO_FOLDER"
-echo "  Scenario name: $SCENARIO_NAME"
+echo "Using input directory:"
+echo "  Input folder: $INPUT_DIR"
 echo "  CSV file: $CSV_FILE"
+if [ -n "$MATERIALS_FILE" ] && [ -f "$MATERIALS_FILE" ]; then
+    echo "  Materials file: $MATERIALS_FILE"
+fi
+if [ -n "$MESH_FILE" ] && [ -f "$MESH_FILE" ]; then
+    echo "  Mesh file: $MESH_FILE"
+fi
+echo "  Scenario name: $SCENARIO_NAME"
 
 # Function to expand bin specifications into individual bin IDs
 expand_bin_spec() {
@@ -168,7 +216,7 @@ module unload scifem              2>/dev/null
 # Run the Python script with new_mb_model
 
 # Run CSV bin script with user-site disabled
-PYTHONNOUSERSITE=1 python -s run_on_cluster/run_new_csv_bin.py $bin_id $SCENARIO_FOLDER $SCENARIO_NAME $CSV_FILE
+PYTHONNOUSERSITE=1 python -s run_on_cluster/run_new_csv_bin.py $bin_id $SCENARIO_FOLDER $SCENARIO_NAME $CSV_FILE --input-dir $INPUT_DIR
 
 
 EOF

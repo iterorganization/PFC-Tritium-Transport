@@ -3,6 +3,8 @@ import sys
 import json
 import pandas as pd
 import numpy as np
+import argparse
+import importlib.util
 
 # Ensure HISP can locate PFC-Tritium-Transport's csv_bin.py without user setup
 if "PFC_TT_PATH" not in os.environ and "HISP_PFC_TT_PATH" not in os.environ:
@@ -34,24 +36,57 @@ from implantation_calculator import ImplantationCalculator
 # Import NewModel class from hisp
 from hisp.new_model import NewModel
 
-# Load command-line arguments
-bin_id = int(sys.argv[1])  # CSV bin ID (row index in input table)
-scenario_folder = sys.argv[2]
-scenario_name = sys.argv[3]
-csv_file_path = sys.argv[4] if len(sys.argv) > 4 else "input_files/input_table.csv"
+# Parse command-line arguments
+parser = argparse.ArgumentParser(
+    description="Run a single CSV bin simulation",
+    usage="%(prog)s bin_id scenario_folder scenario_name csv_file [--input-dir INPUT_DIR]"
+)
+parser.add_argument("bin_id", type=int, help="CSV bin ID (row index in input table)")
+parser.add_argument("scenario_folder", help="Scenario folder path")
+parser.add_argument("scenario_name", help="Scenario name")
+parser.add_argument("csv_file", help="Path to CSV input file")
+parser.add_argument("--input-dir", dest="input_dir", default="input_files",
+                    help="Directory containing input files (materials.csv, mesh.py, etc.). Default: input_files")
 
-# Uncomment for testing
-# bin_id = 1  # First bin (row index 1)
-# scenario_folder = "scenarios"
-# scenario_name = "do_nothing_K"
-# csv_file_path = "input_files/input_table.csv"
+# Parse positional arguments first (for backwards compatibility)
+args = parser.parse_args()
+
+bin_id = args.bin_id
+scenario_folder = args.scenario_folder
+scenario_name = args.scenario_name
+csv_file_path = args.csv_file
+input_dir = args.input_dir
+
+# If input_dir is provided, try to find materials and mesh files in that directory
+if input_dir and input_dir != "input_files":
+    print(f"Using input directory: {input_dir}")
+    
+    # Check if materials.csv exists in the input_dir
+    materials_in_dir = os.path.join(input_dir, "materials.csv")
+    if os.path.exists(materials_in_dir):
+        print(f"  Found materials.csv in input directory")
+        # CSVBinLoader will use this when the input_dir is properly set
+    
+    # Check if mesh.py exists in the input_dir
+    mesh_in_dir = os.path.join(input_dir, "mesh.py")
+    if os.path.exists(mesh_in_dir):
+        print(f"  Found mesh.py in input directory")
+        # Will be loaded from BINS_MESHES when available
 
 print(f"Loading scenario: {scenario_name} from {scenario_folder}")
 scenario = load_scenario_variable(scenario_folder, scenario_name)
 
 print(f"Loading CSV bins from: {csv_file_path}")
-# Load CSV reactor
-csv_reactor = Reactor.from_csv(csv_file_path)
+# Load CSV reactor with optional materials path from input_dir
+materials_path = None
+if input_dir and input_dir != "input_files":
+    materials_in_dir = os.path.join(input_dir, "materials.csv")
+    if os.path.exists(materials_in_dir):
+        materials_path = materials_in_dir
+
+# Create loader with materials path
+loader = CSVBinLoader(csv_file_path, materials_csv_path=materials_path)
+csv_reactor = loader.load_reactor()
 
 print(f"Loaded {len(csv_reactor)} bins from CSV")
 print(csv_reactor.get_reactor_summary())
@@ -155,8 +190,31 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
     
     coolant_temp = 343.0
     
-    # Import BINS_MESHES from input_files mesh configuration
-    from input_files.mesh import BINS_MESHES
+    # Import BINS_MESHES from appropriate mesh configuration
+    BINS_MESHES = {}
+    
+    # Try to load mesh from input_dir if available
+    if input_dir and input_dir != "input_files":
+        mesh_file = os.path.join(input_dir, "mesh.py")
+        if os.path.exists(mesh_file):
+            try:
+                # Dynamically import mesh.py from input_dir
+                spec = importlib.util.spec_from_file_location("mesh_config", mesh_file)
+                mesh_config = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mesh_config)
+                if hasattr(mesh_config, 'BINS_MESHES'):
+                    BINS_MESHES = mesh_config.BINS_MESHES
+                    print(f"Loaded mesh configuration from: {mesh_file}")
+            except Exception as e:
+                print(f"Warning: Could not load mesh from {mesh_file}: {e}")
+    
+    # Fall back to default input_files/mesh.py if no mesh in input_dir
+    if not BINS_MESHES:
+        try:
+            from input_files.mesh import BINS_MESHES
+        except ImportError:
+            print("No mesh configuration found, using default mesh generation")
+            BINS_MESHES = {}
 
     # Create NewModel instance (similar to how old script creates Model)
     my_new_model = NewModel(
