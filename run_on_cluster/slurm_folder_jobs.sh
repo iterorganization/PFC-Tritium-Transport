@@ -129,8 +129,8 @@ if [ -z "$BIN_SPEC" ]; then
     # Count data rows (skip header) using AWK for robustness
     # AWK's NR counts all records regardless of trailing newlines
     NUM_ROWS=$(awk 'END{print NR-1}' "$CSV_FILE")
-    # Generate 0-based bin IDs (0 to NUM_ROWS-1)
-    BIN_IDS_ARRAY=($(seq 0 $((NUM_ROWS - 1))))
+    # Generate 1-based bin IDs (1 to NUM_ROWS) matching CSV row numbers
+    BIN_IDS_ARRAY=($(seq 1 $NUM_ROWS))
     echo "  Bin specification: ALL"
     echo "  Total bins: $NUM_ROWS"
 else

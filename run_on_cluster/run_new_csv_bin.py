@@ -41,7 +41,7 @@ parser = argparse.ArgumentParser(
     description="Run a single CSV bin simulation",
     usage="%(prog)s bin_id scenario_folder scenario_name csv_file [--input-dir INPUT_DIR]"
 )
-parser.add_argument("bin_id", type=int, help="CSV bin ID (row index in input table)")
+parser.add_argument("bin_id", type=int, help="CSV bin ID (1-based row number in input table)")
 parser.add_argument("scenario_folder", help="Scenario folder path")
 parser.add_argument("scenario_name", help="Scenario name")
 parser.add_argument("csv_file", help="Path to CSV input file")
@@ -230,9 +230,9 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         bins_meshes=BINS_MESHES,
     )
 
-    # Find the specific bin by bin_id
+    # Find the specific bin by bin_id (1-based row index in CSV)
     try:
-        # csv_reactor.bins is now a list, so search through it
+        # Search through bins to find one with matching bin_id
         target_bin = None
         for bin in csv_reactor.bins:
             if bin.bin_id == bin_id:
@@ -240,15 +240,15 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
                 break
         
         if target_bin is None:
-            raise ValueError(f"No bin found with ID {bin_id}")
+            available_ids = [b.bin_id for b in csv_reactor.bins]
+            raise ValueError(f"No bin found with bin_id {bin_id}. Available bin IDs: {sorted(set(available_ids))}")
         
         # Compute and attach implantation parameters
-        print(f"\n=== Computing implantation parameters for bin {bin_id} ===")
+        print(f"\n=== Computing implantation parameters for Bin ID {bin_id} (Bin #{target_bin.bin_number}) ===")
         compute_and_attach_implantation_params(target_bin, scenario, plasma_data_handling, use_physics_model=True)
         print()
     except ValueError as e:
         print(f"Error: {e}")
-        print(f"Available bin IDs: {[bin.bin_id for bin in csv_reactor.bins]}")
         return
 
     try:
@@ -256,7 +256,8 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         bin_config = target_bin.bin_configuration
         
         print(f"\n{'='*60}")
-        print(f"Running CSV bin ID {bin_id}")
+        print(f"Running CSV row {bin_id} (Bin #{target_bin.bin_number})")
+        print(f"  Bin ID (row): {target_bin.bin_id}")
         print(f"  Bin number: {target_bin.bin_number}")
         print(f"  Material: {target_bin.material.name}")
         print(f"  Mode: {target_bin.mode}")
@@ -376,11 +377,15 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         # Save results to JSON files
         material_name = target_bin.material.name.lower()
         mode_name = target_bin.mode.lower().replace("_", "")
-        base_filename = f"results_{scenario_name}/id_{bin_id}_bin_num_{target_bin.bin_number}_{material_name}_{mode_name}"
+        
+        # Use input folder name for results directory, save inside the input folder
+        input_folder_name = os.path.basename(os.path.normpath(input_dir)) if input_dir else "results"
+        results_dir = os.path.join(input_dir, f"results_{input_folder_name}")
+        base_filename = f"{results_dir}/id_{target_bin.bin_id}_bin_num_{target_bin.bin_number}_{material_name}_{mode_name}"
         output_file = f"{base_filename}.json"
         profiles_file = f"{base_filename}_profiles.json"
         
-        os.makedirs("results_"+str(scenario_name), exist_ok=True)
+        os.makedirs(results_dir, exist_ok=True)
         
         # Save scalar quantities
         with open(output_file, "w") as f:
