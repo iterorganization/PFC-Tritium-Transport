@@ -196,7 +196,7 @@ def analyze_err_files():
     # Summary
     print("-"*90)
     total = len(progress_data)
-    avg_progress = (total_progress / in_progress) if in_progress > 0 else 0
+    avg_progress = ((total_progress - completed * 100) / in_progress) if in_progress > 0 else 0
     
     print(f"\nSummary:")
     print(f"  Total jobs: {total}")

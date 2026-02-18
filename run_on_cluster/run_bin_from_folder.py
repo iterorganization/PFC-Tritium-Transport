@@ -6,8 +6,8 @@ Usage:
     python run_on_cluster/run_bin_from_folder.py <input_folder> <bin_id>
 
 Examples:
-    python run_on_cluster/run_bin_from_folder.py DT1_5 1       # Run bin_id 1 (first row)
-    python run_on_cluster/run_bin_from_folder.py DT1_5 33      # Run bin_id 33
+    python run_on_cluster/run_bin_from_folder.py DT1_5 1       # Run bin_id 1 (first row) from the input_folder DT1_5
+    python run_on_cluster/run_bin_from_folder.py DT1_5 33      # Run bin_id 33 from DT1_5
     python run_on_cluster/run_bin_from_folder.py DT1_2000 10   # Run bin_id 10 from DT1_2000
 
 The input folder must contain:

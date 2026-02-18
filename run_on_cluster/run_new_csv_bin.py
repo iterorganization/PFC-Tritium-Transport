@@ -381,9 +381,13 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         # Use input folder name for results directory, save inside the input folder
         input_folder_name = os.path.basename(os.path.normpath(input_dir)) if input_dir else "results"
         results_dir = os.path.join(input_dir, f"results_{input_folder_name}")
+        profiles_dir = os.path.join(input_dir, f"profiles_{input_folder_name}")
+        
         base_filename = f"{results_dir}/id_{target_bin.bin_id}_bin_num_{target_bin.bin_number}_{material_name}_{mode_name}"
         output_file = f"{base_filename}.json"
-        profiles_file = f"{base_filename}_profiles.json"
+        
+        profiles_base = f"{profiles_dir}/id_{target_bin.bin_id}_bin_num_{target_bin.bin_number}_{material_name}_{mode_name}"
+        profiles_file = f"{profiles_base}_profiles.json"
         
         os.makedirs(results_dir, exist_ok=True)
         
@@ -391,8 +395,9 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
         with open(output_file, "w") as f:
             json.dump(csv_bin_data, f, indent=4)
         
-        # Save profile data to separate file
+        # Save profile data to separate folder
         if profile_data:
+            os.makedirs(profiles_dir, exist_ok=True)
             with open(profiles_file, "w") as f:
                 json.dump(profile_data, f, indent=4)
 
