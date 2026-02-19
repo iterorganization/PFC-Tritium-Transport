@@ -232,17 +232,25 @@ class CSVBinLoader:
             print(f"  {mode}: {count}")
 
 
-def load_csv_reactor(csv_path: str) -> Reactor:
+def load_csv_reactor(csv_path: str, materials_csv_path: Optional[str] = None) -> Reactor:
     """
     Convenience function to load a reactor from CSV file.
     
     Args:
         csv_path: Path to the CSV configuration file
+        materials_csv_path: Optional explicit path to materials CSV.
+            If None, looks for materials.csv in the same directory as csv_path,
+            then falls back to input_files/materials.csv.
         
     Returns:
         Reactor object
     """
-    loader = CSVBinLoader(csv_path)
+    if materials_csv_path is None:
+        # Prefer materials.csv alongside the input CSV (works regardless of CWD)
+        candidate = Path(csv_path).parent / "materials.csv"
+        if candidate.exists():
+            materials_csv_path = candidate
+    loader = CSVBinLoader(csv_path, materials_csv_path=materials_csv_path)
     return loader.load_reactor()
 
 
