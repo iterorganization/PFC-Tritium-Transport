@@ -332,9 +332,13 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
             if key.endswith('_profile'):
                 # This is a Profile1DExport - save to separate file
                 # Profile1DExport has attributes: x, t, data (list of arrays)
+                # Skip if no data was exported (x will be None)
+                if value.x is None or len(value.data) == 0:
+                    print(f"  Warning: No profile data for {key} (no exports triggered)")
+                    continue
                 profile_data[key] = {
                     'x': value.x.tolist() if hasattr(value.x, 'tolist') else list(value.x),
-                    't': value.t.tolist() if hasattr(value.t, 'tolist') else list(value.t),
+                    't': value.t if isinstance(value.t, list) else list(value.t),
                     'data': [arr.tolist() if hasattr(arr, 'tolist') else list(arr) for arr in value.data]
                 }
             else:
