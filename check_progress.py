@@ -9,6 +9,7 @@ import os
 import re
 from pathlib import Path
 from collections import defaultdict
+from check_logs import detect_crash_in_err_file
 
 
 def extract_progress_and_time(content):
@@ -117,6 +118,17 @@ def estimate_remaining_time(elapsed_time, sim_time, end_time):
     return max(0, remaining)
 
 
+def get_failed_jobs():
+    """Return set of failed job names by checking .err files for crash indicators."""
+    logs_dir = Path("logs")
+    failed = set()
+    for err_file in logs_dir.glob("*.err"):
+        is_crashed, _ = detect_crash_in_err_file(err_file)
+        if is_crashed:
+            failed.add(err_file.stem)
+    return failed
+
+
 def analyze_err_files():
     """Analyze all .err files in logs folder and report progress."""
     logs_dir = Path("logs")
@@ -133,6 +145,7 @@ def analyze_err_files():
         return
     
     progress_data = []
+    failed_jobs = get_failed_jobs()
     
     # Analyze each .err file
     for err_file in err_files:
@@ -149,7 +162,8 @@ def analyze_err_files():
                 'progress': progress,
                 'elapsed': elapsed_time,
                 'remaining': remaining_time_est,
-                'file': err_file.name
+                'file': err_file.name,
+                'failed': job_name in failed_jobs
             })
         
         except Exception as e:
@@ -162,15 +176,21 @@ def analyze_err_files():
     print("\n" + "="*90)
     print("JOB PROGRESS SUMMARY")
     print("="*90)
-    print(f"{'Job Name':<35} {'Progress':<12} {'Elapsed':<12} {'Remaining':<12}")
+    print(f"{'Job Name':<35} {'Progress':<12} {'Elapsed':<12} {'Remaining':<12} {'Status':<10}")
     print("-"*90)
     
     completed = 0
     in_progress = 0
+    failed = 0
     unknown = 0
     total_progress = 0.0
     
     for item in progress_data:
+        if item['failed']:
+            failed += 1
+            status = "FAILED"
+            print(f"{item['name'][:33]:<35} {'FAILED':<12} {'N/A':<12} {'N/A':<12} {status:<10}")
+            continue
         if item['progress'] is not None:
             progress_pct = item['progress']
             total_progress += progress_pct
@@ -188,10 +208,10 @@ def analyze_err_files():
             
             # Truncate long names
             job_display = item['name'][:33]
-            print(f"{job_display:<35} {status:<12} {elapsed_display:<12} {remaining_display:<12}")
+            print(f"{job_display:<35} {status:<12} {elapsed_display:<12} {remaining_display:<12} {status:<10}")
         else:
             unknown += 1
-            print(f"{item['name'][:33]:<35} {'(no info)':<12} {'N/A':<12} {'N/A':<12}")
+            print(f"{item['name'][:33]:<35} {'(no info)':<12} {'N/A':<12} {'N/A':<12} {'UNKNOWN':<10}")
     
     # Summary
     print("-"*90)
@@ -202,6 +222,7 @@ def analyze_err_files():
     print(f"  Total jobs: {total}")
     print(f"  Completed: {completed}")
     print(f"  In progress: {in_progress} (avg {avg_progress:.1f}%)")
+    print(f"  Failed: {failed}")
     print(f"  Unknown progress: {unknown}")
     print("="*90 + "\n")
 

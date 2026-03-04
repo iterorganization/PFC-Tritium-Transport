@@ -373,10 +373,15 @@ def run_new_csv_bin_scenario(scenario, bin_id: int):
             "bc_rear_surface": bin_config.bc_rear_surface,
         }
 
-        # Calculate temperature at x=0 (surface)
+        # Calculate temperature at x=0 (plasma-facing surface)
         x_eval = np.array([[0.0]])  # x = 0
         temperature_values = [float(temperature_function(x_eval, float(t))[0]) for t in t_sampled]
         csv_bin_data["temperature_at_x0"] = temperature_values
+
+        # Calculate temperature at x=thickness (rear surface)
+        x_rear = np.array([[target_bin.thickness]])  # x = thickness
+        temperature_rear_values = [float(temperature_function(x_rear, float(t))[0]) for t in t_sampled]
+        csv_bin_data["temperature_at_rear"] = temperature_rear_values
 
         # Save results to JSON files
         material_name = target_bin.material.name.lower()
