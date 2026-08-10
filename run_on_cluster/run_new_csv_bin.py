@@ -569,8 +569,9 @@ def run_new_csv_bin_scenario(scenario, sim_id: int):
         if profile_data:
             print(f"  Profiles saved to: {profiles_file}")
             print(f"  Profile export times: {len(profile_data[list(profile_data.keys())[0]]['t'])} timesteps")
-            total_runtime = time.perf_counter() - start_time
-            print(f"  Total runtime: {total_runtime:.2f} seconds = {total_runtime/60:.2f} minutes")
+
+        total_runtime = time.perf_counter() - start_time
+        print(f"  Total runtime: {total_runtime:.2f} seconds = {total_runtime/60:.2f} minutes")
         print(f"{'='*60}\n")
 
     except Exception as e:
