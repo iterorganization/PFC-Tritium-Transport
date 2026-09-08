@@ -102,14 +102,24 @@ class Pulse:
                 sys.exit('exiting ...')
             else:
                 self.fraction_heat = fraction_heat
-            flux_ramp_up = self.timing_flux[np.argmax(self.fraction_flux)] - self.timing_flux[0]
-            heat_ramp_up = self.timing_heat[np.argmax(self.fraction_heat)] - self.timing_heat[0]
-            self.ramp_up = max(flux_ramp_up, heat_ramp_up)
+            time_heat = np.asarray(self.timing_heat)
+            time_flux = np.asarray(self.timing_flux)
+            frac_heat = np.asarray(self.fraction_heat)
+            frac_flux = np.asarray(self.fraction_flux)
+            idx_heat = np.where(frac_heat == 1.0)[0]
+            gaps_heat = np.diff(time_heat[idx_heat])
+            i_heat = np.argmax(gaps_heat)
+            heat_ramp_up_end = time_heat[idx_heat[i_heat]] #largest gap between two "1" values is assumed to be the flattop.
+            heat_ramp_down_start = time_heat[idx_heat[i_heat + 1]]
+            idx_flux = np.where(frac_flux == 1.0)[0]
+            gaps_flux = np.diff(time_flux[idx_flux])
+            i_flux = np.argmax(gaps_flux)
+            flux_ramp_up_end = time_flux[idx_flux[i_flux]]
+            flux_ramp_down_start = time_flux[idx_flux[i_flux + 1]]
+            self.ramp_up = max(flux_ramp_up_end, heat_ramp_up_end)
             self.waiting = waiting
-            flux_ramp_down = self.timing_flux[np.where(np.array(self.fraction_flux) == np.max(self.fraction_flux))[0][-1]]
-            heat_ramp_down = self.timing_heat[np.where(np.array(self.fraction_heat) == np.max(self.fraction_heat))[0][-1]]
-            self.ramp_down = max(self.timing_flux[-1], self.timing_heat[-1]) - max(flux_ramp_down, heat_ramp_down)
-            self.steady_state = max(self.timing_flux[-1], self.timing_heat[-1]) - self.ramp_up - self.ramp_down
+            self.ramp_down = max(time_flux[-1], time_heat[-1]) - max(flux_ramp_down_start, heat_ramp_down_start)
+            self.steady_state = max(time_flux[-1], time_heat[-1]) - self.ramp_up - self.ramp_down
         self.tritium_fraction = tritium_fraction
         self.heat_scaling = heat_scaling
         self.flux_scaling = flux_scaling
