@@ -7,12 +7,13 @@ and process pulse profiles for FESTIM simulations.
 
 from scenario import Pulse
 
-def periodic_pulse_function(current_time: float, pulse: Pulse, value, value_off=343.0):
+def periodic_pulse_function(current_time: float, pulse: Pulse, quant: str, value, value_off=343.0):
     """Creates bake function with ramp up rate and ramp down rate.
 
     Args:
         current_time (float): time within the pulse 
         pulse (Pulse): pulse of HISP Pulse class
+        quant (str): 'heat' or 'flux' to determine which fraction to use
         value (float): steady-state value 
         value_off (float): value at t=0 and t=final time. 
     """
@@ -47,12 +48,22 @@ def periodic_pulse_function(current_time: float, pulse: Pulse, value, value_off=
         if current_time == pulse.total_duration:
             return value_off
     elif pulse.pulse_def == 'timing':
-        if current_time == pulse.timing[0]:
-            return value * pulse.fraction[0]
-        for r in range(len(pulse.timing)-1):
-            if pulse.timing[r] < current_time <= pulse.timing[r+1]:
-                return value * (pulse.fraction[r+1] - pulse.fraction[r]) / (pulse.timing[r+1] - pulse.timing[r]) * (current_time - pulse.timing[r]) + pulse.fraction[r] * value
-
+        if quant == 'flux':
+            if current_time == pulse.timing_flux[0]:
+                return value * pulse.fraction_flux[0]
+            for r in range(len(pulse.timing_flux)-1):
+                if pulse.timing_flux[r] < current_time <= pulse.timing_flux[r+1]:
+                    return value * (pulse.fraction_flux[r+1] - pulse.fraction_flux[r]) / (pulse.timing_flux[r+1] - pulse.timing_flux[r]) * (current_time - pulse.timing_flux[r]) + pulse.fraction_flux[r] * value
+            if current_time > pulse.timing_flux[-1]: #waiting time
+                return value_off
+        elif quant == 'heat':
+            if current_time == pulse.timing_heat[0]:
+                return value * pulse.fraction_heat[0]
+            for r in range(len(pulse.timing_heat)-1):
+                if pulse.timing_heat[r] < current_time <= pulse.timing_heat[r+1]:
+                    return value * (pulse.fraction_heat[r+1] - pulse.fraction_heat[r]) / (pulse.timing_heat[r+1] - pulse.timing_heat[r]) * (current_time - pulse.timing_heat[r]) + pulse.fraction_heat[r] * value
+            if current_time > pulse.timing_heat[-1]: #waiting time
+                return value_off
 
 def periodic_step_function(x, period_on, period_total, value, value_off=0.0):
     """

@@ -1,6 +1,8 @@
 import pandas as pd
 from typing import List
 import warnings
+import numpy as np
+import sys
 
 
 class Pulse:
@@ -11,8 +13,11 @@ class Pulse:
     steady_state: float
     ramp_down: float
     waiting: float
-    timing: List[float]
+    timing_flux: List[float]
+    timing_heat: List[float]
     fraction: List[float]
+    fraction_flux: List[float]
+    fraction_heat: List[float]
     steady_STATE: List[float]
     tritium_fraction: float
     heat_scaling: float
@@ -30,7 +35,10 @@ class Pulse:
         transition: List[float] = [],
         steady_STATE: List[float] = [],
         fraction: List[float] = [],
-        timing: List[float] = [],
+        fraction_flux: List[float] = [],
+        fraction_heat: List[float] = [],
+        timing_flux: List[float] = [],
+        timing_heat: List[float] = [],
         pulse_def: str = 'classic',
         heat_scaling: float = 1.0,  # scaling factor for heat loads
         flux_scaling: float = 1.0,  # scaling factor for particle fluxes
@@ -47,8 +55,11 @@ class Pulse:
             self.ramp_down = ramp_down
             self.waiting = waiting
             self.transition = []
-            self.timing = []
+            self.timing_flux = []
+            self.timing_heat = []
             self.fraction = []
+            self.fraction_flux = []
+            self.fraction_heat = []
             self.steady_STATE = []
         elif self.pulse_def == 'steps':
             self.steady_STATE = steady_STATE
@@ -67,22 +78,48 @@ class Pulse:
                 sys.exit('exiting ...')
             self.waiting = waiting
         elif self.pulse_def == 'timing':
-            timing.sort()
-            if len(timing) <= 2:
-                print('ERROR: len(timing) <= 2')
-                print('please use len(timing) >= 3')
+            timing_flux.sort()
+            timing_heat.sort()
+            if len(timing_flux) <= 2:
+                print('ERROR: len(timing_flux) <= 2')
+                print('please use len(timing_flux) >= 3')
                 sys.exit('exiting ...')
             else:
-                self.timing = timing
-            if len(fraction) != len(timing):
-                print('ERROR: len(fraction) != len(timing)')
+                self.timing_flux = timing_flux
+            if len(fraction_flux) != len(timing_flux):
+                print('ERROR: len(fraction_flux) != len(timing_flux)')
                 sys.exit('exiting ...')
             else:
-                self.fraction = fraction
-            self.ramp_up = self.timing[1] - self.timing[0]
-            self.waiting = self.timing[-1] - self.timing[-2]
-            self.ramp_down = self.timing[-2] - self.timing[-3]
-            self.steady_state = self.timing[-3] - self.timing[1]
+                self.fraction_flux = fraction_flux
+            if len(timing_heat) <= 2:
+                print('ERROR: len(timing_heat) <= 2')
+                print('please use len(timing_heat) >= 3')
+                sys.exit('exiting ...')
+            else:
+                self.timing_heat = timing_heat
+            if len(fraction_heat) != len(timing_heat):
+                print('ERROR: len(fraction_heat) != len(timing_heat)')
+                sys.exit('exiting ...')
+            else:
+                self.fraction_heat = fraction_heat
+            time_heat = np.asarray(self.timing_heat)
+            time_flux = np.asarray(self.timing_flux)
+            frac_heat = np.asarray(self.fraction_heat)
+            frac_flux = np.asarray(self.fraction_flux)
+            idx_heat = np.where(frac_heat == 1.0)[0]
+            gaps_heat = np.diff(time_heat[idx_heat])
+            i_heat = np.argmax(gaps_heat)
+            heat_ramp_up_end = time_heat[idx_heat[i_heat]] #largest gap between two "1" values is assumed to be the flattop.
+            heat_ramp_down_start = time_heat[idx_heat[i_heat + 1]]
+            idx_flux = np.where(frac_flux == 1.0)[0]
+            gaps_flux = np.diff(time_flux[idx_flux])
+            i_flux = np.argmax(gaps_flux)
+            flux_ramp_up_end = time_flux[idx_flux[i_flux]]
+            flux_ramp_down_start = time_flux[idx_flux[i_flux + 1]]
+            self.ramp_up = max(flux_ramp_up_end, heat_ramp_up_end)
+            self.waiting = waiting
+            self.ramp_down = max(time_flux[-1], time_heat[-1]) - max(flux_ramp_down_start, heat_ramp_down_start)
+            self.steady_state = max(time_flux[-1], time_heat[-1]) - self.ramp_up - self.ramp_down
         self.tritium_fraction = tritium_fraction
         self.heat_scaling = heat_scaling
         self.flux_scaling = flux_scaling
@@ -122,7 +159,8 @@ class Pulse:
                     )
         elif self.pulse_def == 'timing':
             all_zeros = (
-                    self.timing[-1] == 0
+                    self.timing_flux[-1] == 0
+                    and self.timing_heat[-1] == 0
                     )
         if self.pulse_type == "RISP" and all_zeros:
             msg = "RISP pulse has all zeros for ramp_up, steady_state, ramp_down, waiting. "
@@ -134,9 +172,13 @@ class Pulse:
             self.ramp_down = 10
             self.waiting = 1530
             self.transition = []
-            self.timing = []
+            self.timing_flux = []
+            self.timing_heat = []
             self.fraction = []
+            self.fraction_flux = []
+            self.fraction_heat = []
             self.steady_STATE = []
+            tot = self.ramp_up + self.steady_state + self.ramp_down + self.waiting
         elif all_zeros:
             msg = "pulse has all zeros for ramp_up, steady_state, ramp_down, waiting. "
             msg += "Setting hardcoded values. Please check the values in the scenario file."
@@ -147,17 +189,21 @@ class Pulse:
             self.ramp_down = 10
             self.waiting = 1530
             self.transition = []
-            self.timing = []
+            self.timing_flux = []
+            self.timing_heat = []
             self.fraction = []
+            self.fraction_flux = []
+            self.fraction_heat = []
             self.steady_STATE = []
+            tot = self.ramp_up + self.steady_state + self.ramp_down + self.waiting
         else:
             if self.pulse_def == 'classic':
                 tot = self.ramp_up + self.steady_state + self.ramp_down + self.waiting
             elif self.pulse_def == 'steps':
                 tot = sum(self.transition) + sum(self.steady_STATE) + self.waiting
             elif self.pulse_def == 'timing':
-                tot = self.timing[-1] - self.timing[0]
-        return self.ramp_up + self.steady_state + self.ramp_down + self.waiting
+                tot = max(self.timing_flux[-1] - self.timing_flux[0], self.timing_heat[-1] - self.timing_heat[0]) + self.waiting
+        return tot
 
     @property
     def duration_no_waiting(self) -> float:

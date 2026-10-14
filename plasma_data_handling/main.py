@@ -123,6 +123,7 @@ class PlasmaDataHandling:
             return periodic_pulse_function(
                 t_rel,
                 pulse=gdc_sub,
+                quant='flux',
                 value=value,
                 value_off=0,
             )
@@ -134,6 +135,7 @@ class PlasmaDataHandling:
         return periodic_pulse_function(
             t_rel,
             pulse=pulse,
+            quant='flux',
             value=value,
             value_off=0,
         )
@@ -291,10 +293,11 @@ class PlasmaDataHandling:
         # add in the step function for the pulse
         total_time_on = pulse.duration_no_waiting
         total_time_pulse = pulse.total_duration
-
+        
         return periodic_pulse_function(
             t_rel,
             pulse=pulse,
+            quant='heat',
             value=heat_val,
             value_off=0,
         )
